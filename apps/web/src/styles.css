@@ -1,0 +1,4 @@
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; color: #243a32; background: #fff; font-family: 'Aptos', 'Segoe UI', Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+a:focus-visible { outline: 3px solid #d59c57; outline-offset: 3px; }
