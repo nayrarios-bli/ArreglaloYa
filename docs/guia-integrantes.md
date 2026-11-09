@@ -91,6 +91,8 @@ El reparto de historias, las dependencias y los acuerdos de integración están 
 4. Abran Pull Request hacia `main`, enlacen la Issue y pidan revisión.
 5. No incluyan `.env`, contraseñas, claves o archivos de `node_modules`/`dist`.
 
+El repositorio ejecuta automáticamente `npm ci` y `npm run build` al abrir un Pull Request hacia `main`. Esperen el check **Build / build** y resuelvan los errores antes de pedir integración. Las pruebas automatizadas no son un requisito obligatorio todavía.
+
 Si dos grupos necesitan el mismo endpoint o tabla, acuerden primero el contrato y avisen al resto. Las historias relacionadas con datos privados deben incluir controles de acceso en el backend, no solo ocultar datos en la interfaz.
 
 ## Qué falta para conectar la aplicación
