@@ -1,68 +1,90 @@
-<header class="topbar">
+<header class="site-header">
   <a class="brand" href="#inicio" aria-label="ArreglaloYa, inicio">
-    <span class="brand-mark">A</span>
-    <span>Arreglalo<span class="brand-accent">Ya</span></span>
+    <span class="brand-symbol" aria-hidden="true">a<span>.</span></span>
+    <span>arreglalo<span class="brand-accent">ya</span></span>
   </a>
+
   <nav class="main-nav" aria-label="Navegación principal">
     <a href="#servicios">Servicios</a>
-    <a href="#como-funciona">Cómo funciona</a>
-    <a href="#unete">Para trabajadores</a>
+    <a href="#proceso">Cómo funciona</a>
+    <a href="#trabajadores">Para trabajadores</a>
   </nav>
-  <div class="nav-actions">
-    <a class="login-link" href="#acceso">Iniciar sesión</a>
-    <a class="button button-small" href="#acceso">Crear cuenta</a>
-  </div>
+
+  <a class="header-link" href="#servicios">Encontrar un servicio <span aria-hidden="true">↗</span></a>
 </header>
 
 <main id="inicio">
-  <section class="hero">
+  <section class="hero" aria-labelledby="hero-title">
     <div class="hero-copy">
-      <span class="eyebrow"><span class="status-dot"></span> Servicios para tu hogar en Cochabamba</span>
-      <h1>Tu hogar en buenas manos, <span>sin complicarte.</span></h1>
-      <p class="hero-description">Encuentra trabajadores para las reparaciones que necesitas. Compara propuestas y coordina el servicio directamente.</p>
-      <div class="hero-actions">
-        <a class="button" href="#servicios">Encuentra un servicio <span aria-hidden="true">↗</span></a>
-        <a class="text-action" href="#unete">Ofrece tus servicios <span aria-hidden="true">→</span></a>
+      <p class="eyebrow"><span class="eyebrow-line"></span> Cochabamba · Bolivia</p>
+      <h1 id="hero-title">Tu casa pide una mano. <em>Encuéntrala.</em></h1>
+      <p class="hero-description">Conecta con trabajadores independientes para resolver esos arreglos que no pueden esperar.</p>
+      <a class="button button-dark" href="#servicios">Explorar servicios <span aria-hidden="true">↘</span></a>
+      <p class="hero-footnote"><span aria-hidden="true">✳</span> Describe lo que necesitas y compara las propuestas que recibas.</p>
+    </div>
+
+    <div class="hero-scene" aria-label="Ilustración de un hogar y un trabajador listo para ayudar">
+      <div class="scene-label"><span class="scene-label-dot"></span> Un arreglo a la vez</div>
+      <div class="scene-sun"></div>
+      <div class="scene-ground"></div>
+      <div class="scene-house">
+        <div class="house-roof"><span></span></div>
+        <div class="house-wall">
+          <div class="house-window"></div>
+          <div class="house-door"></div>
+        </div>
       </div>
-      <div class="hero-note"><span class="note-icon">✓</span> Revisa propuestas y elige con confianza</div>
+      <div class="worker-card">
+        <span class="worker-avatar" aria-hidden="true">✳</span>
+        <span><strong>¿Qué necesitas arreglar?</strong><small>Empieza por elegir un servicio</small></span>
+        <span class="worker-arrow" aria-hidden="true">↗</span>
+      </div>
     </div>
-    <div class="hero-art" aria-label="Ilustración de herramientas para el hogar">
-      <div class="art-orbit orbit-one"></div>
-      <div class="art-orbit orbit-two"></div>
-      <div class="art-sun"></div>
-      <div class="art-house"><div class="house-roof"></div><div class="house-body"><div class="house-window"></div><div class="house-door"></div></div></div>
-      <div class="floating-card card-top"><span class="card-icon icon-wrench">⌁</span><span><strong>Solución a tu medida</strong><small>Propuestas de profesionales</small></span><span class="card-check">✓</span></div>
-      <div class="floating-card card-bottom"><span class="avatar-stack"><i>✦</i><i>✓</i></span><span><strong>Todo empieza aquí</strong><small>Publica lo que necesitas</small></span></div>
-      <span class="sparkle sparkle-a">✳</span><span class="sparkle sparkle-b">✦</span>
-    </div>
+    <div class="hero-index" aria-hidden="true">01 <span></span> HOGAR, EN BUENAS MANOS</div>
   </section>
 
-  <section class="service-section" id="servicios">
+  <section class="services section-wrap" id="servicios" aria-labelledby="services-title">
+    <div class="section-topline"><span>01 / ENCUENTRA AYUDA</span><span>Servicios iniciales</span></div>
     <div class="section-heading">
-      <div><span class="section-kicker">¿Qué necesitas arreglar?</span><h2>Un buen comienzo para cada arreglo</h2></div>
-      <a class="view-all" href="#acceso">Ver todos los servicios <span aria-hidden="true">→</span></a>
+      <h2 id="services-title">¿Qué vamos a <em>arreglar?</em></h2>
+      <p>Elige una categoría para empezar a contar qué pasa en casa.</p>
     </div>
-    <div class="service-grid">
-      <a class="service-card plumbing" href="#acceso"><span class="service-icon">⌁</span><span class="service-name">Plomería</span><span class="service-caption">Tuberías, grifos y más</span><span class="service-arrow">↗</span></a>
-      <a class="service-card electric" href="#acceso"><span class="service-icon">ϟ</span><span class="service-name">Electricidad</span><span class="service-caption">Instalaciones y reparaciones</span><span class="service-arrow">↗</span></a>
-      <a class="service-card building" href="#acceso"><span class="service-icon">▧</span><span class="service-name">Albañilería</span><span class="service-caption">Mejoras para tu espacio</span><span class="service-arrow">↗</span></a>
-      <a class="service-card appliance" href="#acceso"><span class="service-icon">◉</span><span class="service-name">Electrodomésticos</span><span class="service-caption">Revisión y reparación</span><span class="service-arrow">↗</span></a>
+    <div class="service-list">
+      <a class="service-item" href="#proceso"><span class="service-no">01</span><span class="service-glyph plumbing-glyph" aria-hidden="true">⌁</span><span class="service-copy"><strong>Plomería</strong><small>Grifos, tuberías y fugas</small></span><span class="service-cta" aria-label="Ver proceso">↗</span></a>
+      <a class="service-item" href="#proceso"><span class="service-no">02</span><span class="service-glyph electric-glyph" aria-hidden="true">ϟ</span><span class="service-copy"><strong>Electricidad</strong><small>Instalaciones y reparaciones</small></span><span class="service-cta" aria-label="Ver proceso">↗</span></a>
+      <a class="service-item" href="#proceso"><span class="service-no">03</span><span class="service-glyph masonry-glyph" aria-hidden="true">▦</span><span class="service-copy"><strong>Albañilería</strong><small>Muros, pisos y acabados</small></span><span class="service-cta" aria-label="Ver proceso">↗</span></a>
+      <a class="service-item" href="#proceso"><span class="service-no">04</span><span class="service-glyph appliance-glyph" aria-hidden="true">◉</span><span class="service-copy"><strong>Electrodomésticos</strong><small>Revisión y reparación</small></span><span class="service-cta" aria-label="Ver proceso">↗</span></a>
+    </div>
+    <p class="section-note">¿No sabes cómo llamarlo? Describe el problema con tus propias palabras.</p>
+  </section>
+
+  <section class="process" id="proceso" aria-labelledby="process-title">
+    <div class="section-wrap process-inner">
+      <div class="process-heading">
+        <div class="section-topline"><span>02 / ASÍ EMPIEZA</span><span>Claro desde el primer paso</span></div>
+        <h2 id="process-title">De “algo se rompió”<br />a <em>“ya está resuelto”.</em></h2>
+        <p>Un proceso sencillo para que encuentres opciones y elijas con tranquilidad.</p>
+      </div>
+      <div class="steps">
+        <article class="step"><span class="step-mark">A</span><div><h3>Cuéntanos qué ocurre</h3><p>Describe el arreglo y comparte los detalles que ayuden a entenderlo.</p></div></article>
+        <article class="step"><span class="step-mark">B</span><div><h3>Compara propuestas</h3><p>Revisa las opciones que te envíen los trabajadores interesados.</p></div></article>
+        <article class="step"><span class="step-mark">C</span><div><h3>Coordina directamente</h3><p>Elige la propuesta que te convenga y acuerda cómo continuar.</p></div></article>
+      </div>
     </div>
   </section>
 
-  <section class="how-section" id="como-funciona">
-    <div class="how-intro"><span class="section-kicker">Simple desde el primer paso</span><h2>Así de fácil es empezar</h2><p>Cuéntanos qué necesitas y encuentra opciones para resolverlo.</p></div>
-    <div class="steps">
-      <article class="step"><span class="step-number">01</span><h3>Cuéntanos qué pasó</h3><p>Describe el arreglo, comparte una foto si quieres y dinos cuándo te viene bien.</p></article>
-      <article class="step"><span class="step-number">02</span><h3>Revisa las propuestas</h3><p>Los trabajadores compatibles podrán enviarte sus ofertas para que las compares.</p></article>
-      <article class="step"><span class="step-number">03</span><h3>Elige y coordina</h3><p>Selecciona la opción que prefieras y acuerda los detalles del servicio.</p></article>
+  <section class="worker-section section-wrap" id="trabajadores" aria-labelledby="worker-title">
+    <div class="worker-callout">
+      <div class="worker-callout-mark" aria-hidden="true">↗</div>
+      <div class="worker-callout-copy"><p class="eyebrow">¿Trabajas por tu cuenta?</p><h2 id="worker-title">Que más hogares <em>conozcan tu trabajo.</em></h2><p>Comparte tus especialidades y zonas de atención para conectar con nuevas solicitudes.</p></div>
+      <a class="button button-light" href="#proceso">Ver cómo funciona <span aria-hidden="true">↗</span></a>
     </div>
-  </section>
-
-  <section class="join-banner" id="unete">
-    <div class="join-mark">✳</div><div><span class="section-kicker">¿Eres trabajador?</span><h2>Haz que tu trabajo llegue a más hogares.</h2><p>Registra tus especialidades y zonas de atención para conectar con nuevas solicitudes.</p></div><a class="button button-light" href="#acceso">Quiero ofrecer mis servicios <span aria-hidden="true">→</span></a>
   </section>
 </main>
 
-<footer id="acceso"><a class="brand footer-brand" href="#inicio"><span class="brand-mark">A</span><span>Arreglalo<span class="brand-accent">Ya</span></span></a><span>Conectando hogares y trabajadores en Cochabamba.</span><span>© 2026 ArreglaloYa</span></footer>
+<footer class="site-footer">
+  <a class="brand footer-brand" href="#inicio"><span class="brand-symbol" aria-hidden="true">a<span>.</span></span><span>arreglalo<span class="brand-accent">ya</span></span></a>
+  <p>Conectando hogares y trabajadores en Cochabamba.</p>
+  <span class="footer-copy">© 2026 ARREGLALOYA</span>
+</footer>
 <router-outlet />
