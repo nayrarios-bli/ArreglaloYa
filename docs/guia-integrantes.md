@@ -51,33 +51,9 @@ NestJS inicia en el puerto `3000`. Por ahora es solo el esqueleto de NestJS: el 
 
 ### Migración inicial y Row Level Security
 
-La migración local está en `supabase/migrations/202611040001_initial_schema.sql`. Define el primer esquema, pero el archivo **no contiene instrucciones `ENABLE ROW LEVEL SECURITY` ni políticas**. La advertencia que aparece en Supabase debe tomarse en serio: antes de dejar datos reales, activen RLS en todas las tablas de `public` y diseñen las políticas de acceso.
+La migración inicial está en `supabase/migrations/202611040001_initial_schema.sql`; como no habilita RLS, se agregó `supabase/migrations/202611130001_enable_rls.sql`. Esta segunda migración aún debe revisarse y aplicarse en Supabase. El backend usa una clave secreta que omite RLS, así que cada endpoint debe comprobar la sesión, el rol y la propiedad del registro. Si en el futuro Angular accede a tablas directamente, habrá que diseñar políticas RLS para ese acceso.
 
-Si el SQL ya se ejecutó, revisen en **Table Editor** que RLS esté activado para cada tabla creada. Si alguna tabla no lo tiene, actívenlo desde la tabla o ejecuten este bloque en SQL Editor:
-
-```sql
-alter table public.profiles enable row level security;
-alter table public.service_zones enable row level security;
-alter table public.categories enable row level security;
-alter table public.client_profiles enable row level security;
-alter table public.worker_profiles enable row level security;
-alter table public.worker_categories enable row level security;
-alter table public.worker_zones enable row level security;
-alter table public.worker_availability enable row level security;
-alter table public.repair_requests enable row level security;
-alter table public.request_attachments enable row level security;
-alter table public.offers enable row level security;
-alter table public.services enable row level security;
-alter table public.service_quotes enable row level security;
-alter table public.price_change_requests enable row level security;
-alter table public.service_cancellations enable row level security;
-alter table public.payment_confirmations enable row level security;
-alter table public.reviews enable row level security;
-alter table public.complaints enable row level security;
-alter table public.service_events enable row level security;
-```
-
-RLS activado sin políticas bloquea el acceso a través de la Data API a los roles `anon` y `authenticated`. Eso es una protección inicial, pero la aplicación no podrá consultar tablas hasta que se acuerden y añadan políticas. No desactiven RLS para “arreglar” errores; revisen permisos y políticas. La cuenta propietaria puede seguir viendo tablas en SQL Editor.
+Si la migración inicial ya se ejecutó, apliquen solo `202611130001_enable_rls.sql` desde Supabase SQL Editor después de revisarla; no vuelvan a ejecutar el esquema inicial. RLS sin políticas bloquea el acceso directo de `anon` y `authenticated`. Los endpoints de NestJS usan la clave secreta del servidor y deben validar sesión, rol y propiedad del registro. No desactiven RLS para resolver errores.
 
 La base compartida debe cambiarse mediante migraciones versionadas en `supabase/migrations/`. Antes de modificar el esquema, coordinen en una Issue y no editen una migración que otra persona ya aplicó; creen una migración nueva para cambios posteriores. No apliquen la migración inicial más de una vez si ya existen las tablas.
 
@@ -97,4 +73,4 @@ Si dos grupos necesitan el mismo endpoint o tabla, acuerden primero el contrato 
 
 ## Qué falta para conectar la aplicación
 
-El equipo debe definir el modelo de autorización y las políticas RLS; implementar en NestJS la configuración de `DATABASE_URL`, el acceso PostgreSQL, migraciones y módulos; y acordar qué datos y endpoints necesita cada historia. Hasta entonces, ejecuten la portada con `npm run dev:web` y traten la conexión Supabase como trabajo pendiente.
+La API NestJS usa `@supabase/supabase-js`; cada integrante debe completar `SUPABASE_URL` y `SUPABASE_SECRET_KEY` en su `apps/api/.env` local. La clave secreta nunca se comparte en GitHub y no se usa desde Angular. El proyecto guarda cambios de esquema como migraciones SQL versionadas en `supabase/migrations/`; no se usa TypeORM. HU-F01 tiene endpoints iniciales en NestJS; falta integrarlos con Angular y la sesión de HU-F16. HU-F02 sigue pendiente y se implementará aparte.
