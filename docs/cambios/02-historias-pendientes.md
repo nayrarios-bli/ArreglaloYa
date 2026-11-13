@@ -6,9 +6,9 @@ Este listado resume las 25 historias funcionales del documento de requerimientos
 
 - **HU-F19 — contenido público implementado:** la portada muestra información y categorías sin iniciar sesión y no consulta datos personales. El aviso para funciones protegidas se integrará junto con el flujo de sesión de HU-F16.
 - **HU-F01 — formulario visible en Angular; publicación pendiente:** la API crea solicitudes y ya puede subir imágenes al bucket privado y devolver enlaces temporales. El formulario aún no completa el envío, porque falta integrar la sesión de HU-F16 y encadenar publicación y carga desde la pantalla.
-- **HU-F02 — backend iniciado:** la API tiene la consulta de solicitudes compatibles. Falta la pantalla Angular y la integración con el inicio de sesión de HU-F16.
+- **HU-F02 — pendiente:** no forma parte de esta rama; se trabajará aparte después de HU-F01.
 - **HU-F13 y HU-F24**, además de las historias de los grupos 1, 3, 4 y 5, siguen pendientes de implementación.
-- **Resumen del Grupo 2:** HU-F01 tiene pantalla y API inicial, pero aún no publica; HU-F02 tiene el backend iniciado; HU-F19 está implementada en la portada; HU-F13 y HU-F24 siguen pendientes.
+- **Resumen del Grupo 2:** HU-F01 tiene pantalla y API inicial, pero falta integrar sesión y envío; HU-F02, HU-F13 y HU-F24 siguen pendientes; HU-F19 está implementada en la portada.
 - Los requisitos de calidad transversales (compatibilidad, rendimiento, seguridad, trazabilidad y usabilidad) aplican a las historias; no son cinco HUs funcionales adicionales.
 
 ## Grupo 1 — Cuentas y perfiles
@@ -21,8 +21,8 @@ Este listado resume las 25 historias funcionales del documento de requerimientos
 
 ## Grupo 2 — Catálogo y solicitudes
 
-- [ ] **HU-F01:** Cliente publica una solicitud con descripción, fotos opcionales y horarios. **Pantalla y backend iniciales; guardado, sesión y Storage pendientes**; ver `03-hu01-hu02-api.md`.
-- [ ] **HU-F02:** Trabajador consulta solicitudes compatibles con especialidad y zona. **Backend iniciado**; ver `03-hu01-hu02-api.md`.
+- [ ] **HU-F01:** Cliente publica una solicitud con descripción, fotos opcionales y horarios. **Pantalla y API preparadas; integración con la sesión pendiente**; ver `03-hu01-publicacion.md`.
+- [ ] **HU-F02:** Trabajador consulta solicitudes compatibles con especialidad y zona. **Pendiente; no está implementada en esta rama.**
 - [ ] **HU-F13:** Administración mantiene categorías y zonas de atención.
 - [x] **HU-F19:** Visitante consulta información pública y servicios. Queda integrar el aviso al agregar funciones protegidas mediante HU-F16.
 - [ ] **HU-F24:** Solicitud sin ofertas gana prioridad y vence según el plazo que confirme el equipo.
@@ -62,4 +62,4 @@ Este listado resume las 25 historias funcionales del documento de requerimientos
 
 ## Criterio para marcar una HU como terminada
 
-Vincular su Issue y PR, cumplir los criterios de aceptación, cubrir estados vacíos y errores, proteger los datos privados en NestJS y añadir una migración SQL cuando cambie el esquema. HU-F01 y HU-F02 no se consideran terminadas hasta integrar las pantallas con una sesión válida definida por HU-F16.
+Vincular su Issue y PR, cumplir los criterios de aceptación, cubrir estados vacíos y errores, proteger los datos privados en NestJS y añadir una migración SQL cuando cambie el esquema. HU-F01 no se considera terminada hasta integrar el formulario con una sesión válida de HU-F16 y completar el envío desde la aplicación.

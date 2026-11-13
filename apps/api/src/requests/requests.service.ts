@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   InternalServerErrorException,
   NotFoundException,
@@ -151,49 +150,6 @@ export class RequestsService {
       signedUrl: signedUrl.signedUrl,
       signedUrlExpiresInSeconds: SIGNED_URL_TTL_SECONDS,
     };
-  }
-
-  async findCompatible(workerId: string) {
-    const client = this.supabase.client;
-    const { data: worker, error: workerError } = await client
-      .from('worker_profiles')
-      .select('review_status')
-      .eq('user_id', workerId)
-      .maybeSingle();
-
-    if (workerError) this.fail('No se pudo consultar el perfil del trabajador.');
-    if (!worker || worker.review_status !== 'approved') {
-      throw new ForbiddenException(
-        'Solo los trabajadores aprobados pueden consultar solicitudes.',
-      );
-    }
-
-    const [{ data: categories, error: categoriesError }, { data: zones, error: zonesError }] =
-      await Promise.all([
-        client.from('worker_categories').select('category_id').eq('worker_id', workerId),
-        client.from('worker_zones').select('zone_id').eq('worker_id', workerId),
-      ]);
-
-    if (categoriesError || zonesError) {
-      this.fail('No se pudieron consultar las especialidades y zonas.');
-    }
-
-    const categoryIds = (categories ?? []).map((item) => item.category_id);
-    const zoneIds = (zones ?? []).map((item) => item.zone_id);
-    if (!categoryIds.length || !zoneIds.length) return [];
-
-    const { data, error } = await client
-      .from('repair_requests')
-      .select(
-        'id, title, description, category:categories(name), zone:service_zones(name), available_from, available_until, created_at',
-      )
-      .eq('status', 'open')
-      .in('category_id', categoryIds)
-      .in('zone_id', zoneIds)
-      .order('created_at', { ascending: true });
-
-    if (error) this.fail('No se pudieron consultar las solicitudes compatibles.');
-    return data ?? [];
   }
 
   private fail(message: string): never {

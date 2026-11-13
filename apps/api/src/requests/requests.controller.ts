@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -43,11 +42,6 @@ export class RequestsController {
     return this.requests.addAttachment(request.user.id, requestId, file);
   }
 
-  @Get('compatible')
-  @Roles('worker')
-  findCompatible(@Req() request: AuthenticatedRequest) {
-    return this.requests.findCompatible(request.user.id);
-  }
 }
 
 interface UploadedImage {

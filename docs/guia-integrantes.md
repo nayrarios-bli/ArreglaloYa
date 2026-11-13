@@ -73,4 +73,4 @@ Si dos grupos necesitan el mismo endpoint o tabla, acuerden primero el contrato 
 
 ## Qué falta para conectar la aplicación
 
-La API NestJS usa `@supabase/supabase-js`; cada integrante debe completar `SUPABASE_URL` y `SUPABASE_SECRET_KEY` en su `apps/api/.env` local. La clave secreta nunca se comparte en GitHub y no se usa desde Angular. El proyecto guarda cambios de esquema como migraciones SQL versionadas en `supabase/migrations/`; no se usa TypeORM. HU-F01 y HU-F02 ya tienen endpoints iniciales en NestJS, mientras su integración con Angular y las sesiones de HU-F16 sigue pendiente.
+La API NestJS usa `@supabase/supabase-js`; cada integrante debe completar `SUPABASE_URL` y `SUPABASE_SECRET_KEY` en su `apps/api/.env` local. La clave secreta nunca se comparte en GitHub y no se usa desde Angular. El proyecto guarda cambios de esquema como migraciones SQL versionadas en `supabase/migrations/`; no se usa TypeORM. HU-F01 tiene endpoints iniciales en NestJS; falta integrarlos con Angular y la sesión de HU-F16. HU-F02 sigue pendiente y se implementará aparte.

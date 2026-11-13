@@ -17,17 +17,4 @@ export class CatalogService {
     }
     return data ?? [];
   }
-
-  async findZones() {
-    const { data, error } = await this.supabase.client
-      .from('service_zones')
-      .select('id, name, city')
-      .eq('is_active', true)
-      .order('name');
-
-    if (error) {
-      throw new InternalServerErrorException('No se pudieron consultar las zonas.');
-    }
-    return data ?? [];
-  }
 }
