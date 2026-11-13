@@ -1,0 +1,82 @@
+<header class="request-header">
+  <a class="brand" routerLink="/" aria-label="ArreglaloYa, volver al inicio">
+    <span class="brand-symbol" aria-hidden="true">a<span>.</span></span>
+    <span>arreglalo<span class="brand-accent">ya</span></span>
+  </a>
+  <a class="back-link" routerLink="/">← Volver al inicio</a>
+</header>
+
+<main class="request-layout">
+  <section class="request-intro" aria-labelledby="request-title">
+    <p class="eyebrow"><span class="eyebrow-line"></span> GRUPO 2 · HU-F01</p>
+    <h1 id="request-title">Cuéntanos qué pasa <em>en casa.</em></h1>
+    <p class="intro-copy">Describe el arreglo y revisaremos tu solicitud para mostrarla a trabajadores de la categoría y zona correspondientes.</p>
+    <div class="privacy-note"><span aria-hidden="true">◇</span><p>Por ahora solo pedimos tu zona de perfil. Tu dirección exacta no se publica con la solicitud.</p></div>
+  </section>
+
+  <form class="request-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
+    <div class="form-heading"><span>01 / DETALLES DEL ARREGLO</span><span>Los campos con * son obligatorios</span></div>
+
+    @if (catalogUnavailable()) {
+      <div class="catalog-notice" role="status">{{ feedback() }}</div>
+    }
+
+    <label class="field-label" for="category">Categoría <span>*</span></label>
+    <select id="category" formControlName="categoryId" [attr.aria-invalid]="form.controls.categoryId.touched && form.controls.categoryId.invalid">
+      <option value="" disabled>Selecciona el tipo de arreglo</option>
+      @for (category of categories(); track category.id) {
+        <option [value]="category.id">{{ category.name }}</option>
+      }
+    </select>
+    @if (form.controls.categoryId.touched && form.controls.categoryId.hasError('required')) {
+      <small class="field-error">Selecciona una categoría.</small>
+    }
+
+    <label class="field-label" for="title">Título breve <span>*</span></label>
+    <input id="title" type="text" formControlName="title" maxlength="120" placeholder="Ej. El grifo de la cocina pierde agua" [attr.aria-invalid]="form.controls.title.touched && form.controls.title.invalid" />
+    @if (form.controls.title.touched && form.controls.title.hasError('minlength')) {
+      <small class="field-error">Escribe al menos 5 caracteres.</small>
+    }
+    @if (form.controls.title.touched && form.controls.title.hasError('required')) {
+      <small class="field-error">El título es obligatorio.</small>
+    }
+
+    <label class="field-label" for="description">Describe el problema <span>*</span></label>
+    <textarea id="description" formControlName="description" rows="5" maxlength="3000" placeholder="¿Qué ocurre? ¿Desde cuándo? Incluye los detalles que ayudarían a entender el arreglo." [attr.aria-invalid]="form.controls.description.touched && form.controls.description.invalid"></textarea>
+    <div class="field-meta"><span>Evita escribir datos personales en la descripción.</span><span>{{ form.controls.description.value.length }}/3000</span></div>
+    @if (form.controls.description.touched && form.controls.description.hasError('minlength')) {
+      <small class="field-error">Añade al menos 20 caracteres para explicar el problema.</small>
+    }
+    @if (form.controls.description.touched && form.controls.description.hasError('required')) {
+      <small class="field-error">La descripción es obligatoria.</small>
+    }
+
+    <div class="field-label photo-label">Fotos <span class="optional">OPCIONAL</span></div>
+    <label class="upload-box" for="photos">
+      <span class="upload-icon" aria-hidden="true">＋</span>
+      <span><strong>Selecciona imágenes de referencia</strong><small>JPG, PNG o WebP · máximo 10 MB cada una</small></span>
+      <input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="onPhotosSelected($event)" />
+    </label>
+    @if (selectedPhotoNames().length) {
+      <ul class="photo-list" aria-label="Fotos seleccionadas">
+        @for (name of selectedPhotoNames(); track name) { <li>{{ name }}</li> }
+      </ul>
+    }
+
+    <div class="form-heading schedule-heading"><span>02 / ¿CUÁNDO TE VIENE BIEN?</span><span>Opcional</span></div>
+    <p class="schedule-copy">Puedes indicar un rango de disponibilidad. La zona se tomará de tu perfil de cliente.</p>
+    <div class="date-grid">
+      <div><label class="field-label" for="availableFrom">Desde</label><input id="availableFrom" type="datetime-local" formControlName="availableFrom" /></div>
+      <div><label class="field-label" for="availableUntil">Hasta</label><input id="availableUntil" type="datetime-local" formControlName="availableUntil" /></div>
+    </div>
+    @if (form.hasError('invalidAvailabilityRange') && (form.controls.availableFrom.touched || form.controls.availableUntil.touched)) {
+      <small class="field-error">La fecha “Hasta” debe ser posterior a “Desde”.</small>
+    }
+
+    @if (feedback() && !catalogUnavailable()) {
+      <p class="submit-feedback" [class.error-feedback]="feedbackType() === 'error'" role="status">{{ feedback() }}</p>
+    }
+    <button class="submit-button" type="submit">Continuar con mi solicitud <span aria-hidden="true">→</span></button>
+    <p class="form-footnote">Al continuar, todavía no se publica nada: primero se validará tu sesión y después se guardará la solicitud.</p>
+  </form>
+</main>
