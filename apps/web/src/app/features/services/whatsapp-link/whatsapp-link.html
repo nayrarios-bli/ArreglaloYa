@@ -1,0 +1,5 @@
+@if (url(); as link) {
+  <a [href]="link" target="_blank" rel="noopener noreferrer">Contactar por WhatsApp</a>
+} @else {
+  <p>No es posible redirigir a WhatsApp: no hay un número registrado.</p>
+}
