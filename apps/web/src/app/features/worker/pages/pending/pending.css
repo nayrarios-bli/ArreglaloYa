@@ -1,0 +1,29 @@
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  background: #f5f7fa;
+}
+
+.card {
+  max-width: 600px;
+  width: 100%;
+  padding: 40px;
+  text-align: center;
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+  color: #1f3b5b;
+  margin-bottom: 16px;
+}
+
+p {
+  color: #555;
+  line-height: 1.6;
+}

@@ -1,0 +1,139 @@
+
+:host {
+  display: block;
+  min-height: 100vh;
+  background: #f5f8f3;
+  font-family: Arial, sans-serif;
+}
+
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 35px 20px;
+}
+
+.register-card {
+  width: 100%;
+  max-width: 460px;
+  padding: 38px;
+  border: 1px solid #edf0eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 12px 35px #293f3110;
+}
+
+.register-card h1 {
+  margin: 0 0 10px;
+  color: #19372e;
+  font-size: 28px;
+  text-align: center;
+}
+
+.register-card > p {
+  margin-bottom: 28px;
+  color: #77847c;
+  font-size: 14px;
+  text-align: center;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 19px;
+}
+
+.form-group label {
+  color: #294139;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.form-group input,
+.form-group select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 13px;
+  border: 1px solid #dfe6df;
+  border-radius: 7px;
+  outline: none;
+  color: #294139;
+  background: #ffffff;
+  font-size: 13px;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: #28795f;
+  box-shadow: 0 0 0 3px #28795f18;
+}
+
+.form-group input::placeholder {
+  color: #a0aaa3;
+}
+
+button[type="submit"] {
+  width: 100%;
+  margin-top: 8px;
+  padding: 14px;
+  border: none;
+  border-radius: 7px;
+  color: white;
+  background: #28795f;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover:not(:disabled) {
+  background: #1f684f;
+}
+
+button[type="submit"]:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.register-card .login-text {
+  margin: 24px 0 0;
+  color: #77847c;
+  font-size: 13px;
+  text-align: center;
+}
+
+.login-text a {
+  color: #28795f;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.login-text a:hover {
+  text-decoration: underline;
+}
+
+.success-message,
+.register-card .success-message {
+  color: #28795f;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 18px;
+  line-height: 1.5;
+}
+
+.error-message,
+.register-card .error-message {
+  color: #c0392b;
+  font-size: 13px;
+  text-align: center;
+  margin-top: 18px;
+  line-height: 1.5;
+}
+
+@media (max-width: 500px) {
+  .register-card {
+    padding: 27px 21px;
+  }
+}
