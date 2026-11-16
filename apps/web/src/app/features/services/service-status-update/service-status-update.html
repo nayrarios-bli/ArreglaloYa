@@ -1,0 +1,17 @@
+<h2>Estado del servicio</h2>
+<p>Estado actual: <strong>{{ labels[status()] }}</strong></p>
+
+@switch (status()) {
+  @case ('scheduled') {
+    <button type="button" (click)="startService()">Iniciar servicio</button>
+  }
+  @case ('in_progress') {
+    <button type="button" (click)="finishService()">Registrar finalización</button>
+  }
+  @case ('completed') {
+    <p>Servicio finalizado el {{ finishedAt() }}. Ya se puede calificar y registrar reclamos.</p>
+  }
+  @case ('cancelled') {
+    <p>Este servicio fue cancelado.</p>
+  }
+}
