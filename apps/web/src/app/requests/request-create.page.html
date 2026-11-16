@@ -91,7 +91,7 @@
       <p class="submit-feedback" [class.error-feedback]="feedbackType() === 'error'" role="status">{{ feedback() }}</p>
     }
     <button class="submit-button" type="submit" [disabled]="isSubmitting() || published()">
-      {{ isSubmitting() ? 'Publicando…' : createdRequestId() ? 'Reintentar fotos pendientes' : 'Publicar solicitud' }}
+      {{ isSubmitting() ? 'Publicando…' : published() ? 'Solicitud publicada' : createdRequestId() ? 'Reintentar fotos pendientes' : 'Publicar solicitud' }}
       <span aria-hidden="true">→</span>
     </button>
     @if (published()) {

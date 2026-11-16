@@ -23,7 +23,25 @@ export class Login {
     private readonly authService: AuthService,
     private readonly router: Router,
     private readonly route: ActivatedRoute,
-  ) {}
+  ) {
+    if (
+      this.route.snapshot.queryParamMap.get('registered') ===
+      'confirmation-required'
+    ) {
+      this.successMessage.set(
+        'Cuenta creada. Confirma el correo que te enviamos y luego inicia sesión.',
+      );
+    }
+
+    const emailError = new URLSearchParams(
+      this.route.snapshot.fragment ?? '',
+    ).get('error_code');
+    if (emailError === 'otp_expired') {
+      this.errorMessage.set(
+        'El enlace de verificación venció o ya fue usado. Pide que te envíen uno nuevo y abre solo el enlace más reciente.',
+      );
+    }
+  }
 
   login(): void {
     this.successMessage.set('');
@@ -54,7 +72,7 @@ export class Login {
           }
 
           if (user.role === 'client') {
-            this.router.navigate(['/cliente']);
+            this.router.navigate(['/']);
             return;
           }
 
