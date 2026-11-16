@@ -1,0 +1,8 @@
+<h2>Mis servicios</h2>
+<ul>
+  @for (s of services; track s.id) {
+    <li>{{ s.title }} — <strong>{{ labels[s.status] }}</strong></li>
+  } @empty {
+    <li>Aún no tienes solicitudes ni servicios.</li>
+  }
+</ul>
