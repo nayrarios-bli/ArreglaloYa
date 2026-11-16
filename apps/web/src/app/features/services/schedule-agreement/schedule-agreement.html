@@ -1,0 +1,24 @@
+<h2>Horario del servicio</h2>
+<p>Coordina el horario por WhatsApp y regístralo aquí.</p>
+
+@if (agreed(); as slot) {
+  <p>
+    Horario acordado: del {{ formatSlot(slot.start) }} al {{ formatSlot(slot.end) }}.
+  </p>
+} @else {
+  <label>
+    Inicio
+    <input #startInput type="datetime-local" (input)="start.set(startInput.value)" />
+  </label>
+
+  <label>
+    Fin
+    <input #endInput type="datetime-local" (input)="end.set(endInput.value)" />
+  </label>
+
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+
+  <button type="button" (click)="confirmSchedule()">Confirmar horario</button>
+}
