@@ -1,11 +1,11 @@
 import { Module } from '@nestjs/common';
-import { RolesGuard } from '../auth/roles.guard.js';
-import { SupabaseAuthGuard } from '../auth/supabase-auth.guard.js';
+import { AuthModule } from '../modules/auth/auth.module.js';
 import { RequestsController } from './requests.controller.js';
 import { RequestsService } from './requests.service.js';
 
 @Module({
+  imports: [AuthModule],
   controllers: [RequestsController],
-  providers: [RequestsService, SupabaseAuthGuard, RolesGuard],
+  providers: [RequestsService],
 })
 export class RequestsModule {}

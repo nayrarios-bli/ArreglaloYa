@@ -5,6 +5,7 @@ import { API_URL } from '../core/api-url.js';
 
 export interface CreateRequestPayload {
   categoryId: string;
+  zoneId: string;
   title: string;
   description: string;
   availableFrom?: string;
@@ -31,6 +32,13 @@ export interface UploadedRequestAttachment {
 @Injectable({ providedIn: 'root' })
 export class RequestsApiService {
   private readonly http = inject(HttpClient);
+
+  getClientZone(accessToken: string): Observable<{ homeZoneId: string | null }> {
+    return this.http.get<{ homeZoneId: string | null }>(
+      `${API_URL}/requests/profile-zone`,
+      { headers: new HttpHeaders({ Authorization: `Bearer ${accessToken}` }) },
+    );
+  }
 
   createRequest(
     payload: CreateRequestPayload,

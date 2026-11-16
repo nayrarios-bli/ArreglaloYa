@@ -1,13 +1,73 @@
 import { Routes } from '@angular/router';
-import { HomePage } from './home-page.js';
-import { RequestCreatePage } from './requests/request-create.page.js';
+import { authGuard } from './core/auth.guard';
+import { roleGuard } from './core/role.guard';
+import { workerStatusGuard } from './core/worker-status.guard';
 
 export const routes: Routes = [
-  { path: '', component: HomePage, title: 'ArreglaloYa | Reparaciones en Cochabamba' },
+  {
+    path: '',
+    loadComponent: () =>
+      import('./features/home/home').then((module) => module.Home),
+  },
+  {
+    path: 'registro',
+    loadComponent: () =>
+      import('./features/auth/pages/register/register').then(
+        (module) => module.Register,
+      ),
+  },
+  {
+    path: 'login',
+    loadComponent: () =>
+      import('./features/auth/pages/login/login').then(
+        (module) => module.Login,
+      ),
+  },
   {
     path: 'solicitudes/nueva',
-    component: RequestCreatePage,
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'client' },
+    loadComponent: () =>
+      import('./requests/request-create.page.js').then(
+        (module) => module.RequestCreatePage,
+      ),
     title: 'Publicar solicitud | ArreglaloYa',
+  },
+  {
+    path: 'cliente',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'client' },
+    loadComponent: () =>
+      import('./features/client/pages/dashboard/dashboard').then(
+        (module) => module.ClientDashboard,
+      ),
+  },
+  {
+    path: 'trabajador',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'approved' },
+    loadComponent: () =>
+      import('./features/worker/pages/dashboard/dashboard').then(
+        (module) => module.WorkerDashboard,
+      ),
+  },
+  {
+    path: 'trabajador/pendiente',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'pending' },
+    loadComponent: () =>
+      import('./features/worker/pages/pending/pending').then(
+        (module) => module.WorkerPending,
+      ),
+  },
+  {
+    path: 'trabajador/rechazado',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'rejected' },
+    loadComponent: () =>
+      import('./features/worker/pages/rejected/rejected').then(
+        (module) => module.WorkerRejected,
+      ),
   },
   { path: '**', redirectTo: '' },
 ];

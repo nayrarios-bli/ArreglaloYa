@@ -10,7 +10,11 @@
     <a href="#trabajadores">Para trabajadores</a>
   </nav>
 
-  <a class="header-link" routerLink="/solicitudes/nueva">Publicar solicitud <span aria-hidden="true">↗</span></a>
+  <div class="header-actions">
+    <a class="header-link header-publish" routerLink="/solicitudes/nueva">Publicar solicitud</a>
+    <a class="header-link" routerLink="/login">Iniciar sesión</a>
+    <a class="header-register" routerLink="/registro">Crear cuenta</a>
+  </div>
 </header>
 
 <main id="inicio">
@@ -43,6 +47,7 @@
         <span class="worker-arrow" aria-hidden="true">↗</span>
       </div>
     </div>
+    <div class="hero-index" aria-hidden="true">01 <span></span> HOGAR, EN BUENAS MANOS</div>
   </section>
 
   <section class="services section-wrap" id="servicios" aria-labelledby="services-title">

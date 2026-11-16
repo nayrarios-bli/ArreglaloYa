@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Get,
   Param,
   ParseUUIDPipe,
   Post,
@@ -10,16 +11,28 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { Roles } from '../auth/roles.decorator.js';
-import { RolesGuard } from '../auth/roles.guard.js';
-import type { AuthenticatedRequest } from '../auth/auth.types.js';
-import { SupabaseAuthGuard } from '../auth/supabase-auth.guard.js';
+import type { Request } from 'express';
+import { Roles } from '../modules/auth/decorators/roles.decorator.js';
+import { RolesGuard } from '../modules/auth/guards/roles.guard.js';
+import { SupabaseAuthGuard } from '../modules/auth/guards/supabase-auth.guard.js';
 import { RequestsService } from './requests.service.js';
+
+interface AuthenticatedRequest extends Request {
+  user: {
+    id: string;
+  };
+}
 
 @Controller('requests')
 @UseGuards(SupabaseAuthGuard, RolesGuard)
 export class RequestsController {
   constructor(private readonly requests: RequestsService) {}
+
+  @Get('profile-zone')
+  @Roles('client')
+  getProfileZone(@Req() request: AuthenticatedRequest) {
+    return this.requests.getClientZone(request.user.id);
+  }
 
   @Post()
   @Roles('client')

@@ -27,7 +27,7 @@ Cada función del backend se desarrolla dentro de su propio módulo NestJS. Cuan
 
 1. Instalar Node.js y npm compatibles con las versiones indicadas en los `package.json` generados por Angular y NestJS.
 2. Ejecutar `npm install` en la raíz.
-3. Copiar `apps/api/.env.example` a `apps/api/.env` y completar `SUPABASE_URL` y `SUPABASE_SECRET_KEY` con los valores de tu proyecto.
+3. Copiar `apps/api/.env.example` a `apps/api/.env` y completar `SUPABASE_URL`, `SUPABASE_SECRET_KEY` y `SUPABASE_PUBLISHABLE_KEY` con los valores de tu proyecto. La clave secreta se configura solo en la API.
 4. Ejecutar `npm run dev:api` y `npm run dev:web` en dos terminales. La API usa el puerto 3000 y Angular el 4200.
 
 La clave secreta de Supabase pertenece solo al backend y nunca debe incluirse en Angular ni en Git. El archivo `.env` queda ignorado. PostgreSQL está alojado en Supabase y el esquema se mantiene mediante migraciones SQL en `supabase/migrations/`; no se usa TypeORM.

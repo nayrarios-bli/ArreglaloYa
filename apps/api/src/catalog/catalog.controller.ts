@@ -9,4 +9,9 @@ export class CatalogController {
   findCategories() {
     return this.catalog.findCategories();
   }
+
+  @Get('zones')
+  findZones() {
+    return this.catalog.findZones();
+  }
 }

@@ -11,14 +11,28 @@
     <p class="eyebrow"><span class="eyebrow-line"></span> GRUPO 2 · HU-F01</p>
     <h1 id="request-title">Cuéntanos qué pasa <em>en casa.</em></h1>
     <p class="intro-copy">Describe el arreglo y revisaremos tu solicitud para mostrarla a trabajadores de la categoría y zona correspondientes.</p>
-    <div class="privacy-note"><span aria-hidden="true">◇</span><p>Por ahora solo pedimos tu zona de perfil. Tu dirección exacta no se publica con la solicitud.</p></div>
+    <div class="privacy-note"><span aria-hidden="true">◇</span><p>La zona que elijas se guardará en tu perfil y ayudará a encontrar trabajadores cercanos. Tu dirección exacta no se publica con la solicitud.</p></div>
   </section>
 
   <form class="request-form" [formGroup]="form" (ngSubmit)="submit()" novalidate>
     <div class="form-heading"><span>01 / DETALLES DEL ARREGLO</span><span>Los campos con * son obligatorios</span></div>
 
     @if (catalogUnavailable()) {
-      <div class="catalog-notice" role="status">{{ feedback() }}</div>
+      <div class="catalog-notice" role="status">No se pudieron cargar las categorías activas.</div>
+    }
+    @if (zonesUnavailable()) {
+      <div class="catalog-notice" role="status">No se pudieron cargar las zonas activas.</div>
+    }
+
+    <label class="field-label" for="zone">Zona de atención <span>*</span></label>
+    <select id="zone" formControlName="zoneId" [attr.aria-invalid]="form.controls.zoneId.touched && form.controls.zoneId.invalid">
+      <option value="" disabled>Selecciona tu zona</option>
+      @for (zone of zones(); track zone.id) {
+        <option [value]="zone.id">{{ zone.name }} · {{ zone.city }}</option>
+      }
+    </select>
+    @if (form.controls.zoneId.touched && form.controls.zoneId.hasError('required')) {
+      <small class="field-error">Selecciona una zona de atención.</small>
     }
 
     <label class="field-label" for="category">Categoría <span>*</span></label>
@@ -55,7 +69,7 @@
     <label class="upload-box" for="photos">
       <span class="upload-icon" aria-hidden="true">＋</span>
       <span><strong>Selecciona imágenes de referencia</strong><small>JPG, PNG o WebP · máximo 10 MB cada una</small></span>
-      <input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple (change)="onPhotosSelected($event)" />
+      <input id="photos" type="file" accept="image/jpeg,image/png,image/webp" multiple [disabled]="!!createdRequestId()" (change)="onPhotosSelected($event)" />
     </label>
     @if (selectedPhotoNames().length) {
       <ul class="photo-list" aria-label="Fotos seleccionadas">
@@ -73,10 +87,16 @@
       <small class="field-error">La fecha “Hasta” debe ser posterior a “Desde”.</small>
     }
 
-    @if (feedback() && !catalogUnavailable()) {
+    @if (feedback() && !catalogUnavailable() && !zonesUnavailable()) {
       <p class="submit-feedback" [class.error-feedback]="feedbackType() === 'error'" role="status">{{ feedback() }}</p>
     }
-    <button class="submit-button" type="submit">Continuar con mi solicitud <span aria-hidden="true">→</span></button>
-    <p class="form-footnote">Al continuar, todavía no se publica nada: primero se validará tu sesión y después se guardará la solicitud.</p>
+    <button class="submit-button" type="submit" [disabled]="isSubmitting() || published()">
+      {{ isSubmitting() ? 'Publicando…' : createdRequestId() ? 'Reintentar fotos pendientes' : 'Publicar solicitud' }}
+      <span aria-hidden="true">→</span>
+    </button>
+    @if (published()) {
+      <button class="new-request-button" type="button" (click)="startNewRequest()">Crear otra solicitud</button>
+    }
+    <p class="form-footnote">La solicitud se publicará con tu zona de perfil. Las fotos se guardan en el bucket privado del proyecto.</p>
   </form>
 </main>
