@@ -80,19 +80,19 @@
         />
       </div>
 
-      <button type="submit" [disabled]="loading">
-  {{ loading ? 'Creando cuenta...' : 'Crear cuenta' }}
-</button>
+      <button type="submit" [disabled]="loading()">
+        {{ loading() ? 'Creando cuenta...' : 'Crear cuenta' }}
+      </button>
 
     </form>
 
-    <p *ngIf="successMessage" class="success-message">
-  {{ successMessage }}
-</p>
+    <p *ngIf="successMessage()" class="success-message">
+      {{ successMessage() }}
+    </p>
 
-<p *ngIf="errorMessage" class="error-message">
-  {{ errorMessage }}
-</p>
+    <p *ngIf="errorMessage()" class="error-message">
+      {{ errorMessage() }}
+    </p>
 
   </div>
 </div>

@@ -25,7 +25,7 @@ export class AppController {
 
   @Get('health/supabase')
   async checkSupabase() {
-    const { error } = await this.supabaseService.client
+    const { error } = await this.supabaseService.admin
       .from('profiles')
       .select('id')
       .limit(1);

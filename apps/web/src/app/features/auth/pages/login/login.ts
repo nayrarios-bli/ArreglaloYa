@@ -1,5 +1,4 @@
-
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
@@ -16,73 +15,74 @@ export class Login {
   email = '';
   password = '';
 
-  loading = false;
-  successMessage = '';
-  errorMessage = '';
+  readonly loading = signal(false);
+  readonly successMessage = signal('');
+  readonly errorMessage = signal('');
 
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
   ) {}
 
-  login() {
-    this.successMessage = '';
-    this.errorMessage = '';
+  login(): void {
+    this.successMessage.set('');
+    this.errorMessage.set('');
 
-    if (this.loading) {
+    if (this.loading()) {
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
 
-    this.authService.login({
-      email: this.email.trim(),
-      password: this.password,
-    }).subscribe({
-    next: (response) => {
-  this.loading = false;
+    this.authService
+      .login({
+        email: this.email.trim(),
+        password: this.password,
+      })
+      .subscribe({
+        next: (response) => {
+          this.loading.set(false);
+          this.authService.saveSession(response);
 
-  this.authService.saveSession(response);
+          const user = response.user;
 
-  const user = response.user;
-
-        console.log('Usuario autenticado:', user);
-        console.log('Rol:', user.role);
-
-        if (user.role === 'client') {
-          this.router.navigate(['/cliente']);
-          return;
-        }
-
-        if (user.role === 'worker') {
-          if (user.reviewStatus === 'pending') {
-            this.router.navigate(['/trabajador/pendiente']);
+          if (user.role === 'client') {
+            this.router.navigate(['/cliente']);
             return;
           }
 
-          if (user.reviewStatus === 'approved') {
-            this.router.navigate(['/trabajador']);
-            return;
+          if (user.role === 'worker') {
+            if (user.reviewStatus === 'pending') {
+              this.router.navigate(['/trabajador/pendiente']);
+              return;
+            }
+
+            if (user.reviewStatus === 'approved') {
+              this.router.navigate(['/trabajador']);
+              return;
+            }
+
+            if (user.reviewStatus === 'rejected') {
+              this.router.navigate(['/trabajador/rechazado']);
+              return;
+            }
           }
 
-          if (user.reviewStatus === 'rejected') {
-            this.router.navigate(['/trabajador/rechazado']);
-            return;
-          }
-        }
+          this.errorMessage.set(
+            'No se pudo determinar el rol o estado de la cuenta.',
+          );
+        },
 
-        this.errorMessage = 'No se pudo determinar el rol o estado de la cuenta.';
-      },
+        error: (error) => {
+          this.loading.set(false);
 
-      error: (error) => {
-        this.loading = false;
-
-        const message = error.error?.message;
-
-        this.errorMessage = Array.isArray(message)
-          ? message.join(' ')
-          : message || 'No se pudo iniciar sesión.';
-      },
-    });
+          const message = error.error?.message;
+          this.errorMessage.set(
+            Array.isArray(message)
+              ? message.join(' ')
+              : message || 'No se pudo iniciar sesión.',
+          );
+        },
+      });
   }
 }

@@ -1,5 +1,5 @@
 
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
@@ -20,28 +20,28 @@ export class Register {
   confirmPassword = '';
   role: 'client' | 'worker' = 'client';
 
-  loading = false;
-  successMessage = '';
-  errorMessage = '';
+  readonly loading = signal(false);
+  readonly successMessage = signal('');
+  readonly errorMessage = signal('');
 
   constructor(
     private readonly authService: AuthService,
   ) {}
 
-  register() {
-    this.successMessage = '';
-    this.errorMessage = '';
+  register(): void {
+    this.successMessage.set('');
+    this.errorMessage.set('');
 
     if (this.password !== this.confirmPassword) {
-      this.errorMessage = 'Las contraseñas no coinciden.';
+      this.errorMessage.set('Las contraseñas no coinciden.');
       return;
     }
 
-    if (this.loading) {
+    if (this.loading()) {
       return;
     }
 
-    this.loading = true;
+    this.loading.set(true);
 
     this.authService.register({
       fullName: this.fullName.trim(),
@@ -51,14 +51,16 @@ export class Register {
       role: this.role,
     }).subscribe({
       next: (response) => {
-        this.loading = false;
+        this.loading.set(false);
 
         if (response.emailConfirmationRequired) {
-          this.successMessage =
-            '¡Cuenta creada correctamente! Te enviamos un correo de verificación. Revisa tu bandeja de entrada para activar tu cuenta.';
+          this.successMessage.set(
+            '¡Cuenta creada correctamente! Te enviamos un correo de verificación. Revisa tu bandeja de entrada para activar tu cuenta.',
+          );
         } else {
-          this.successMessage =
-            '¡Cuenta creada correctamente! Ya puedes iniciar sesión.';
+          this.successMessage.set(
+            '¡Cuenta creada correctamente! Ya puedes iniciar sesión.',
+          );
         }
 
         this.fullName = '';
@@ -70,13 +72,15 @@ export class Register {
       },
 
       error: (error) => {
-        this.loading = false;
+        this.loading.set(false);
 
         const message = error.error?.message;
 
-        this.errorMessage = Array.isArray(message)
-          ? message.join(' ')
-          : message || 'No se pudo completar el registro.';
+        this.errorMessage.set(
+          Array.isArray(message)
+            ? message.join(' ')
+            : message || 'No se pudo completar el registro.',
+        );
       },
     });
   }

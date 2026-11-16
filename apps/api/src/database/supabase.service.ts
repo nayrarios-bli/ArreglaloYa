@@ -71,8 +71,4 @@ export class SupabaseService implements OnModuleInit {
     );
   }
 
-  // Compatibilidad temporal con el código anterior.
-  get client(): SupabaseClient {
-    return this.supabaseAdmin;
-  }
 }

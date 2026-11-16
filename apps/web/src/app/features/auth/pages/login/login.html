@@ -43,19 +43,19 @@
       <button
         type="submit"
         class="submit-button"
-        [disabled]="loading"
+        [disabled]="loading()"
       >
-        {{ loading ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+        {{ loading() ? 'Iniciando sesión...' : 'Iniciar sesión' }}
       </button>
 
     </form>
 
-    <p *ngIf="successMessage" class="success-message">
-      {{ successMessage }}
+    <p *ngIf="successMessage()" class="success-message">
+      {{ successMessage() }}
     </p>
 
-    <p *ngIf="errorMessage" class="error-message">
-      {{ errorMessage }}
+    <p *ngIf="errorMessage()" class="error-message">
+      {{ errorMessage() }}
     </p>
 
     <p class="auth-footer">

@@ -37,10 +37,10 @@ export class AuthController {
   }
 
   @Get('me')
-@UseGuards(SupabaseAuthGuard)
-async getAuthenticatedUser() {
-  return {
-    message: 'Token válido. Usuario autenticado correctamente.',
-  };
-}
+  @UseGuards(SupabaseAuthGuard)
+  async getAuthenticatedUser() {
+    return {
+      message: 'Token válido. Usuario autenticado correctamente.',
+    };
+  }
 }
