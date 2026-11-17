@@ -1,0 +1,40 @@
+<main class="test-page">
+  <p class="eyebrow">Prueba temporal · HU-07</p>
+  <h1>Coordinar horario del servicio</h1>
+  <p class="intro">Esta pantalla básica comprueba la conexión entre Angular, NestJS y Supabase.</p>
+
+  @if (loading()) {
+    <p role="status">Consultando tus servicios…</p>
+  } @else if (error() && services().length === 0) {
+    <p class="feedback error" role="alert">{{ error() }}</p>
+  } @else if (services().length === 0) {
+    <p class="feedback" role="status">Conexión correcta con la API y Supabase. No tienes servicios programados disponibles para coordinar todavía.</p>
+  } @else {
+    <p class="feedback" role="status">Conexión correcta. Servicios programados: {{ services().length }}.</p>
+
+    <form (ngSubmit)="saveSchedule()">
+      <label for="service">Servicio</label>
+      <select id="service" [ngModel]="selectedServiceId()" (ngModelChange)="selectedServiceId.set($event)" name="service" required>
+        <option value="">Selecciona un servicio</option>
+        @for (service of services(); track service.id) {
+          <option [value]="service.id">{{ service.id }} · {{ service.status }}</option>
+        }
+      </select>
+
+      <label for="startsAt">Inicio</label>
+      <input id="startsAt" type="datetime-local" [ngModel]="startsAt()" (ngModelChange)="startsAt.set($event)" name="startsAt" required />
+
+      <label for="endsAt">Fin</label>
+      <input id="endsAt" type="datetime-local" [ngModel]="endsAt()" (ngModelChange)="endsAt.set($event)" name="endsAt" required />
+
+      @if (error()) {
+        <p class="feedback error" role="alert">{{ error() }}</p>
+      }
+      @if (feedback()) {
+        <p class="feedback" role="status">{{ feedback() }}</p>
+      }
+
+      <button type="submit" [disabled]="saving()">{{ saving() ? 'Guardando…' : 'Guardar horario en Supabase' }}</button>
+    </form>
+  }
+</main>

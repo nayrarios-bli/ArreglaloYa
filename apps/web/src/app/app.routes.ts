@@ -21,6 +21,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/pages/login/login').then(m => m.Login),
   },
+  {
+    path: 'prueba/hu-07',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/services/schedule-test/schedule-test')
+        .then(m => m.ScheduleTest),
+    title: 'Prueba HU-07 | ArreglaloYa',
+  },
 
   // Panel del cliente
   {

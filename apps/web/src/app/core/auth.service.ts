@@ -2,8 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable } from 'rxjs';
-
-const API_URL = 'http://localhost:3000/auth';
+import { API_URL } from './api-url';
 
 export interface RegisterData {
   fullName: string;
@@ -53,11 +52,11 @@ export class AuthService {
   constructor(private readonly http: HttpClient) {}
 
   register(data: RegisterData): Observable<any> {
-    return this.http.post(`${API_URL}/register`, data);
+    return this.http.post(`${API_URL}/auth/register`, data);
   }
 
   login(data: LoginData): Observable<LoginResponse> {
-    return this.http.post<LoginResponse>(`${API_URL}/login`, data);
+    return this.http.post<LoginResponse>(`${API_URL}/auth/login`, data);
   }
 
   saveSession(session: LoginResponse): void {
