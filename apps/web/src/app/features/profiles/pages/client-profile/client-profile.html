@@ -1,0 +1,178 @@
+
+<main class="profile-page">
+
+  <!-- ENCABEZADO -->
+  <header class="profile-header">
+    <div class="header-content">
+      <a routerLink="/cliente" class="back-link">
+        ← Volver al panel
+      </a>
+
+      <div class="header-title">
+        <span class="eyebrow">MI CUENTA</span>
+        <h1>Mi perfil</h1>
+        <p>Administra tus datos personales y tu zona de servicio.</p>
+      </div>
+    </div>
+  </header>
+
+  <!-- CONTENIDO -->
+  <section class="profile-container">
+
+    <!-- CARGANDO -->
+    <div class="status-message" *ngIf="loading()">
+      Cargando información del perfil...
+    </div>
+
+    <!-- ERROR -->
+    <div class="alert alert-error" *ngIf="errorMessage()">
+      {{ errorMessage() }}
+    </div>
+
+    <!-- ÉXITO -->
+    <div class="alert alert-success" *ngIf="successMessage()">
+      {{ successMessage() }}
+    </div>
+
+    <ng-container *ngIf="!loading() && profile()">
+
+      <!-- TARJETA DEL PERFIL -->
+      <section class="profile-card">
+
+        <div class="card-header">
+          <div>
+            <span class="section-label">INFORMACIÓN PERSONAL</span>
+            <h2>Datos de mi cuenta</h2>
+            <p>
+              Mantén tus datos actualizados para facilitar la atención
+              de tus solicitudes.
+            </p>
+          </div>
+
+          <div class="avatar">
+            {{ (profile()?.fullName || 'C').charAt(0).toUpperCase() }}
+          </div>
+        </div>
+
+        <div class="profile-fields">
+
+          <!-- NOMBRE -->
+          <div class="field">
+            <label for="fullName">Nombre completo</label>
+
+            <input
+              *ngIf="editing()"
+              id="fullName"
+              type="text"
+              [(ngModel)]="fullName"
+              placeholder="Ingresa tu nombre completo"
+              maxlength="100"
+            />
+
+            <div class="field-value" *ngIf="!editing()">
+              {{ profile()?.fullName || 'No registrado' }}
+            </div>
+          </div>
+
+          <!-- CELULAR -->
+          <div class="field">
+            <label for="phone">Número de celular</label>
+
+            <input
+              *ngIf="editing()"
+              id="phone"
+              type="tel"
+              [(ngModel)]="phone"
+              placeholder="Ingresa tu celular"
+              maxlength="15"
+            />
+
+            <div class="field-value" *ngIf="!editing()">
+              {{ profile()?.phone || 'No registrado' }}
+            </div>
+          </div>
+
+          <!-- ZONA -->
+          <div class="field field-full">
+            <label for="homeZoneId">Zona de servicio</label>
+
+            <select
+              *ngIf="editing()"
+              id="homeZoneId"
+              [(ngModel)]="homeZoneId"
+            >
+              <option value="" disabled>
+                Selecciona una zona
+              </option>
+
+              <option
+                *ngFor="let zone of zones()"
+                [value]="zone.id"
+              >
+                {{ zone.name }} - {{ zone.city }}
+              </option>
+            </select>
+
+            <div class="field-value" *ngIf="!editing()">
+              {{ getZoneName() }}
+            </div>
+          </div>
+
+        </div>
+
+        <!-- BOTONES -->
+        <div class="card-actions">
+
+          <ng-container *ngIf="!editing()">
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="editProfile()"
+            >
+              Editar perfil
+            </button>
+          </ng-container>
+
+          <ng-container *ngIf="editing()">
+            <button
+              type="button"
+              class="btn-secondary"
+              (click)="cancelEdit()"
+              [disabled]="saving()"
+            >
+              Cancelar
+            </button>
+
+            <button
+              type="button"
+              class="btn-primary"
+              (click)="saveProfile()"
+              [disabled]="saving()"
+            >
+              {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+            </button>
+          </ng-container>
+
+        </div>
+
+      </section>
+
+      <!-- INFORMACIÓN DE SEGURIDAD -->
+      <section class="security-card">
+        <div class="security-icon">✓</div>
+
+        <div>
+          <h3>Tu información está protegida</h3>
+          <p>
+            Tu dirección exacta no se muestra en esta sección.
+            La zona registrada permite asociar correctamente tus
+            solicitudes de servicio.
+          </p>
+        </div>
+      </section>
+
+    </ng-container>
+
+  </section>
+
+</main>

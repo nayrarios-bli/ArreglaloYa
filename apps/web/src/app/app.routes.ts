@@ -32,6 +32,15 @@ export const routes: Routes = [
         .then(m => m.ClientDashboard),
   },
 
+  {
+  path: 'cliente/perfil',
+  canActivate: [authGuard, roleGuard],
+  data: { role: 'client' },
+  loadComponent: () =>
+    import('./features/profiles/pages/client-profile/client-profile')
+      .then(m => m.ClientProfile),
+},
+
   // Panel del trabajador aprobado
   {
     path: 'trabajador',
