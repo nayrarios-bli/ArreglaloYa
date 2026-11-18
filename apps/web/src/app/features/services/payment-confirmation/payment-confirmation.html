@@ -1,0 +1,30 @@
+<h2>Confirmación de pago</h2>
+<p>Este registro es informativo. La plataforma no procesa ni verifica pagos.</p>
+
+@if (confirmed()) {
+  <p>
+    Declaraste un pago de Bs {{ amount() }} ({{ methodLabel() }}).
+    Falta la confirmación de la otra persona.
+  </p>
+} @else {
+  <label>
+    Monto acordado (Bs)
+    <input #amountInput type="number" min="0" step="0.01"
+           (input)="amount.set(amountInput.valueAsNumber)" />
+  </label>
+
+  <label>
+    Método de pago
+    <select #methodSelect (change)="method.set($any(methodSelect.value))">
+      @for (m of methods; track m.value) {
+        <option [value]="m.value">{{ m.label }}</option>
+      }
+    </select>
+  </label>
+
+  @if (error()) {
+    <p role="alert">{{ error() }}</p>
+  }
+
+  <button type="button" (click)="confirmPayment()">Confirmar pago</button>
+}
