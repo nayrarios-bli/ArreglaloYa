@@ -1,6 +1,6 @@
 import { Component, computed, signal } from '@angular/core';
 
-type PaymentMethod = 'cash' | 'qr' | 'other';
+type PaymentMethod = 'cash' | 'qr';
 
 @Component({
   selector: 'app-payment-confirmation',
@@ -10,7 +10,6 @@ export class PaymentConfirmation {
   readonly methods: { value: PaymentMethod; label: string }[] = [
     { value: 'cash', label: 'Efectivo' },
     { value: 'qr', label: 'QR' },
-    { value: 'other', label: 'Otro' },
   ];
 
   amount = signal<number | null>(null);

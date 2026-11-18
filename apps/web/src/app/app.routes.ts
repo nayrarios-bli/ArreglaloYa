@@ -21,6 +21,14 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/pages/login/login').then(m => m.Login),
   },
+  {
+    path: 'prueba/hu-08',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/services/payment-test/payment-test')
+        .then(m => m.PaymentTest),
+    title: 'Prueba HU-08 | ArreglaloYa',
+  },
 
   // Panel del cliente
   {

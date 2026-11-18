@@ -1,0 +1,13 @@
+.test-page { max-width: 620px; margin: 48px auto; padding: 28px; color: #27352b; font-family: Arial, sans-serif; }
+.eyebrow { color: #58705b; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+h1 { margin: 8px 0; font-size: 28px; }
+.intro { color: #68736a; line-height: 1.5; }
+form { display: grid; gap: 10px; margin-top: 24px; }
+label { margin-top: 8px; font-size: 14px; font-weight: 600; }
+input, select { min-height: 42px; padding: 8px 10px; border: 1px solid #cbd3c6; border-radius: 4px; background: white; font: inherit; }
+.confirmations { margin: 8px 0; padding: 12px; background: #edf2e9; font-size: 14px; }
+.confirmations p { margin: 6px 0; }
+button { min-height: 44px; margin-top: 12px; border: 0; border-radius: 4px; color: white; background: #304b38; font: inherit; font-weight: 600; cursor: pointer; }
+button:disabled { opacity: .65; cursor: wait; }
+.feedback { padding: 12px; background: #edf2e9; line-height: 1.5; }
+.error { color: #8b382d; background: #f8eae5; }
