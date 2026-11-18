@@ -1,18 +1,19 @@
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { CreateReviewDto } from './reviews.dto';
+import { CreateReviewDto } from './reviews.dto.js';
 
 @Injectable()
 export class ReviewsService {
-  private reviews = []; // Simulación en memoria conectada al flujo del MVP
+  private reviews: any[] = [];
 
   create(createReviewDto: CreateReviewDto) {
-    // Validar que no se repita la calificación para el mismo servicio (según CU-10)
     const existingReview = this.reviews.find(
-      (r) => r.serviceId === createReviewDto.serviceId && r.clientId === createReviewDto.clientId
+      (r) => 
+        r.serviceId === createReviewDto.serviceId && 
+        r.reviewerId === createReviewDto.reviewerId
     );
 
     if (existingReview) {
-      throw new BadRequestException('El usuario ya calificó este servicio.');
+      throw new BadRequestException('Ya has registrado una calificación para este servicio.');
     }
 
     const newReview = {
@@ -24,7 +25,7 @@ export class ReviewsService {
     this.reviews.push(newReview);
 
     return {
-      message: 'Calificación registrada con éxito para la HU-09 / CU-10',
+      message: 'Calificación registrada con éxito (HU-09 / HU-10)',
       review: newReview,
     };
   }
