@@ -8,6 +8,7 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { RequestsModule } from './requests/requests.module.js';
 import { ReviewsModule } from './modules/reviews/reviews.module.js';
 import { ComplaintsModule } from './modules/complaints/complaints.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ComplaintsModule } from './modules/complaints/complaints.module.js';
     CatalogModule,
     RequestsModule,
     ReviewsModule,
+    AdminModule,
     ComplaintsModule,
   ],
   controllers: [AppController],
