@@ -52,6 +52,27 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'trabajador/solicitudes/:requestId',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'approved' },
+    loadComponent: () =>
+      import('./features/worker/pages/compatible-requests/request-detail').then(
+        (module) => module.CompatibleRequestDetailPage,
+      ),
+    title: 'Detalle de solicitud | ArreglaloYa',
+  },
+  {
+    path: 'trabajador/solicitudes',
+    pathMatch: 'full',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'approved' },
+    loadComponent: () =>
+      import('./features/worker/pages/compatible-requests/compatible-requests').then(
+        (module) => module.CompatibleRequests,
+      ),
+    title: 'Solicitudes compatibles | ArreglaloYa',
+  },
+  {
     path: 'trabajador/pendiente',
     canActivate: [authGuard, workerStatusGuard],
     data: { status: 'pending' },

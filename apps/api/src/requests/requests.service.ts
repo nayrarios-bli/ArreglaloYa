@@ -34,6 +34,121 @@ interface CreateRequestInput {
 export class RequestsService {
   constructor(private readonly supabase: SupabaseService) {}
 
+  async listCompatible(workerId: string) {
+    const profile = await this.getWorkerMatch(workerId);
+    if (!profile.profileReady) return { profileReady: false, requests: [] };
+
+    const { data, error } = await this.supabase.admin
+      .from('repair_requests')
+      .select('id, title, description, category_id, zone_id, available_from, available_until, created_at, expires_at')
+      .eq('status', 'open')
+      .gt('expires_at', new Date().toISOString())
+      .in('category_id', profile.categories.map((category) => category.id))
+      .in('zone_id', profile.zones.map((zone) => zone.id))
+      .order('created_at', { ascending: false });
+
+    if (error) this.fail('No se pudieron consultar las solicitudes compatibles.');
+
+    const categories = new Map(profile.categories.map((category) => [category.id, category]));
+    const zones = new Map(profile.zones.map((zone) => [zone.id, zone]));
+
+    return {
+      profileReady: true,
+      requests: (data ?? []).map((request) => ({
+        ...request,
+        category: categories.get(request.category_id) ?? null,
+        zone: zones.get(request.zone_id) ?? null,
+      })),
+    };
+  }
+
+  async getCompatibleDetail(workerId: string, requestId: string) {
+    const profile = await this.getWorkerMatch(workerId);
+    if (!profile.profileReady) {
+      throw new NotFoundException('No se encontró una solicitud compatible.');
+    }
+
+    const { data: request, error: requestError } = await this.supabase.admin
+      .from('repair_requests')
+      .select('id, title, description, category_id, zone_id, available_from, available_until, created_at, expires_at')
+      .eq('id', requestId)
+      .eq('status', 'open')
+      .gt('expires_at', new Date().toISOString())
+      .in('category_id', profile.categories.map((category) => category.id))
+      .in('zone_id', profile.zones.map((zone) => zone.id))
+      .maybeSingle();
+
+    if (requestError) this.fail('No se pudo consultar el detalle de la solicitud.');
+    if (!request) throw new NotFoundException('No se encontró una solicitud compatible.');
+
+    const { data: attachments, error: attachmentsError } = await this.supabase.admin
+      .from('request_attachments')
+      .select('id, storage_path, uploaded_at')
+      .eq('request_id', requestId)
+      .order('uploaded_at', { ascending: true });
+
+    if (attachmentsError) this.fail('No se pudieron consultar las fotos de la solicitud.');
+
+    const bucket = process.env.SUPABASE_REQUEST_PHOTOS_BUCKET ?? 'request-photos';
+    const storage = this.supabase.admin.storage.from(bucket);
+    const signedAttachments = await Promise.all(
+      (attachments ?? []).map(async (attachment) => {
+        const { data, error } = await storage.createSignedUrl(
+          attachment.storage_path,
+          SIGNED_URL_TTL_SECONDS,
+        );
+        if (error) this.fail('No se pudo preparar una foto de la solicitud.');
+        return {
+          id: attachment.id,
+          uploaded_at: attachment.uploaded_at,
+          signed_url: data.signedUrl,
+        };
+      }),
+    );
+
+    return {
+      ...request,
+      category: profile.categories.find((category) => category.id === request.category_id) ?? null,
+      zone: profile.zones.find((zone) => zone.id === request.zone_id) ?? null,
+      attachments: signedAttachments,
+    };
+  }
+
+  private async getWorkerMatch(workerId: string) {
+    const client = this.supabase.admin;
+    const [workerCategories, workerZones] = await Promise.all([
+      client.from('worker_categories').select('category_id').eq('worker_id', workerId),
+      client.from('worker_zones').select('zone_id').eq('worker_id', workerId),
+    ]);
+
+    if (workerCategories.error || workerZones.error) {
+      this.fail('No se pudieron consultar las especialidades y zonas del trabajador.');
+    }
+
+    const categoryIds = [...new Set((workerCategories.data ?? []).map((row) => row.category_id))];
+    const zoneIds = [...new Set((workerZones.data ?? []).map((row) => row.zone_id))];
+    if (!categoryIds.length || !zoneIds.length) {
+      return { profileReady: false as const, categories: [], zones: [] };
+    }
+
+    const [categoriesResult, zonesResult] = await Promise.all([
+      client.from('categories').select('id, name').in('id', categoryIds).eq('is_active', true),
+      client.from('service_zones').select('id, name, city').in('id', zoneIds).eq('is_active', true),
+    ]);
+
+    if (categoriesResult.error || zonesResult.error) {
+      this.fail('No se pudieron verificar las categorías y zonas activas.');
+    }
+
+    const categories = categoriesResult.data ?? [];
+    const zones = zonesResult.data ?? [];
+    return {
+      profileReady: categories.length > 0 && zones.length > 0,
+      categories,
+      zones,
+    };
+  }
+
   async getClientZone(clientId: string) {
     const { data, error } = await this.supabase.admin
       .from('client_profiles')
