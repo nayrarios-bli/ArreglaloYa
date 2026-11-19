@@ -27,3 +27,20 @@ p {
   color: #555;
   line-height: 1.6;
 }
+
+.profile-button {
+  display: inline-block;
+  margin-top: 20px;
+  padding: 14px 22px;
+  border-radius: 3px;
+  color: white;
+  background: #304b38;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  transition: background 0.18s ease;
+}
+
+.profile-button:hover {
+  background: #243e2c;
+}

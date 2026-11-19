@@ -88,6 +88,24 @@ export class AuthService {
     return this.getAccessToken() !== null;
   }
 
+  updateWorkerReviewStatus(
+    reviewStatus: 'pending' | 'approved' | 'rejected',
+  ): void {
+    const current = this.getSession();
+
+    if (!current || current.user.role !== 'worker') {
+      return;
+    }
+
+    this.saveSession({
+      ...current,
+      user: {
+        ...current.user,
+        reviewStatus,
+      },
+    });
+  }
+
   logout(): void {
     sessionStorage.removeItem(this.storageKey);
     this.sessionSubject.next(null);
