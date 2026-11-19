@@ -15,6 +15,7 @@ import type { Request } from 'express';
 import { Roles } from '../modules/auth/decorators/roles.decorator.js';
 import { RolesGuard } from '../modules/auth/guards/roles.guard.js';
 import { SupabaseAuthGuard } from '../modules/auth/guards/supabase-auth.guard.js';
+import { WorkerStatusGuard } from '../modules/auth/guards/worker-status.guard.js';
 import { RequestsService } from './requests.service.js';
 
 interface AuthenticatedRequest extends Request {
@@ -27,6 +28,23 @@ interface AuthenticatedRequest extends Request {
 @UseGuards(SupabaseAuthGuard, RolesGuard)
 export class RequestsController {
   constructor(private readonly requests: RequestsService) {}
+
+  @Get('compatible')
+  @Roles('worker')
+  @UseGuards(WorkerStatusGuard)
+  listCompatible(@Req() request: AuthenticatedRequest) {
+    return this.requests.listCompatible(request.user.id);
+  }
+
+  @Get('compatible/:requestId')
+  @Roles('worker')
+  @UseGuards(WorkerStatusGuard)
+  getCompatibleDetail(
+    @Req() request: AuthenticatedRequest,
+    @Param('requestId', ParseUUIDPipe) requestId: string,
+  ) {
+    return this.requests.getCompatibleDetail(request.user.id, requestId);
+  }
 
   @Get('profile-zone')
   @Roles('client')
