@@ -41,3 +41,7 @@ p {
 .logout-button:hover {
   background: #294f76;
 }
+.requests-link { display: inline-flex; align-items: center; gap: 12px; margin-top: 16px; padding: 13px 17px; border-radius: 9px; color: #fff; background: #2e4937; font-size: 14px; font-weight: 620; text-decoration: none; transition: background 150ms ease, transform 100ms ease; }
+.requests-link:hover { background: #243e2c; }
+.requests-link:active { transform: scale(.98); }
+.requests-link:focus-visible { outline: 3px solid #a98953; outline-offset: 3px; }

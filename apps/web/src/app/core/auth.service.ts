@@ -39,6 +39,13 @@ export interface LoginResponse {
   session: AuthSession;
 }
 
+export interface RegisterResponse {
+  message: string;
+  emailConfirmationRequired: boolean;
+  user: AuthUser;
+  session: AuthSession | null;
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -52,8 +59,8 @@ export class AuthService {
 
   constructor(private readonly http: HttpClient) {}
 
-  register(data: RegisterData): Observable<any> {
-    return this.http.post(`${API_URL}/register`, data);
+  register(data: RegisterData): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${API_URL}/register`, data);
   }
 
   login(data: LoginData): Observable<LoginResponse> {
@@ -79,6 +86,24 @@ export class AuthService {
 
   isAuthenticated(): boolean {
     return this.getAccessToken() !== null;
+  }
+
+  updateWorkerReviewStatus(
+    reviewStatus: 'pending' | 'approved' | 'rejected',
+  ): void {
+    const current = this.getSession();
+
+    if (!current || current.user.role !== 'worker') {
+      return;
+    }
+
+    this.saveSession({
+      ...current,
+      user: {
+        ...current.user,
+        reviewStatus,
+      },
+    });
   }
 
   logout(): void {
