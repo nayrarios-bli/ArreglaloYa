@@ -1,16 +1,16 @@
 
 import {
   IsNotEmpty,
-  IsOptional,
   IsString,
   IsUUID,
   MaxLength,
   MinLength,
   Matches,
+  ValidateIf,
 } from 'class-validator';
 
 export class UpdateClientProfileDto {
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString({ message: 'El nombre debe ser un texto.' })
   @IsNotEmpty({ message: 'El nombre no puede estar vacío.' })
   @MinLength(3, {
@@ -21,14 +21,14 @@ export class UpdateClientProfileDto {
   })
   fullName?: string;
 
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString({ message: 'El celular debe ser un texto.' })
   @Matches(/^[0-9]{7,15}$/, {
     message: 'El celular debe contener entre 7 y 15 dígitos.',
   })
   phone?: string;
 
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsUUID('4', {
     message: 'La zona seleccionada no tiene un identificador válido.',
   })
