@@ -1,9 +1,18 @@
+import { Transform } from 'class-transformer';
+import { IsInt, IsOptional, IsString, IsUUID, Max, MaxLength, Min } from 'class-validator';
 
 export class CreateReviewDto {
-  serviceId: string;
-  reviewerId: string; // Quién emite la calificación (Cliente o Trabajador)
-  reviewedUserId: string; // A quién se está calificando
-  rating: number; // Puntuación (1 al 5)
-  comment?: string; // Comentario opcional
-  roleType: 'CLIENT_TO_WORKER' | 'WORKER_TO_CLIENT'; // Para saber qué rol emite la calificación
+  @IsUUID()
+  serviceId!: string;
+
+  @IsInt()
+  @Min(1)
+  @Max(5)
+  score!: number;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(1000)
+  @Transform(({ value }) => typeof value === 'string' ? value.trim() : value)
+  comment?: string;
 }
