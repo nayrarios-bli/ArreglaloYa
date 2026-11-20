@@ -39,6 +39,20 @@
               <p class="quiet-copy">El cliente no adjuntó fotografías.</p>
             }
           </section>
+
+          <section class="content-section offer-section">
+            @if (offerSubmitted()) {
+              <p class="offer-submitted" role="status">
+                Ya presentaste una oferta para esta solicitud.
+              </p>
+            } @else if (accessToken(); as token) {
+              <app-offer-form
+                [requestId]="item.id"
+                [accessToken]="token"
+                (offerReady)="markOfferSubmitted()"
+              />
+            }
+          </section>
         </div>
 
         <aside class="info-card" aria-label="Datos de la solicitud">
