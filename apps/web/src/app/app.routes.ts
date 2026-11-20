@@ -55,6 +55,15 @@ export const routes: Routes = [
   },
 
   {
+    path: 'cliente/perfil',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'client' },
+    loadComponent: () =>
+      import('./features/profiles/pages/client-profile/client-profile').then(
+        (module) => module.ClientProfile,
+      ),
+  },
+  {
     path: 'trabajador',
     canActivate: [authGuard, workerStatusGuard],
     data: { status: 'approved' },
