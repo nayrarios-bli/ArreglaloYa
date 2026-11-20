@@ -6,6 +6,7 @@ import { CatalogModule } from './catalog/catalog.module.js';
 import { SupabaseModule } from './database/supabase.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { RequestsModule } from './requests/requests.module.js';
+import { ReviewsModule } from './modules/reviews/reviews.module.js';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { RequestsModule } from './requests/requests.module.js';
     AuthModule,
     CatalogModule,
     RequestsModule,
+    ReviewsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
