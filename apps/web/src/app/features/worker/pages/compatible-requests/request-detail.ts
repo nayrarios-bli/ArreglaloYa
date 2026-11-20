@@ -2,6 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth.service';
+import { OfferFormComponent } from '../../../offers/offer-form.component';
 import {
   CompatibleRequestsApiService,
   type CompatibleRequestDetail,
@@ -10,7 +11,7 @@ import {
 @Component({
   selector: 'app-compatible-request-detail',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, OfferFormComponent],
   templateUrl: './request-detail.html',
   styleUrl: './request-detail.css',
 })
@@ -22,6 +23,8 @@ export class CompatibleRequestDetailPage implements OnInit {
   readonly request = signal<CompatibleRequestDetail | null>(null);
   readonly loading = signal(true);
   readonly error = signal('');
+  readonly accessToken = signal<string | null>(null);
+  readonly offerSubmitted = signal(false);
 
   ngOnInit(): void {
     const requestId = this.route.snapshot.paramMap.get('requestId');
@@ -31,6 +34,7 @@ export class CompatibleRequestDetailPage implements OnInit {
       this.error.set('No se pudo identificar la solicitud o tu sesión expiró.');
       return;
     }
+    this.accessToken.set(accessToken);
 
     this.api.getDetail(requestId, accessToken).subscribe({
       next: (request) => {
@@ -56,6 +60,10 @@ export class CompatibleRequestDetailPage implements OnInit {
     if (!request.available_from) return `Hasta ${this.formatDate(request.available_until!)}`;
     if (!request.available_until) return `Desde ${this.formatDate(request.available_from)}`;
     return `${this.formatDate(request.available_from)} – ${this.formatDate(request.available_until)}`;
+  }
+
+  markOfferSubmitted(): void {
+    this.offerSubmitted.set(true);
   }
 
   private errorMessage(error: HttpErrorResponse): string {

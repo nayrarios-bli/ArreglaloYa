@@ -44,22 +44,6 @@ export class OffersRepository {
     return data as RequestOfferContext | null;
   }
 
-  async getProfileRole(userId: string): Promise<string | null> {
-    const { data, error } = await this.supabaseService.admin
-      .from('profiles')
-      .select('role')
-      .eq('id', userId)
-      .maybeSingle();
-
-    if (error) {
-      throw new InternalServerErrorException(
-        'No se pudo consultar el perfil.',
-      );
-    }
-
-    return (data?.role as string | undefined) ?? null;
-  }
-
   async getWorkerReviewStatus(workerId: string): Promise<string | null> {
     const { data, error } = await this.supabaseService.admin
       .from('worker_profiles')

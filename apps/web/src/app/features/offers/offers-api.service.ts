@@ -1,6 +1,7 @@
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
+import { API_URL } from '../../core/api-url.js';
 import { OfferDraft } from './offer-form.component';
 
 export interface CreatedOffer {
@@ -17,7 +18,6 @@ export interface CreatedOffer {
 @Injectable({ providedIn: 'root' })
 export class OffersApiService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:3000';
 
   createOffer(
     requestId: string,
@@ -37,7 +37,7 @@ export class OffersApiService {
     };
 
     return this.http.post<CreatedOffer>(
-      `${this.apiUrl}/requests/${encodeURIComponent(requestId)}/offers`,
+      `${API_URL}/requests/${encodeURIComponent(requestId)}/offers`,
       body,
       { headers },
     );

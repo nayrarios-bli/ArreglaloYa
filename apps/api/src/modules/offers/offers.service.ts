@@ -4,9 +4,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
-  UnauthorizedException,
 } from '@nestjs/common';
-import { SupabaseService } from '../../database/supabase.service.js';
 import { CreateOfferDto } from './dto/create-offer.dto.js';
 import {
   CreatedOffer,
@@ -16,39 +14,15 @@ import {
 @Injectable()
 export class OffersService {
   constructor(
-    private readonly supabaseService: SupabaseService,
     private readonly offersRepository: OffersRepository,
   ) {}
 
   async createOffer(
     requestId: string,
-    authorization: string | undefined,
+    workerId: string,
     input: CreateOfferDto,
   ): Promise<CreatedOffer> {
     this.validateOfferData(input);
-
-    const token = authorization?.match(/^Bearer\s+(.+)$/i)?.[1];
-    if (!token) {
-      throw new UnauthorizedException(
-        'Debes iniciar sesión para presentar una oferta.',
-      );
-    }
-
-    const { data: authData, error: authError } =
-      await this.supabaseService.createAuthClient().auth.getUser(token);
-
-    if (authError || !authData.user) {
-      throw new UnauthorizedException('La sesión no es válida.');
-    }
-
-    const workerId = authData.user.id;
-    const role = await this.offersRepository.getProfileRole(workerId);
-
-    if (role !== 'worker') {
-      throw new ForbiddenException(
-        'Solo un trabajador puede presentar una oferta.',
-      );
-    }
 
     const reviewStatus =
       await this.offersRepository.getWorkerReviewStatus(workerId);
