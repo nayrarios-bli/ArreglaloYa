@@ -79,6 +79,13 @@ export class WorkersService {
 
     // Validar horarios
     if (input.availability !== undefined) {
+      const weekdays = input.availability.map((schedule) => schedule.weekday);
+      if (new Set(weekdays).size !== weekdays.length) {
+        throw new BadRequestException(
+          'Solo puedes registrar un horario por día de la semana.',
+        );
+      }
+
       for (const schedule of input.availability) {
         if (schedule.endsAt <= schedule.startsAt) {
           throw new BadRequestException(

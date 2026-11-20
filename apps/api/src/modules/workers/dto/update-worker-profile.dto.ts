@@ -2,7 +2,7 @@
 import {
   IsArray,
   IsInt,
-  IsOptional,
+  IsObject,
   IsString,
   IsUUID,
   Max,
@@ -11,6 +11,7 @@ import {
   Min,
   ValidateNested,
   ArrayUnique,
+  ValidateIf,
 } from 'class-validator';
 import { Type } from 'class-transformer';
 
@@ -30,25 +31,26 @@ export class WorkerAvailabilityDto {
 }
 
 export class UpdateWorkerProfileDto {
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsString()
   @MaxLength(1000)
   bio?: string;
 
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsArray()
   @ArrayUnique()
   @IsUUID('4', { each: true })
   categoryIds?: string[];
 
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsArray()
   @ArrayUnique()
   @IsUUID('4', { each: true })
   zoneIds?: string[];
 
-  @IsOptional()
+  @ValidateIf((_object, value) => value !== undefined)
   @IsArray()
+  @IsObject({ each: true })
   @ValidateNested({ each: true })
   @Type(() => WorkerAvailabilityDto)
   availability?: WorkerAvailabilityDto[];
