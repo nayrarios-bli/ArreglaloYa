@@ -1,30 +1,49 @@
-import { Controller, Get, Put, Body, Param, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  ParseUUIDPipe,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
+import { Request } from 'express';
+import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard.js';
 import { ProfilesService } from './profiles.service.js';
 import { UpdateProfileDto } from './profiles.dto.js';
+
+interface AuthenticatedRequest extends Request {
+  user: { id: string };
+}
 
 @Controller('profiles')
 export class ProfilesController {
   constructor(private readonly profilesService: ProfilesService) {}
 
-  @Get(':userId/public')
-  getPublicProfile(@Param('userId') userId: string) {
-    return this.profilesService.getPublicProfile(userId);
+  @Get(':id')
+  getPublicProfile(@Param('id', ParseUUIDPipe) id: string) {
+    return this.profilesService.getPublicProfile(id);
   }
 
-  @Get(':userId/authorized')
-  getAuthorizedProfile(
-    @Param('userId') userId: string,
-    @Query('hasActiveService') hasActiveService: string,
-  ) {
-    const active = hasActiveService === 'true';
-    return this.profilesService.getAuthorizedProfile(userId, active);
+  @Get('me/private-address')
+  @UseGuards(SupabaseAuthGuard)
+  getPrivateAddress(@Req() request: AuthenticatedRequest) {
+    return this.profilesService.getPrivateAddress(request.user.id);
   }
 
-  @Put(':userId')
-  update(
-    @Param('userId') userId: string,
-    @Body() updateProfileDto: UpdateProfileDto,
+  @Get('clients/:id/private-address')
+  @UseGuards(SupabaseAuthGuard)
+  getClientAddress(
+    @Param('id', ParseUUIDPipe) clientId: string,
+    @Req() request: AuthenticatedRequest,
   ) {
-    return this.profilesService.update(userId, updateProfileDto);
+    return this.profilesService.getClientAddressForWorker(clientId, request.user.id);
+  }
+
+  @Put('me')
+  @UseGuards(SupabaseAuthGuard)
+  update(@Req() request: AuthenticatedRequest, @Body() dto: UpdateProfileDto) {
+    return this.profilesService.update(request.user.id, dto);
   }
 }
