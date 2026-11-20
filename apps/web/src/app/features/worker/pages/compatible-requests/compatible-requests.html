@@ -1,0 +1,62 @@
+<main class="requests-page">
+  <a class="back-link" routerLink="/trabajador"><span aria-hidden="true">←</span> Panel del trabajador</a>
+
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">Oportunidades para tu perfil</p>
+      <h1>Solicitudes compatibles</h1>
+      <p class="intro">Trabajos que coinciden con tus especialidades y zonas de atención.</p>
+    </div>
+    @if (!loading() && requests().length > 0) {
+      <span class="result-count">{{ requests().length }} {{ requests().length === 1 ? 'solicitud' : 'solicitudes' }}</span>
+    }
+  </header>
+
+  @if (loading()) {
+    <section class="request-list" aria-label="Cargando solicitudes" aria-busy="true">
+      @for (item of [1, 2, 3]; track item) {
+        <article class="request-skeleton"><span></span><span></span><span></span></article>
+      }
+    </section>
+  } @else if (error()) {
+    <section class="state-card" role="alert">
+      <span class="state-icon" aria-hidden="true">!</span>
+      <h2>No se pudo cargar la lista</h2>
+      <p>{{ error() }}</p>
+      <button class="secondary-button" type="button" (click)="loadRequests()">Intentar de nuevo</button>
+    </section>
+  } @else if (!profileReady()) {
+    <section class="state-card" role="status">
+      <span class="state-icon" aria-hidden="true">⌖</span>
+      <h2>Completa tus especialidades y zonas</h2>
+      <p>Tu perfil aprobado todavía no tiene especialidades y zonas activas para encontrar solicitudes compatibles.</p>
+    </section>
+  } @else if (requests().length === 0) {
+    <section class="state-card" role="status">
+      <span class="state-icon" aria-hidden="true">⌕</span>
+      <h2>Por ahora no hay solicitudes compatibles</h2>
+      <p>Cuando se publique un trabajo para tus especialidades y zonas, aparecerá aquí.</p>
+      <button class="secondary-button" type="button" (click)="loadRequests()">Actualizar lista</button>
+    </section>
+  } @else {
+    <section class="request-list" aria-label="Solicitudes compatibles">
+      @for (request of requests(); track request.id) {
+        <article class="request-card">
+          <div class="card-topline">
+            <span class="category-label">{{ request.category?.name ?? 'Servicio' }}</span>
+            <span class="published-date">Publicada {{ formatDate(request.created_at) }}</span>
+          </div>
+          <h2>{{ request.title }}</h2>
+          <p class="description-preview">{{ request.description }}</p>
+          <div class="request-meta">
+            <span><span class="meta-icon" aria-hidden="true">⌖</span>{{ request.zone?.name ?? 'Zona' }} · {{ request.zone?.city ?? 'Cochabamba' }}</span>
+            <span><span class="meta-icon" aria-hidden="true">◷</span>{{ availability(request) }}</span>
+          </div>
+          <a class="details-link" [routerLink]="['/trabajador/solicitudes', request.id]">
+            Ver detalles <span aria-hidden="true">→</span>
+          </a>
+        </article>
+      }
+    </section>
+  }
+</main>

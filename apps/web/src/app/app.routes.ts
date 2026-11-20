@@ -1,6 +1,4 @@
-
 import { Routes } from '@angular/router';
-
 import { authGuard } from './core/auth.guard';
 import { roleGuard } from './core/role.guard';
 import { workerStatusGuard } from './core/worker-status.guard';
@@ -9,70 +7,97 @@ export const routes: Routes = [
   {
     path: '',
     loadComponent: () =>
-      import('./features/home/home').then(m => m.Home),
+      import('./features/home/home').then((module) => module.Home),
   },
   {
     path: 'registro',
     loadComponent: () =>
-      import('./features/auth/pages/register/register').then(m => m.Register),
+      import('./features/auth/pages/register/register').then(
+        (module) => module.Register,
+      ),
   },
   {
     path: 'login',
     loadComponent: () =>
-      import('./features/auth/pages/login/login').then(m => m.Login),
+      import('./features/auth/pages/login/login').then(
+        (module) => module.Login,
+      ),
   },
-
-  // Panel del cliente
+  {
+    path: 'solicitudes/nueva',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'client' },
+    loadComponent: () =>
+      import('./requests/request-create.page.js').then(
+        (module) => module.RequestCreatePage,
+      ),
+    title: 'Publicar solicitud | ArreglaloYa',
+  },
   {
     path: 'cliente',
     canActivate: [authGuard, roleGuard],
     data: { role: 'client' },
     loadComponent: () =>
-      import('./features/client/pages/dashboard/dashboard')
-        .then(m => m.ClientDashboard),
+      import('./features/client/pages/dashboard/dashboard').then(
+        (module) => module.ClientDashboard,
+      ),
   },
-
   {
-  path: 'cliente/perfil',
-  canActivate: [authGuard, roleGuard],
-  data: { role: 'client' },
-  loadComponent: () =>
-    import('./features/profiles/pages/client-profile/client-profile')
-      .then(m => m.ClientProfile),
-},
-
-  // Panel del trabajador aprobado
+    path: 'cliente/perfil',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'client' },
+    loadComponent: () =>
+      import('./features/profiles/pages/client-profile/client-profile').then(
+        (module) => module.ClientProfile,
+      ),
+  },
   {
     path: 'trabajador',
     canActivate: [authGuard, workerStatusGuard],
     data: { status: 'approved' },
     loadComponent: () =>
-      import('./features/worker/pages/dashboard/dashboard')
-        .then(m => m.WorkerDashboard),
+      import('./features/worker/pages/dashboard/dashboard').then(
+        (module) => module.WorkerDashboard,
+      ),
   },
-
-  // Trabajador pendiente
+  {
+    path: 'trabajador/solicitudes/:requestId',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'approved' },
+    loadComponent: () =>
+      import('./features/worker/pages/compatible-requests/request-detail').then(
+        (module) => module.CompatibleRequestDetailPage,
+      ),
+    title: 'Detalle de solicitud | ArreglaloYa',
+  },
+  {
+    path: 'trabajador/solicitudes',
+    pathMatch: 'full',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'approved' },
+    loadComponent: () =>
+      import('./features/worker/pages/compatible-requests/compatible-requests').then(
+        (module) => module.CompatibleRequests,
+      ),
+    title: 'Solicitudes compatibles | ArreglaloYa',
+  },
   {
     path: 'trabajador/pendiente',
     canActivate: [authGuard, workerStatusGuard],
     data: { status: 'pending' },
     loadComponent: () =>
-      import('./features/worker/pages/pending/pending')
-        .then(m => m.WorkerPending),
+      import('./features/worker/pages/pending/pending').then(
+        (module) => module.WorkerPending,
+      ),
   },
-
-  // Trabajador rechazado
   {
     path: 'trabajador/rechazado',
     canActivate: [authGuard, workerStatusGuard],
     data: { status: 'rejected' },
     loadComponent: () =>
-      import('./features/worker/pages/rejected/rejected')
-        .then(m => m.WorkerRejected),
+      import('./features/worker/pages/rejected/rejected').then(
+        (module) => module.WorkerRejected,
+      ),
   },
-
-  {
-    path: '**',
-    redirectTo: '',
-  },
+  { path: '**', redirectTo: '' },
 ];

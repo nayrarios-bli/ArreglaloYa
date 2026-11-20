@@ -64,7 +64,18 @@ export class AuthService {
         },
       });
 
+    // Supabase puede devolver un usuario ficticio sin identidades cuando
+    // el correo ya existe y la confirmación de email está habilitada.
+    const emailAlreadyRegistered =
+      authData.user?.identities?.length === 0;
+
     // 3. Comprobar errores del registro.
+    if (emailAlreadyRegistered) {
+      throw new ConflictException(
+        'Este correo electrónico ya tiene una cuenta. Inicia sesión o usa otro correo.',
+      );
+    }
+
     if (authError || !authData.user) {
       console.error(
         'Error de Supabase Auth:',
@@ -103,7 +114,15 @@ export class AuthService {
         fullName,
         phone: phone ?? null,
         role,
+        reviewStatus: role === 'worker' ? 'pending' : null,
       },
+      session: authData.session
+        ? {
+            accessToken: authData.session.access_token,
+            refreshToken: authData.session.refresh_token,
+            expiresAt: authData.session.expires_at ?? null,
+          }
+        : null,
     };
   }
 
