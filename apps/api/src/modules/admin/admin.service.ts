@@ -27,8 +27,8 @@ export class AdminService {
       filtersApplied: { startDate: filters.startDate ?? null, endDate: filters.endDate ?? null },
       metrics: {
         totalUsers: users,
-        activeClients: clients,
-        activeWorkers: workers,
+        clients,
+        workers,
         completedServices: services,
         pendingComplaints: complaints,
         averageRating: reviews,
@@ -71,14 +71,29 @@ export class AdminService {
   }
 
   private async averageReviewScore(startDate?: string, endDate?: string): Promise<number | null> {
-    let query = this.supabase.admin.from('reviews').select('score');
-    if (startDate) query = query.gte('created_at', startDate);
-    if (endDate) query = query.lte('created_at', endDate);
-    const { data, error } = await query;
-    if (error) throw new InternalServerErrorException('No se pudieron consultar las calificaciones.');
-    if (!data?.length) return null;
-    const average = data.reduce((sum, review) => sum + Number(review.score), 0) / data.length;
-    return Math.round(average * 100) / 100;
+    let total = 0;
+    let count = 0;
+    const pageSize = 1000;
+
+    for (let offset = 0; ; offset += pageSize) {
+      let query = this.supabase.admin
+        .from('reviews')
+        .select('score')
+        .order('id')
+        .range(offset, offset + pageSize - 1);
+      if (startDate) query = query.gte('created_at', startDate);
+      if (endDate) query = query.lte('created_at', endDate);
+      const { data, error } = await query;
+      if (error) throw new InternalServerErrorException('No se pudieron consultar las calificaciones.');
+      for (const review of data ?? []) {
+        total += Number(review.score);
+        count += 1;
+      }
+      if (!data || data.length < pageSize) break;
+    }
+
+    if (count === 0) return null;
+    return Math.round((total / count) * 100) / 100;
   }
 }
 

@@ -19,7 +19,9 @@ export class ProfilesService {
       .maybeSingle();
 
     if (error) throw new InternalServerErrorException('No se pudo consultar el perfil.');
-    if (!profile) throw new NotFoundException('No se encontró el perfil.');
+    if (!profile || (profile.role !== 'client' && profile.role !== 'worker')) {
+      throw new NotFoundException('No se encontró el perfil público.');
+    }
 
     const worker = Array.isArray(profile.worker_profiles)
       ? profile.worker_profiles[0]
