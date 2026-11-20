@@ -1,48 +1,57 @@
-import { Injectable, BadRequestException } from '@nestjs/common';
+import {
+  ForbiddenException,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import { SupabaseService } from '../../database/supabase.service.js';
 import { CreateComplaintDto } from './complaints.dto.js';
-import { Complaint } from './complaints.entity.js';
+
+const COMPLAINT_FIELDS = 'id, service_id, opened_by, description, status, assigned_to, resolution, created_at, updated_at';
 
 @Injectable()
 export class ComplaintsService {
-  private complaints: Complaint[] = [];
+  constructor(private readonly supabase: SupabaseService) {}
 
-  create(createComplaintDto: CreateComplaintDto) {
-    // Validar que el usuario no haya enviado ya un reclamo abierto para el mismo servicio
-    const existingComplaint = this.complaints.find(
-      (c) =>
-        c.serviceId === createComplaintDto.serviceId &&
-        c.complainantId === createComplaintDto.complainantId &&
-        c.status === 'PENDING',
-    );
+  async create(openedBy: string, dto: CreateComplaintDto) {
+    const { data: service, error: serviceError } = await this.supabase.admin
+      .from('services')
+      .select('client_id, worker_id')
+      .eq('id', dto.serviceId)
+      .maybeSingle();
 
-    if (existingComplaint) {
-      throw new BadRequestException(
-        'Ya tienes un reclamo pendiente registrado para este servicio.',
-      );
+    if (serviceError) throw new InternalServerErrorException('No se pudo verificar el servicio.');
+    if (!service) throw new NotFoundException('No se encontró el servicio.');
+    if (openedBy !== service.client_id && openedBy !== service.worker_id) {
+      throw new ForbiddenException('Solo un participante puede reclamar sobre este servicio.');
     }
 
-    const newComplaint: Complaint = {
-      id: Date.now().toString(),
-      ...createComplaintDto,
-      status: 'PENDING',
-      createdAt: new Date(),
-    };
+    const { data, error } = await this.supabase.admin
+      .from('complaints')
+      .insert({ service_id: dto.serviceId, opened_by: openedBy, description: dto.description })
+      .select(COMPLAINT_FIELDS)
+      .single();
 
-    this.complaints.push(newComplaint);
-
-    return {
-      message: 'Reclamo registrado con éxito (HU-11)',
-      complaint: newComplaint,
-    };
+    if (error) throw new InternalServerErrorException('No se pudo registrar el reclamo.');
+    return data;
   }
 
-  findAll() {
-    return this.complaints;
+  async findMine(openedBy: string) {
+    const { data, error } = await this.supabase.admin
+      .from('complaints')
+      .select(COMPLAINT_FIELDS)
+      .eq('opened_by', openedBy)
+      .order('created_at', { ascending: false });
+    if (error) throw new InternalServerErrorException('No se pudieron consultar tus reclamos.');
+    return data ?? [];
   }
 
-  findByUser(userId: string) {
-    return this.complaints.filter(
-      (c) => c.complainantId === userId || c.accusedUserId === userId,
-    );
+  async findAllForAdmin() {
+    const { data, error } = await this.supabase.admin
+      .from('complaints')
+      .select(COMPLAINT_FIELDS)
+      .order('created_at', { ascending: false });
+    if (error) throw new InternalServerErrorException('No se pudieron consultar los reclamos.');
+    return data ?? [];
   }
 }
