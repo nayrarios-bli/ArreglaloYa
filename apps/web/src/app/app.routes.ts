@@ -42,6 +42,18 @@ export const routes: Routes = [
         (module) => module.ClientDashboard,
       ),
   },
+
+  {
+    path: 'trabajador/perfil',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'worker' },
+    loadComponent: () =>
+      import('./features/worker/pages/profile/profile').then(
+        (module) => module.WorkerProfilePage,
+      ),
+    title: 'Completar perfil | ArreglaloYa',
+  },
+
   {
     path: 'cliente/perfil',
     canActivate: [authGuard, roleGuard],

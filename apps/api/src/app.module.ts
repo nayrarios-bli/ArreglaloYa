@@ -7,6 +7,7 @@ import { SupabaseModule } from './database/supabase.module.js';
 import { AuthModule } from './modules/auth/auth.module.js';
 import { ProfilesModule } from './modules/profiles/profiles.module.js';
 import { RequestsModule } from './requests/requests.module.js';
+import { WorkersModule } from './modules/workers/workers.module.js';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { RequestsModule } from './requests/requests.module.js';
     CatalogModule,
     RequestsModule,
     ProfilesModule,
+    WorkersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
