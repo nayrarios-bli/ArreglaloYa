@@ -7,13 +7,13 @@ import { AuthModule } from './modules/auth/auth.module.js';
 
 @Module({
   imports: [
-  ConfigModule.forRoot({
-    isGlobal: true,
-    envFilePath: '.env',
-  }),
-  SupabaseModule,
-  AuthModule,
-],
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['apps/api/.env', '.env'],
+    }),
+    SupabaseModule,
+    AuthModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })

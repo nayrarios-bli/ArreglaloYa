@@ -1,0 +1,89 @@
+<section class="offer-card">
+  <h2>Presentar oferta</h2>
+  <p class="intro">
+    Ingresa tu cotización estimada e indica si necesitas realizar una visita
+    previa.
+  </p>
+
+  <form [formGroup]="offerForm" (ngSubmit)="submit()" novalidate>
+    <div class="field">
+      <label for="estimatedAmount">Monto estimado (Bs.)</label>
+
+      <input
+        id="estimatedAmount"
+        type="number"
+        min="0"
+        step="0.01"
+        formControlName="estimatedAmount"
+        placeholder="Ej.: 250.00"
+        aria-describedby="amount-error"
+      />
+
+      @if (
+        offerForm.controls.estimatedAmount.touched &&
+        offerForm.controls.estimatedAmount.hasError('required')
+      ) {
+        <p id="amount-error" class="error">Ingresa el monto estimado.</p>
+      } @else if (
+        offerForm.controls.estimatedAmount.touched &&
+        offerForm.controls.estimatedAmount.hasError('min')
+      ) {
+        <p id="amount-error" class="error">
+          El monto debe ser igual o mayor a cero.
+        </p>
+      }
+    </div>
+
+    <fieldset class="field">
+      <legend>¿Requiere visita previa?</legend>
+
+      <label class="radio-option">
+        <input
+          type="radio"
+          formControlName="requiresVisit"
+          [value]="true"
+        />
+        Sí, necesito visitar el lugar
+      </label>
+
+      <label class="radio-option">
+        <input
+          type="radio"
+          formControlName="requiresVisit"
+          [value]="false"
+        />
+        No, puedo cotizar sin visita
+      </label>
+
+      @if (
+        offerForm.controls.requiresVisit.touched &&
+        offerForm.controls.requiresVisit.hasError('required')
+      ) {
+        <p class="error">Selecciona sí o no.</p>
+      }
+    </fieldset>
+
+    <div class="field">
+      <label for="message">Mensaje (opcional)</label>
+
+      <textarea
+        id="message"
+        rows="4"
+        formControlName="message"
+        placeholder="Agrega información útil para el cliente"
+      ></textarea>
+    </div>
+
+    <button type="submit" [disabled]="isSubmitting">
+      {{ isSubmitting ? 'Enviando…' : 'Presentar oferta' }}
+    </button>
+
+    @if (submitError) {
+      <p class="error" role="alert">{{ submitError }}</p>
+    }
+
+    @if (submitSuccess) {
+      <p class="notice" role="status">{{ submitSuccess }}</p>
+    }
+  </form>
+</section>
