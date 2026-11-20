@@ -93,12 +93,12 @@ El trigger solamente permite los roles `client` y `worker`, y comprueba que el n
 
 ## Gestión de confirmación de correo
 
-El registro contempla dos posibles respuestas:
+El backend contempla dos posibles respuestas:
 
-- Si Supabase devuelve una sesión, el frontend guarda la sesión y continúa con la navegación correspondiente.
-- Si se requiere confirmar el correo electrónico, se informa al usuario que debe revisar su correo antes de iniciar sesión.
+- Si Supabase devuelve una sesión, la respuesta del backend la incluye. El formulario actual de registro no guarda esa sesión ni inicia sesión automáticamente; muestra que la cuenta fue creada y que el usuario ya puede iniciar sesión.
+- Si se requiere confirmar el correo electrónico, el formulario informa que se debe revisar el correo para activar la cuenta.
 
-Cuando la confirmación es necesaria, el usuario es dirigido a la pantalla de inicio de sesión, donde se muestra el mensaje correspondiente.
+En ambos casos, el formulario permanece en la pantalla de registro y limpia los campos. El usuario debe abrir la pantalla de inicio de sesión manualmente. El formulario no lo redirige automáticamente.
 
 ## Gestión de sesiones
 
@@ -136,11 +136,11 @@ La implementación incorpora mecanismos para proteger los recursos de la aplicac
 
 ## Redirección según el rol y estado
 
-Después del registro o inicio de sesión, el sistema determina la navegación según el tipo de usuario.
+Después de iniciar sesión, el frontend determina la navegación según el tipo de usuario. El registro no inicia sesión automáticamente.
 
 | Usuario | Condición | Ruta |
 |---|---|---|
-| Cliente | Sesión iniciada | `/` |
+| Cliente | Sesión iniciada | `/cliente` |
 | Trabajador | Estado pendiente | `/trabajador/pendiente` |
 | Trabajador | Estado aprobado | `/trabajador` |
 | Trabajador | Estado rechazado | `/trabajador/rechazado` |
@@ -156,7 +156,7 @@ La funcionalidad utiliza Supabase Auth y las siguientes tablas:
 - `client_profiles`: almacena la información específica del perfil del cliente.
 - `worker_profiles`: almacena la información específica del perfil del trabajador y su estado de revisión.
 
-También se utilizan políticas de seguridad a nivel de fila (RLS) para controlar el acceso a los datos.
+Las migraciones habilitan RLS y restringen el acceso directo desde las claves `anon` y `authenticated`. El backend de NestJS consulta algunas tablas con `SUPABASE_SECRET_KEY`, que tiene privilegios administrativos y omite las políticas RLS; por eso, los endpoints protegidos deben validar el token y el rol mediante los guards. RLS no reemplaza esos controles del backend.
 
 ## Migraciones relacionadas
 
@@ -171,7 +171,7 @@ El backend utiliza variables de entorno para conectarse a Supabase:
 - `SUPABASE_SECRET_KEY`
 - `SUPABASE_PUBLISHABLE_KEY`
 
-La configuración se carga mediante `ConfigModule` de NestJS. Las claves privadas se mantienen en el archivo `.env`, que no debe subirse al repositorio.
+La configuración se carga mediante `ConfigModule` de NestJS. `SUPABASE_SECRET_KEY` es una credencial administrativa: debe permanecer solo en el backend, guardarse en `.env` y no subirse al repositorio. La clave publishable se usa para las operaciones públicas de autenticación.
 
 ## Archivos principales
 
