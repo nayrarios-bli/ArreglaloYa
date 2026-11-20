@@ -1,14 +1,167 @@
 
+<header class="topbar">
+  <a class="brand" routerLink="/cliente" aria-label="ArreglaloYa, inicio">
+    <span class="brand-mark">A</span>
+    <span>Arreglalo<span class="brand-accent">Ya</span></span>
+  </a>
+
+  <nav class="navigation" aria-label="Navegación del cliente">
+    <a
+      routerLink="/cliente"
+      routerLinkActive="active"
+      [routerLinkActiveOptions]="{ exact: true }"
+    >Inicio</a>
+
+    <a
+      class="profile-link"
+      routerLink="/cliente/perfil"
+      routerLinkActive="active"
+      aria-label="Consultar y editar mi perfil"
+    >
+      <span class="profile-nav-icon" aria-hidden="true">♙</span>
+      <span>Mi perfil</span>
+    </a>
+  </nav>
+
+  <button class="logout-button" type="button" (click)="logout()">
+    Cerrar sesión
+  </button>
+</header>
+
 <main class="dashboard">
-  <section class="welcome">
-    <h1>¡Bienvenido a ArreglaloYa!</h1>
-    <p>Has iniciado sesión correctamente como cliente.</p>
-    <p>Desde aquí podrás acceder a los servicios de la plataforma.</p>
+
+  <!-- Bienvenida -->
+  <section class="hero">
+    <div class="hero-copy">
+      <span class="eyebrow">
+        <span class="status-dot"></span>
+        TU ESPACIO EN ARREGLALOYA
+      </span>
+
+      <h1>¡Hola, {{ firstName }}!<br /><span>¿Qué arreglamos hoy?</span></h1>
+
+      <p class="hero-description">
+        Encuentra ayuda para las reparaciones de tu hogar.
+        Desde aquí podrás organizar tus solicitudes y servicios.
+      </p>
+
+      <div class="hero-note">
+        <span class="note-icon">✓</span>
+        Tu hogar, en buenas manos
+      </div>
+    </div>
+
+    <div class="hero-art" aria-label="Ilustración de un hogar y herramientas">
+      <div class="art-orbit orbit-one"></div>
+      <div class="art-orbit orbit-two"></div>
+      <div class="art-sun"></div>
+
+      <div class="art-house">
+        <div class="house-roof"></div>
+        <div class="house-body">
+          <div class="house-window"></div>
+          <div class="house-door"></div>
+        </div>
+      </div>
+
+      <div class="floating-card card-top">
+        <span class="card-icon icon-wrench">⌁</span>
+        <span>
+          <strong>Soluciones para tu hogar</strong>
+          <small>Encuentra ayuda cuando la necesites</small>
+        </span>
+      </div>
+
+      <div class="floating-card card-bottom">
+        <span class="card-icon icon-check">✓</span>
+        <span>
+          <strong>Gestiona desde un solo lugar</strong>
+          <small>Tus solicitudes y servicios</small>
+        </span>
+      </div>
+
+      <span class="sparkle sparkle-a">✳</span>
+      <span class="sparkle sparkle-b">✦</span>
+    </div>
   </section>
 
-  <button class="logout-button" (click)="logout()">
-  Cerrar sesión
-</button>
+  <!-- Crear solicitud -->
+  <section class="request-banner">
+    <div class="request-copy">
+      <span class="section-kicker">¿NECESITAS AYUDA?</span>
+      <h2>Cuéntanos qué necesitas arreglar</h2>
+      <p>
+        Publica una solicitud para que los trabajadores puedan conocer
+        lo que necesitas y enviarte sus propuestas.
+      </p>
+    </div>
 
+    <div class="request-action">
+      <button type="button" disabled>+ Crear solicitud</button>
+      <span>Próximamente</span>
+    </div>
+  </section>
 
+  <!-- Actividad del cliente -->
+  <section class="account-section">
+    <div class="section-heading">
+      <div>
+        <span class="section-kicker">TU ACTIVIDAD</span>
+        <h2>Tu actividad</h2>
+        <p>Desde aquí podrás dar seguimiento a tus solicitudes y servicios.</p>
+      </div>
+    </div>
+
+    <div class="account-grid">
+
+      <!-- Mis solicitudes -->
+      <article class="account-card requests-card">
+        <div class="card-illustration illustration-request" aria-hidden="true">
+          <span class="illustration-sheet"></span>
+          <span class="illustration-line line-one"></span>
+          <span class="illustration-line line-two"></span>
+          <span class="illustration-line line-three"></span>
+        </div>
+
+        <div class="card-content">
+          <h3>Mis solicitudes</h3>
+          <p>Consulta las solicitudes de reparación que hayas publicado.</p>
+          <span class="coming-soon">Próximamente</span>
+        </div>
+      </article>
+
+      <!-- Ofertas recibidas -->
+      <article class="account-card offers-card">
+        <div class="card-illustration illustration-offers" aria-hidden="true">
+          <span class="offer-bubble bubble-one">✓</span>
+          <span class="offer-bubble bubble-two">✦</span>
+          <span class="offer-base"></span>
+        </div>
+
+        <div class="card-content">
+          <h3>Ofertas recibidas</h3>
+          <p>Revisa y compara las propuestas enviadas por los trabajadores.</p>
+          <span class="coming-soon">Próximamente</span>
+        </div>
+      </article>
+
+      <!-- Servicios contratados -->
+      <article class="account-card services-card">
+        <div class="card-illustration illustration-services" aria-hidden="true">
+          <span class="service-roof"></span>
+          <span class="service-home">
+            <i></i>
+          </span>
+          <span class="service-tool">⌁</span>
+        </div>
+
+        <div class="card-content">
+          <h3>Mis servicios contratados</h3>
+          <p>Consulta el estado y seguimiento de los trabajos que contrataste.</p>
+          <span class="coming-soon">Próximamente</span>
+        </div>
+      </article>
+
+    </div>
+  </section>
 </main>
