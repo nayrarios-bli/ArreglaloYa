@@ -1,22 +1,88 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAdminReportDto } from './admin.dto.js';
-import { AdminReport } from './admin.entity.js';
+import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+import { SupabaseService } from '../../database/supabase.service.js';
+import { FilterAdminReportDto } from './admin.dto.js';
 
 @Injectable()
 export class AdminService {
-  private reports: AdminReport[] = [];
+  constructor(private readonly supabase: SupabaseService) {}
 
-  generateReport(dto: CreateAdminReportDto): AdminReport {
-    const newReport: AdminReport = {
-      id: Date.now().toString(),
-      ...dto,
-      createdAt: new Date(),
+  async getSystemActivityReport(filters: FilterAdminReportDto) {
+    const startDate = filters.startDate ? new Date(filters.startDate).toISOString() : undefined;
+    const endDate = filters.endDate ? inclusiveEnd(filters.endDate) : undefined;
+    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
+      throw new BadRequestException('La fecha inicial no puede ser posterior a la fecha final.');
+    }
+
+    const [users, clients, workers, services, complaints, reviews] = await Promise.all([
+      this.countProfiles(undefined, startDate, endDate),
+      this.countProfiles('client', startDate, endDate),
+      this.countProfiles('worker', startDate, endDate),
+      this.countCompletedServices(startDate, endDate),
+      this.countOpenComplaints(startDate, endDate),
+      this.averageReviewScore(startDate, endDate),
+    ]);
+
+    return {
+      generatedAt: new Date().toISOString(),
+      filtersApplied: { startDate: filters.startDate ?? null, endDate: filters.endDate ?? null },
+      metrics: {
+        totalUsers: users,
+        activeClients: clients,
+        activeWorkers: workers,
+        completedServices: services,
+        pendingComplaints: complaints,
+        averageRating: reviews,
+      },
     };
-    this.reports.push(newReport);
-    return newReport;
   }
 
-  findAllReports(): AdminReport[] {
-    return this.reports;
+  private async countProfiles(role: 'client' | 'worker' | undefined, startDate?: string, endDate?: string) {
+    let query = this.supabase.admin.from('profiles').select('id', { count: 'exact', head: true });
+    if (role) query = query.eq('role', role);
+    if (startDate) query = query.gte('created_at', startDate);
+    if (endDate) query = query.lte('created_at', endDate);
+    const { count, error } = await query;
+    if (error) throw new InternalServerErrorException('No se pudieron contar los usuarios.');
+    return count ?? 0;
   }
-}   
+
+  private async countCompletedServices(startDate?: string, endDate?: string) {
+    let query = this.supabase.admin
+      .from('services')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'completed');
+    if (startDate) query = query.gte('completed_at', startDate);
+    if (endDate) query = query.lte('completed_at', endDate);
+    const { count, error } = await query;
+    if (error) throw new InternalServerErrorException('No se pudieron contar los servicios finalizados.');
+    return count ?? 0;
+  }
+
+  private async countOpenComplaints(startDate?: string, endDate?: string) {
+    let query = this.supabase.admin
+      .from('complaints')
+      .select('id', { count: 'exact', head: true })
+      .eq('status', 'open');
+    if (startDate) query = query.gte('created_at', startDate);
+    if (endDate) query = query.lte('created_at', endDate);
+    const { count, error } = await query;
+    if (error) throw new InternalServerErrorException('No se pudieron contar los reclamos pendientes.');
+    return count ?? 0;
+  }
+
+  private async averageReviewScore(startDate?: string, endDate?: string): Promise<number | null> {
+    let query = this.supabase.admin.from('reviews').select('score');
+    if (startDate) query = query.gte('created_at', startDate);
+    if (endDate) query = query.lte('created_at', endDate);
+    const { data, error } = await query;
+    if (error) throw new InternalServerErrorException('No se pudieron consultar las calificaciones.');
+    if (!data?.length) return null;
+    const average = data.reduce((sum, review) => sum + Number(review.score), 0) / data.length;
+    return Math.round(average * 100) / 100;
+  }
+}
+
+function inclusiveEnd(value: string): string {
+  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return `${value}T23:59:59.999Z`;
+  return new Date(value).toISOString();
+}
