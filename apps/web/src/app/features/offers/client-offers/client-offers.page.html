@@ -1,0 +1,58 @@
+<section class="offers-page">
+  <h1>Ofertas recibidas</h1>
+  <p>Revisa las cotizaciones y selecciona la que mejor se ajuste a tu solicitud.</p>
+
+  @if (loading()) {
+    <p role="status">Cargando ofertas…</p>
+  } @else if (error()) {
+    <p class="error" role="alert">{{ error() }}</p>
+  } @else if (offers().length === 0) {
+    <p role="status">
+      Todavía no hay ofertas. Puedes volver más tarde o cancelar la solicitud
+      desde las opciones de la solicitud.
+    </p>
+  } @else {
+    @for (offer of offers(); track offer.id) {
+      <article class="offer-card">
+        <h2>Oferta de trabajador</h2>
+
+        <p>
+          <strong>Monto estimado:</strong>
+          Bs. {{ offer.estimated_amount.toFixed(2) }}
+        </p>
+
+        <p>
+          <strong>Visita previa:</strong>
+          {{ offer.requires_visit ? 'Sí, requiere visita' : 'No requiere visita' }}
+        </p>
+
+        @if (offer.message) {
+          <p><strong>Mensaje:</strong> {{ offer.message }}</p>
+        }
+
+        <p class="profile-note">
+          ID del trabajador: {{ offer.worker_id }}
+        </p>
+
+        <button
+          type="button"
+          [disabled]="selecting() || selected() !== null"
+          (click)="selectOffer(offer)"
+        >
+          {{ selecting() ? 'Seleccionando…' : 'Seleccionar oferta' }}
+        </button>
+      </article>
+    }
+  }
+
+  @if (selected(); as result) {
+    <p class="success" role="status">
+      Oferta seleccionada. El servicio quedó registrado.
+      @if (result.final_amount !== null) {
+        Precio acordado: Bs. {{ result.final_amount.toFixed(2) }}.
+      } @else {
+        El precio se confirmará después de la visita.
+      }
+    </p>
+  }
+</section>

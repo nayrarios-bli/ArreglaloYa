@@ -112,4 +112,14 @@ export const routes: Routes = [
       ),
   },
   { path: '**', redirectTo: '' },
+  {
+  path: 'cliente/solicitudes/:requestId/ofertas',
+  canActivate: [authGuard, roleGuard],
+  data: { role: 'client' },
+  loadComponent: () =>
+    import('./features/offers/client-offers/client-offers.page.js').then(
+      (module) => module.ClientOffersPage,
+    ),
+  title: 'Ofertas recibidas | ArreglaloYa',
+},
 ];
