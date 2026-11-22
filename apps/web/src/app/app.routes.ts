@@ -111,5 +111,15 @@ export const routes: Routes = [
         (module) => module.WorkerRejected,
       ),
   },
-  { path: '**', redirectTo: '' },
+
+  {
+  path: 'superadmin',
+  canActivate: [authGuard, roleGuard],
+  data: { role: 'superadmin' },
+  loadComponent: () =>
+    import('./features/superadmin/pages/admin-management/admin-management')
+      .then((module) => module.AdminManagement),
+  title: 'Gestión de administradores | ArreglaloYa',
+},
+{ path: '**', redirectTo: '' },
 ];
