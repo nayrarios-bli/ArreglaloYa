@@ -23,7 +23,7 @@ export interface AuthUser {
   email: string;
   fullName: string;
   phone: string | null;
-  role: 'client' | 'worker';
+  role: 'client' | 'worker' | 'admin' | 'superadmin';
   reviewStatus: 'pending' | 'approved' | 'rejected' | null;
 }
 

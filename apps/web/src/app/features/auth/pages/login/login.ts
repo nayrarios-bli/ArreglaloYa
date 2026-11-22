@@ -1,3 +1,4 @@
+
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -36,6 +37,7 @@ export class Login {
     const emailError = new URLSearchParams(
       this.route.snapshot.fragment ?? '',
     ).get('error_code');
+
     if (emailError === 'otp_expired') {
       this.errorMessage.set(
         'El enlace de verificación venció o ya fue usado. Pide que te envíen uno nuevo y abre solo el enlace más reciente.',
@@ -68,6 +70,11 @@ export class Login {
 
           if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
             this.router.navigateByUrl(returnUrl);
+            return;
+          }
+
+          if (user.role === 'admin' || user.role === 'superadmin') {
+            this.router.navigate(['/admin']);
             return;
           }
 
