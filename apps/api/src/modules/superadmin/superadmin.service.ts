@@ -29,6 +29,15 @@ export class SuperadminService {
     return this.supabaseService.admin;
   }
 
+  private async removePartiallyProvisionedAccount(userId: string) {
+    const { error } = await this.supabase.auth.admin.deleteUser(userId);
+    if (error) {
+      throw new BadRequestException(
+        `La configuración falló y no se pudo limpiar la cuenta parcial (${userId}). Revisa Supabase antes de reintentar.`,
+      );
+    }
+  }
+
   // =====================================================
   // VERIFICAR QUE EL USUARIO SEA ADMINISTRADOR
   // =====================================================
@@ -122,8 +131,9 @@ export class SuperadminService {
       );
 
     if (metadataError) {
+      await this.removePartiallyProvisionedAccount(userId);
       throw new BadRequestException(
-        `La cuenta se creó, pero no se pudieron actualizar sus metadatos. ID: ${userId}. ${metadataError.message}`,
+        `No se pudieron actualizar los metadatos administrativos. ${metadataError.message}`,
       );
     }
 
@@ -134,8 +144,9 @@ export class SuperadminService {
       });
 
     if (provisionError) {
+      await this.removePartiallyProvisionedAccount(userId);
       throw new BadRequestException(
-        `La cuenta se creó, pero no se pudo convertir en administrador. ID: ${userId}. ${provisionError.message}`,
+        `No se pudo convertir la cuenta en administrador. ${provisionError.message}`,
       );
     }
 
@@ -148,14 +159,16 @@ export class SuperadminService {
         .maybeSingle();
 
     if (profileError) {
+      await this.removePartiallyProvisionedAccount(userId);
       throw new BadRequestException(
-        `No se pudo verificar el administrador. ID: ${userId}. ${profileError.message}`,
+        `No se pudo verificar el administrador. ${profileError.message}`,
       );
     }
 
     if (!profile || profile.role !== 'admin') {
+      await this.removePartiallyProvisionedAccount(userId);
       throw new BadRequestException(
-        `El perfil no terminó con rol admin. ID: ${userId}. Revisa Supabase antes de continuar.`,
+        'El perfil no terminó con rol de administrador.',
       );
     }
 
