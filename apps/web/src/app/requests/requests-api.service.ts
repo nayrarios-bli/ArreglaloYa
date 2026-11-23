@@ -21,6 +21,14 @@ export interface CreatedRequest {
   status: string;
 }
 
+export interface ClientRequestSummary {
+  id: string;
+  title: string;
+  status: string;
+  created_at: string;
+  expires_at: string;
+}
+
 export interface UploadedRequestAttachment {
   id: string;
   storage_path: string;
@@ -32,6 +40,12 @@ export interface UploadedRequestAttachment {
 @Injectable({ providedIn: 'root' })
 export class RequestsApiService {
   private readonly http = inject(HttpClient);
+
+  getMyRequests(accessToken: string): Observable<ClientRequestSummary[]> {
+    return this.http.get<ClientRequestSummary[]>(`${API_URL}/requests/mine`, {
+      headers: new HttpHeaders({ Authorization: `Bearer ${accessToken}` }),
+    });
+  }
 
   getClientZone(accessToken: string): Observable<{ homeZoneId: string | null }> {
     return this.http.get<{ homeZoneId: string | null }>(

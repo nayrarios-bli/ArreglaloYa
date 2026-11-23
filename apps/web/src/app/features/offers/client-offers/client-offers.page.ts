@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../../core/auth.service.js';
 import {
   OffersApiService,
+  type PublicWorkerProfile,
   type RequestOffer,
   type SelectedOffer,
 } from '../offers-api.service.js';
@@ -27,6 +28,7 @@ export class ClientOffersPage implements OnInit {
   readonly selecting = signal(false);
   readonly error = signal('');
   readonly selected = signal<SelectedOffer | null>(null);
+  readonly workerProfiles = signal<Record<string, PublicWorkerProfile | null>>({});
 
   ngOnInit(): void {
     this.requestId =
@@ -89,12 +91,46 @@ export class ClientOffersPage implements OnInit {
         next: (offers) => {
           this.offers.set(offers);
           this.loading.set(false);
+          for (const offer of offers) {
+            this.api
+              .getWorkerProfileForOffer(
+                this.requestId!,
+                offer.id,
+                this.accessToken!,
+              )
+              .subscribe({
+                next: (profile) =>
+                  this.workerProfiles.update((profiles) => ({
+                    ...profiles,
+                    [offer.id]: profile,
+                  })),
+                error: () =>
+                  this.workerProfiles.update((profiles) => ({
+                    ...profiles,
+                    [offer.id]: null,
+                  })),
+              });
+          }
         },
         error: (error: HttpErrorResponse) => {
           this.error.set(this.errorMessage(error));
           this.loading.set(false);
         },
       });
+  }
+
+  workerProfile(offerId: string): PublicWorkerProfile | null | undefined {
+    return this.workerProfiles()[offerId];
+  }
+
+  specialtyNames(profile: PublicWorkerProfile): string {
+    return profile.specialties.map((specialty) => specialty.name).join(', ');
+  }
+
+  zoneNames(profile: PublicWorkerProfile): string {
+    return profile.serviceZones
+      .map((zone) => `${zone.name}, ${zone.city}`)
+      .join(' · ');
   }
 
   private errorMessage(error: HttpErrorResponse): string {

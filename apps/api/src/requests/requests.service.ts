@@ -34,6 +34,17 @@ interface CreateRequestInput {
 export class RequestsService {
   constructor(private readonly supabase: SupabaseService) {}
 
+  async listMine(clientId: string) {
+    const { data, error } = await this.supabase.admin
+      .from('repair_requests')
+      .select('id, title, status, created_at, expires_at')
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false });
+
+    if (error) this.fail('No se pudieron consultar tus solicitudes.');
+    return data ?? [];
+  }
+
   async listCompatible(workerId: string) {
     const profile = await this.getWorkerMatch(workerId);
     if (!profile.profileReady) return { profileReady: false, requests: [] };

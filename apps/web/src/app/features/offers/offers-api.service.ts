@@ -19,11 +19,19 @@ export interface RequestOffer {
   id: string;
   request_id: string;
   worker_id: string;
-  estimated_amount: number;
+  estimated_amount: number | null;
   requires_visit: boolean;
   message: string | null;
   status: string;
   created_at: string;
+}
+
+export interface PublicWorkerProfile {
+  id: string;
+  fullName: string;
+  bio: string | null;
+  specialties: { id: string; name: string }[];
+  serviceZones: { id: string; name: string; city: string }[];
 }
 
 export interface SelectedOffer {
@@ -86,6 +94,21 @@ selectOffer(
   return this.http.post<SelectedOffer>(
     `${API_URL}/requests/${encodeURIComponent(requestId)}/offers/${encodeURIComponent(offerId)}/select`,
     {},
+    { headers },
+  );
+}
+
+getWorkerProfileForOffer(
+  requestId: string,
+  offerId: string,
+  accessToken: string,
+): Observable<PublicWorkerProfile> {
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${accessToken}`,
+  });
+
+  return this.http.get<PublicWorkerProfile>(
+    `${API_URL}/requests/${encodeURIComponent(requestId)}/offers/${encodeURIComponent(offerId)}/worker-profile`,
     { headers },
   );
 }

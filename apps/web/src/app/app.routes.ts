@@ -111,7 +111,6 @@ export const routes: Routes = [
         (module) => module.WorkerRejected,
       ),
   },
-  { path: '**', redirectTo: '' },
   {
   path: 'cliente/solicitudes/:requestId/ofertas',
   canActivate: [authGuard, roleGuard],
@@ -122,4 +121,5 @@ export const routes: Routes = [
     ),
   title: 'Ofertas recibidas | ArreglaloYa',
 },
+  { path: '**', redirectTo: '' },
 ];

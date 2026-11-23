@@ -18,7 +18,11 @@
 
         <p>
           <strong>Monto estimado:</strong>
-          Bs. {{ offer.estimated_amount.toFixed(2) }}
+          @if (offer.estimated_amount !== null) {
+            Bs. {{ offer.estimated_amount.toFixed(2) }}
+          } @else {
+            Se confirmará después de la visita
+          }
         </p>
 
         <p>
@@ -30,9 +34,28 @@
           <p><strong>Mensaje:</strong> {{ offer.message }}</p>
         }
 
-        <p class="profile-note">
-          ID del trabajador: {{ offer.worker_id }}
-        </p>
+        @if (workerProfile(offer.id); as worker) {
+          <section class="worker-profile" aria-label="Perfil del trabajador">
+            <h3>{{ worker.fullName }}</h3>
+            @if (worker.bio) {
+              <p>{{ worker.bio }}</p>
+            }
+            @if (worker.specialties.length) {
+              <p><strong>Especialidades:</strong>
+                {{ specialtyNames(worker) }}
+              </p>
+            }
+            @if (worker.serviceZones.length) {
+              <p><strong>Zonas:</strong>
+                {{ zoneNames(worker) }}
+              </p>
+            }
+          </section>
+        } @else if (workerProfile(offer.id) === undefined) {
+          <p class="profile-note" role="status">Cargando perfil del trabajador…</p>
+        } @else {
+          <p class="profile-note">El perfil público no está disponible.</p>
+        }
 
         <button
           type="button"
