@@ -384,7 +384,8 @@
   flex: 0 0 auto;
 }
 
-.request-action button {
+.request-action a {
+  display: inline-block;
   padding: 13px 19px;
   border: 1px solid #28795f;
   border-radius: 7px;
@@ -392,8 +393,14 @@
   background: #28795f;
   font-size: 12px;
   font-weight: 650;
-  cursor: not-allowed;
-  opacity: .58;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background .18s ease, transform .18s ease;
+}
+
+.request-action a:hover {
+  background: #1f624d;
+  transform: translateY(-1px);
 }
 
 .request-action span {
@@ -402,6 +409,30 @@
 }
 
 /* ACTIVIDAD DEL CLIENTE */
+.request-list {
+  display: grid;
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.request-list li {
+  display: grid;
+  gap: 6px;
+  padding: 11px 12px;
+  border: 1px solid #e2e8e4;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 13px;
+}
+
+.request-list a {
+  width: fit-content;
+  color: #28795f;
+  font-weight: 650;
+}
+
 .account-section {
   padding: 0 max(9vw, 32px) 65px;
 }

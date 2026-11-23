@@ -29,6 +29,12 @@ interface AuthenticatedRequest extends Request {
 export class RequestsController {
   constructor(private readonly requests: RequestsService) {}
 
+  @Get('mine')
+  @Roles('client')
+  listMine(@Req() request: AuthenticatedRequest) {
+    return this.requests.listMine(request.user.id);
+  }
+
   @Get('compatible')
   @Roles('worker')
   @UseGuards(WorkerStatusGuard)

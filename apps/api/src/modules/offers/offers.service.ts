@@ -104,4 +104,101 @@ export class OffersService {
       throw new BadRequestException('El mensaje debe ser texto.');
     }
   }
+
+  async listOffersForClient(
+  requestId: string,
+  clientId: string,
+) {
+  const request =
+    await this.offersRepository.getRequestForClient(requestId);
+
+  if (!request) {
+    throw new NotFoundException('La solicitud no existe.');
+  }
+
+  if (request.client_id !== clientId) {
+    throw new ForbiddenException(
+      'No puedes consultar ofertas de otra persona.',
+    );
+  }
+
+  if (
+    request.status !== 'open' &&
+    request.status !== 'in_service'
+  ) {
+    throw new ConflictException(
+      'La solicitud ya no está disponible para revisar ofertas.',
+    );
+  }
+
+  return this.offersRepository.listOffersForRequest(requestId);
+}
+
+async selectOfferForClient(
+  requestId: string,
+  offerId: string,
+  clientId: string,
+) {
+  const request =
+    await this.offersRepository.getRequestForClient(requestId);
+
+  if (!request) {
+    throw new NotFoundException('La solicitud no existe.');
+  }
+
+  if (request.client_id !== clientId) {
+    throw new ForbiddenException(
+      'No puedes seleccionar ofertas de otra persona.',
+    );
+  }
+
+  if (
+    request.status !== 'open' ||
+    new Date(request.expires_at).getTime() <= Date.now()
+  ) {
+    throw new ConflictException(
+      'La solicitud ya no está vigente para seleccionar una oferta.',
+    );
+  }
+
+  return this.offersRepository.selectOfferAtomically({
+    requestId,
+    offerId,
+    clientId,
+  });
+}
+async getPublicWorkerProfileForOffer(
+  requestId: string,
+  offerId: string,
+  clientId: string,
+) {
+  const request =
+    await this.offersRepository.getRequestForClient(requestId);
+
+  if (!request) {
+    throw new NotFoundException('La solicitud no existe.');
+  }
+
+  if (request.client_id !== clientId) {
+    throw new ForbiddenException(
+      'No puedes consultar ofertas de otra persona.',
+    );
+  }
+
+  const offer =
+    await this.offersRepository.getOfferForPublicProfile(
+      requestId,
+      offerId,
+    );
+
+  if (!offer) {
+    throw new NotFoundException(
+      'La oferta no existe para esta solicitud.',
+    );
+  }
+
+  return this.offersRepository.getPublicWorkerProfile(
+    offer.worker_id,
+  );
+}
 }
