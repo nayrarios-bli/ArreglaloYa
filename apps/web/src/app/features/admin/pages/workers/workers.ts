@@ -49,19 +49,16 @@ export class AdminWorkers implements OnInit {
     this.errorMessage = '';
 
     this.adminApi.getPendingWorkers(token).subscribe({
-  next: (workers) => {
-    console.log('RESPUESTA RECIBIDA:', workers);
-    this.workers = workers;
-    this.loading = false;
-    console.log('LOADING DESPUÉS DE RECIBIR:', this.loading);
-  },
-  error: (error) => {
-    console.error('ERROR AL CARGAR:', error);
-    this.errorMessage =
-      'No se pudieron cargar los trabajadores pendientes.';
-    this.loading = false;
-  },
-});
+      next: (workers) => {
+        this.workers = workers;
+        this.loading = false;
+      },
+      error: () => {
+        this.errorMessage =
+          'No se pudieron cargar los trabajadores pendientes.';
+        this.loading = false;
+      },
+    });
   }
 
   openReview(worker: AdminWorker, decision: ReviewDecision): void {

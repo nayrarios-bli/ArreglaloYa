@@ -179,7 +179,7 @@ export class AdminService {
       );
     }
 
-    const { error: updateError } = await client
+    const { data: updatedWorker, error: updateError } = await client
       .from('worker_profiles')
       .update({
         review_status: input.decision,
@@ -187,11 +187,21 @@ export class AdminService {
         reviewed_at: new Date().toISOString(),
         review_notes: input.notes?.trim() || null,
       })
-      .eq('user_id', workerId);
+      .eq('user_id', workerId)
+      .eq('review_status', 'pending')
+      .not('submitted_at', 'is', null)
+      .select('user_id')
+      .maybeSingle();
 
     if (updateError) {
       throw new InternalServerErrorException(
         'No se pudo registrar la decisión.',
+      );
+    }
+
+    if (!updatedWorker) {
+      throw new ConflictException(
+        'La solicitud ya fue revisada por otro administrador.',
       );
     }
 
