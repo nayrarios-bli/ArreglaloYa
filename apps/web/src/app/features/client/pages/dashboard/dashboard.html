@@ -97,8 +97,7 @@
     </div>
 
     <div class="request-action">
-      <button type="button" disabled>+ Crear solicitud</button>
-      <span>Próximamente</span>
+      <a routerLink="/solicitudes/nueva">+ Crear solicitud</a>
     </div>
   </section>
 
@@ -126,7 +125,24 @@
         <div class="card-content">
           <h3>Mis solicitudes</h3>
           <p>Consulta las solicitudes de reparación que hayas publicado.</p>
-          <span class="coming-soon">Próximamente</span>
+          @if (requestsLoading()) {
+            <span role="status">Cargando solicitudes…</span>
+          } @else if (requestsError()) {
+            <span role="alert">{{ requestsError() }}</span>
+          } @else if (requests().length === 0) {
+            <span>Aún no tienes solicitudes publicadas.</span>
+          } @else {
+            <ul class="request-list">
+              @for (request of requests(); track request.id) {
+                <li>
+                  <span>{{ request.title }} · {{ request.status }}</span>
+                  @if (request.status === 'open') {
+                    <a [routerLink]="['/cliente/solicitudes', request.id, 'ofertas']">Revisar ofertas</a>
+                  }
+                </li>
+              }
+            </ul>
+          }
         </div>
       </article>
 
@@ -141,7 +157,7 @@
         <div class="card-content">
           <h3>Ofertas recibidas</h3>
           <p>Revisa y compara las propuestas enviadas por los trabajadores.</p>
-          <span class="coming-soon">Próximamente</span>
+          <span>Las ofertas aparecerán junto a cada solicitud abierta.</span>
         </div>
       </article>
 
