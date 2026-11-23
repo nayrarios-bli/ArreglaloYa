@@ -1,3 +1,4 @@
+
 import { Routes } from '@angular/router';
 import { authGuard } from './core/auth.guard';
 import { roleGuard } from './core/role.guard';
@@ -23,6 +24,28 @@ export const routes: Routes = [
         (module) => module.Login,
       ),
   },
+    {
+  path: 'admin/workers',
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['admin', 'superadmin'] },
+  loadComponent: () =>
+    import('./features/admin/pages/workers/workers').then(
+      (module) => module.AdminWorkers,
+    ),
+  title: 'Revisión de trabajadores | ArreglaloYa',
+},
+  // Panel de administración - HU-12
+  {
+    path: 'admin',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin', 'superadmin'] },
+    loadComponent: () =>
+      import('./features/admin/pages/dashboard/dashboard').then(
+        (module) => module.AdminDashboard,
+      ),
+    title: 'Panel de administración | ArreglaloYa',
+  },
+
   {
     path: 'solicitudes/nueva',
     canActivate: [authGuard, roleGuard],
@@ -42,7 +65,6 @@ export const routes: Routes = [
         (module) => module.ClientDashboard,
       ),
   },
-
   {
     path: 'trabajador/perfil',
     canActivate: [authGuard, roleGuard],
@@ -53,7 +75,6 @@ export const routes: Routes = [
       ),
     title: 'Completar perfil | ArreglaloYa',
   },
-
   {
     path: 'cliente/perfil',
     canActivate: [authGuard, roleGuard],

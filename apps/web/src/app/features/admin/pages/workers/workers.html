@@ -1,0 +1,271 @@
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">A</div>
+      <div>
+        <h2>ArreglaloYa</h2>
+        <span>Administración</span>
+      </div>
+    </div>
+
+    <nav class="navigation">
+      <span class="nav-label">MENÚ PRINCIPAL</span>
+
+      <a routerLink="/admin">
+        <span class="nav-icon">▦</span>
+        Panel principal
+      </a>
+
+      <a routerLink="/admin/workers" class="active">
+        <span class="nav-icon">♙</span>
+        Revisión de trabajadores
+      </a>
+
+      <span class="nav-label secondary-label">OTRAS FUNCIONES</span>
+
+      <div class="nav-disabled">
+        <span class="nav-icon">◇</span>
+        Categorías y zonas
+        <small>Próximamente</small>
+      </div>
+
+      <div class="nav-disabled">
+        <span class="nav-icon">▤</span>
+        Gestión de reclamos
+        <small>Próximamente</small>
+      </div>
+
+      <div class="nav-disabled">
+        <span class="nav-icon">▥</span>
+        Reportes
+        <small>Próximamente</small>
+      </div>
+    </nav>
+
+    <a routerLink="/admin" class="back-link">
+      ← Volver al panel
+    </a>
+  </aside>
+
+  <main class="main-content">
+    <header class="page-header">
+      <div>
+        <span class="breadcrumb">Administración / Trabajadores</span>
+        <h1>Revisión de trabajadores</h1>
+        <p>
+          Consulta los perfiles enviados y registra la decisión de revisión.
+        </p>
+      </div>
+
+      <div class="pending-counter">
+        <span>Pendientes</span>
+        <strong>{{ workers.length }}</strong>
+      </div>
+    </header>
+
+    @if (successMessage) {
+      <div class="success-message">
+        {{ successMessage }}
+      </div>
+    }
+
+    @if (errorMessage) {
+      <div class="error-message">
+        {{ errorMessage }}
+        <button type="button" (click)="loadWorkers()">Reintentar</button>
+      </div>
+    }
+
+    <section class="workers-section">
+      @if (loading) {
+        <div class="state-card">
+          <div class="loader"></div>
+          <p>Cargando trabajadores pendientes...</p>
+        </div>
+      } @else if (workers.length === 0) {
+        <div class="state-card empty-state">
+          <div class="empty-icon">✓</div>
+          <h2>No hay trabajadores pendientes</h2>
+          <p>
+            Cuando un trabajador envíe su perfil para revisión,
+            aparecerá en esta sección.
+          </p>
+          <button type="button" class="secondary-button"
+                  (click)="loadWorkers()">
+            Actualizar listado
+          </button>
+        </div>
+      } @else {
+        <div class="section-heading">
+          <div>
+            <h2>Solicitudes recibidas</h2>
+            <p>
+              Se muestran los perfiles que esperan una decisión administrativa.
+            </p>
+          </div>
+          <button type="button" class="refresh-button"
+                  (click)="loadWorkers()">
+            ↻ Actualizar
+          </button>
+        </div>
+
+        <div class="workers-list">
+          @for (worker of workers; track worker.user_id) {
+            <article class="worker-card">
+              <div class="worker-header">
+                <div class="worker-avatar">
+                  {{ (worker.fullName || 'T').charAt(0).toUpperCase() }}
+                </div>
+
+                <div class="worker-identity">
+                  <h3>{{ worker.fullName || 'Nombre no disponible' }}</h3>
+                  <span>{{ worker.phone || 'Teléfono no registrado' }}</span>
+                </div>
+
+                <span class="status-badge">Pendiente</span>
+              </div>
+
+              <div class="worker-information">
+                <div class="information-block">
+                  <h4>Descripción / experiencia</h4>
+                  <p>
+                    {{ worker.bio || 'No se registró una descripción.' }}
+                  </p>
+                </div>
+
+                <div class="information-block">
+                  <h4>Especialidades</h4>
+                  @if (worker.categories.length > 0) {
+                    <div class="tag-list">
+                      @for (category of worker.categories; track category.id) {
+                        <span class="tag">{{ category.name }}</span>
+                      }
+                    </div>
+                  } @else {
+                    <p class="muted">Sin especialidades registradas.</p>
+                  }
+                </div>
+
+                <div class="information-block">
+                  <h4>Zonas de atención</h4>
+                  @if (worker.zones.length > 0) {
+                    <div class="tag-list">
+                      @for (zone of worker.zones; track zone.id) {
+                        <span class="tag">
+                          {{ zone.name }}{{ zone.city ? ', ' + zone.city : '' }}
+                        </span>
+                      }
+                    </div>
+                  } @else {
+                    <p class="muted">Sin zonas registradas.</p>
+                  }
+                </div>
+
+                <div class="information-block">
+                  <h4>Disponibilidad horaria</h4>
+                  @if (worker.availability.length > 0) {
+                    <div class="availability-list">
+                      @for (item of worker.availability; track item.id) {
+                        <div class="availability-item">
+                          <strong>{{ weekdayName(item.weekday) }}</strong>
+                          <span>
+                            {{ item.starts_at }} – {{ item.ends_at }}
+                          </span>
+                        </div>
+                      }
+                    </div>
+                  } @else {
+                    <p class="muted">Sin horarios registrados.</p>
+                  }
+                </div>
+
+                <div class="submitted-date">
+                  Enviado el:
+                  {{ worker.submitted_at | date:'dd/MM/yyyy HH:mm' }}
+                </div>
+              </div>
+
+              <div class="worker-actions">
+                <button
+                  type="button"
+                  class="reject-button"
+                  (click)="openReview(worker, 'rejected')">
+                  Rechazar perfil
+                </button>
+
+                <button
+                  type="button"
+                  class="approve-button"
+                  (click)="openReview(worker, 'approved')">
+                  Aprobar perfil
+                </button>
+              </div>
+            </article>
+          }
+        </div>
+      }
+    </section>
+  </main>
+</div>
+
+@if (selectedWorker && reviewDecision) {
+  <div class="modal-backdrop">
+    <section class="review-modal" role="dialog"
+             aria-modal="true" aria-labelledby="review-title">
+      <div class="modal-header">
+        <div>
+          <span class="modal-eyebrow">Revisión de perfil</span>
+          <h2 id="review-title">
+            {{ reviewDecision === 'approved' ? 'Aprobar trabajador' : 'Rechazar trabajador' }}
+          </h2>
+        </div>
+
+        <button type="button" class="close-button"
+                [disabled]="submitting" (click)="cancelReview()"
+                aria-label="Cerrar">
+          ×
+        </button>
+      </div>
+
+      <p class="modal-description">
+        Estás por
+        {{ reviewDecision === 'approved' ? 'aprobar el perfil de' : 'rechazar el perfil de' }}
+        <strong>{{ selectedWorker.fullName }}</strong>.
+      </p>
+
+      <label for="reviewNotes">Observaciones de revisión</label>
+      <textarea
+        id="reviewNotes"
+        [(ngModel)]="reviewNotes"
+        rows="4"
+        maxlength="1000"
+        placeholder="Escribe observaciones o correcciones que deba realizar el trabajador (opcional).">
+      </textarea>
+
+      <span class="character-count">
+        {{ reviewNotes.length }}/1000 caracteres
+      </span>
+
+      @if (errorMessage) {
+        <div class="modal-error">{{ errorMessage }}</div>
+      }
+
+      <div class="modal-actions">
+        <button type="button" class="cancel-button"
+                [disabled]="submitting" (click)="cancelReview()">
+          Cancelar
+        </button>
+
+        <button
+          type="button"
+          [class]="reviewDecision === 'approved' ? 'approve-button' : 'reject-button'"
+          [disabled]="submitting"
+          (click)="confirmReview()">
+          {{ submitting ? 'Guardando...' :
+             reviewDecision === 'approved' ? 'Confirmar aprobación' : 'Confirmar rechazo' }}
+        </button>
+      </div>
+    </section>
+  </div>
+}

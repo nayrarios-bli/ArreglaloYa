@@ -9,6 +9,7 @@ import { OffersModule } from './modules/offers/offers.module.js';
 import { ProfilesModule } from './modules/profiles/profiles.module.js';
 import { RequestsModule } from './requests/requests.module.js';
 import { WorkersModule } from './modules/workers/workers.module.js';
+import { AdminModule } from './modules/admin/admin.module.js';
 import { SuperadminModule } from './modules/superadmin/superadmin.module.js';
 
 
@@ -24,6 +25,7 @@ import { SuperadminModule } from './modules/superadmin/superadmin.module.js';
     RequestsModule,
     ProfilesModule,
     WorkersModule,
+    AdminModule,
     OffersModule,
     SuperadminModule,
   ],

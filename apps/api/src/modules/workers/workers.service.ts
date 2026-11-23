@@ -80,6 +80,7 @@ export class WorkersService {
     // Validar horarios
     if (input.availability !== undefined) {
       const weekdays = input.availability.map((schedule) => schedule.weekday);
+
       if (new Set(weekdays).size !== weekdays.length) {
         throw new BadRequestException(
           'Solo puedes registrar un horario por día de la semana.',
@@ -146,7 +147,9 @@ export class WorkersService {
         .delete()
         .eq('worker_id', workerId);
 
-      if (deleteError) this.fail('No se pudieron actualizar las especialidades.');
+      if (deleteError) {
+        this.fail('No se pudieron actualizar las especialidades.');
+      }
 
       if (input.categoryIds.length > 0) {
         const { error: insertError } = await client
@@ -158,7 +161,9 @@ export class WorkersService {
             })),
           );
 
-        if (insertError) this.fail('No se pudieron guardar las especialidades.');
+        if (insertError) {
+          this.fail('No se pudieron guardar las especialidades.');
+        }
       }
     }
 
@@ -169,7 +174,9 @@ export class WorkersService {
         .delete()
         .eq('worker_id', workerId);
 
-      if (deleteError) this.fail('No se pudieron actualizar las zonas.');
+      if (deleteError) {
+        this.fail('No se pudieron actualizar las zonas.');
+      }
 
       if (input.zoneIds.length > 0) {
         const { error: insertError } = await client
@@ -181,7 +188,9 @@ export class WorkersService {
             })),
           );
 
-        if (insertError) this.fail('No se pudieron guardar las zonas.');
+        if (insertError) {
+          this.fail('No se pudieron guardar las zonas.');
+        }
       }
     }
 
@@ -192,7 +201,9 @@ export class WorkersService {
         .delete()
         .eq('worker_id', workerId);
 
-      if (deleteError) this.fail('No se pudieron actualizar los horarios.');
+      if (deleteError) {
+        this.fail('No se pudieron actualizar los horarios.');
+      }
 
       if (input.availability.length > 0) {
         const { error: insertError } = await client
@@ -206,7 +217,9 @@ export class WorkersService {
             })),
           );
 
-        if (insertError) this.fail('No se pudieron guardar los horarios.');
+        if (insertError) {
+          this.fail('No se pudieron guardar los horarios.');
+        }
       }
     }
 
@@ -226,32 +239,55 @@ export class WorkersService {
     }
 
     if (!profile.bio?.trim()) {
-      throw new BadRequestException('Completa tu biografía antes de enviar el perfil.');
+      throw new BadRequestException(
+        'Completa tu biografía antes de enviar el perfil.',
+      );
     }
 
     if (profile.categoryIds.length === 0) {
-      throw new BadRequestException('Selecciona al menos una especialidad.');
+      throw new BadRequestException(
+        'Selecciona al menos una especialidad.',
+      );
     }
 
     if (profile.zoneIds.length === 0) {
-      throw new BadRequestException('Selecciona al menos una zona de atención.');
+      throw new BadRequestException(
+        'Selecciona al menos una zona de atención.',
+      );
     }
 
     if (profile.availability.length === 0) {
-      throw new BadRequestException('Registra al menos un horario disponible.');
+      throw new BadRequestException(
+        'Registra al menos un horario disponible.',
+      );
     }
 
-    const { error } = await client
+    const { data: updatedProfile, error } = await client
       .from('worker_profiles')
       .update({
         review_status: 'pending',
+        submitted_at: new Date().toISOString(),
         reviewed_by: null,
         reviewed_at: null,
         review_notes: null,
       })
-      .eq('user_id', workerId);
+      .eq('user_id', workerId)
+      .select('user_id, review_status, submitted_at')
+      .maybeSingle();
 
-    if (error) this.fail('No se pudo enviar el perfil a revisión.');
+    if (error) {
+      this.fail('No se pudo enviar el perfil a revisión.');
+    }
+
+    if (!updatedProfile) {
+      throw new NotFoundException(
+        'No se encontró el perfil para actualizar.',
+      );
+    }
+
+    if (!updatedProfile.submitted_at) {
+      this.fail('No se pudo registrar la fecha de envío.');
+    }
 
     return {
       message: 'Tu perfil fue enviado a revisión correctamente.',
