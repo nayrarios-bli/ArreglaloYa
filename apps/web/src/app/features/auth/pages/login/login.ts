@@ -82,7 +82,7 @@ export class Login {
           //return;
           //}
 
-          if (user.role === 'admin' || user.role === 'superadmin') {
+          if (user.role === 'admin') {
             this.router.navigate(['/admin']);
             return;
           }
