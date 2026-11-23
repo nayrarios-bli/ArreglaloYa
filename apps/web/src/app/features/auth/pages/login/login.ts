@@ -72,6 +72,15 @@ export class Login {
             this.router.navigateByUrl(returnUrl);
             return;
           }
+          if (user.role === 'superadmin') {
+          this.router.navigate(['/superadmin']);
+          return;
+          }
+
+          //if (user.role === 'admin') {
+          //this.router.navigate(['/admin']);
+          //return;
+          //}
 
           if (user.role === 'admin' || user.role === 'superadmin') {
             this.router.navigate(['/admin']);

@@ -132,5 +132,24 @@ export const routes: Routes = [
         (module) => module.WorkerRejected,
       ),
   },
+{
+    path: 'superadmin',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'superadmin' },
+    loadComponent: () =>
+      import('./features/superadmin/pages/admin-management/admin-management')
+        .then((module) => module.AdminManagement),
+    title: 'Gestión de administradores | ArreglaloYa',
+  },
+  {
+    path: 'cliente/solicitudes/:requestId/ofertas',
+    canActivate: [authGuard, roleGuard],
+    data: { role: 'client' },
+    loadComponent: () =>
+      import('./features/offers/client-offers/client-offers.page.js').then(
+        (module) => module.ClientOffersPage,
+      ),
+    title: 'Ofertas recibidas | ArreglaloYa',
+  },
   { path: '**', redirectTo: '' },
 ];
