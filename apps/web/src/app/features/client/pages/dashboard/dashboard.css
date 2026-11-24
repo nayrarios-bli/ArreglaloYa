@@ -731,3 +731,15 @@
     font-size: 20px;
   }
 }
+
+.service-action {
+  display: inline-flex;
+  padding: .7rem 1rem;
+  border-radius: 10px;
+  background: #e8f3ed;
+  color: #195942;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+.service-action:hover { background: #dcece3; }

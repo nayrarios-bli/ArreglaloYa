@@ -66,6 +66,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'servicios',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['client', 'worker'] },
+    loadComponent: () => import('./features/services/service-status-list/service-status-list').then((m) => m.ServiceStatusList),
+    title: 'Mis servicios | ArreglaloYa',
+  },
+  {
     path: 'trabajador/perfil',
     canActivate: [authGuard, roleGuard],
     data: { role: 'worker' },
@@ -92,6 +99,16 @@ export const routes: Routes = [
       import('./features/worker/pages/dashboard/dashboard').then(
         (module) => module.WorkerDashboard,
       ),
+  },
+  {
+    path: 'trabajador/servicios/:serviceId/estado',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'approved' },
+    loadComponent: () =>
+      import('./features/services/service-status-update/service-status-update').then(
+        (m) => m.ServiceStatusUpdate,
+      ),
+    title: 'Actualizar servicio | ArreglaloYa',
   },
   {
     path: 'trabajador/solicitudes/:requestId',

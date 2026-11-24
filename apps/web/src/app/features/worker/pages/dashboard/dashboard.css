@@ -124,7 +124,7 @@
 @media (max-width: 620px) {
   .topbar { position: static; align-items: flex-start; flex-direction: column; gap: 12px; padding: 15px 18px; }
   .brand-context { font-size: 10px; }
-  .top-nav { width: 100%; justify-content: space-between; gap: 10px; }
+  .top-nav { flex-wrap: wrap; width: 100%; justify-content: space-between; gap: 10px; }
   .nav-link { font-size: 10px; }
   .logout-button { min-height: 34px; padding: 0 9px; font-size: 10px; }
   .dashboard { width: calc(100% - 32px); padding-top: 21px; }
