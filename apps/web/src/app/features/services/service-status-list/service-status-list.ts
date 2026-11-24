@@ -1,4 +1,9 @@
-import { Component, signal } from '@angular/core';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { API_URL } from '../../../core/api-url';
+import { AuthService } from '../../../core/auth.service';
+import { WhatsappLink } from '../whatsapp-link/whatsapp-link';
 
 type ServiceStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -10,59 +15,26 @@ interface StatusEvent {
 interface ServiceItem {
   id: string;
   title: string;
+  created_at: string;
   category: string;
+  contact_phone: string | null;
   status: ServiceStatus;
   history: StatusEvent[];
 }
 
-// TODO: reemplazar por datos reales de la API cuando exista la conexión.
-const DEMO_SERVICES: ServiceItem[] = [
-  {
-    id: '1',
-    title: 'Reparar fuga en el baño',
-    category: 'Plomería',
-    status: 'scheduled',
-    history: [{ status: 'scheduled', at: '2026-11-22T09:00:00' }],
-  },
-  {
-    id: '2',
-    title: 'Cambiar tomacorrientes',
-    category: 'Electricidad',
-    status: 'in_progress',
-    history: [
-      { status: 'scheduled', at: '2026-11-20T15:30:00' },
-      { status: 'in_progress', at: '2026-11-23T10:15:00' },
-    ],
-  },
-  {
-    id: '3',
-    title: 'Arreglar lavadora',
-    category: 'Electrodomésticos',
-    status: 'completed',
-    history: [
-      { status: 'scheduled', at: '2026-11-15T11:00:00' },
-      { status: 'in_progress', at: '2026-11-16T09:00:00' },
-      { status: 'completed', at: '2026-11-16T12:40:00' },
-    ],
-  },
-  {
-    id: '4',
-    title: 'Revocar pared del patio',
-    category: 'Albañilería',
-    status: 'cancelled',
-    history: [
-      { status: 'scheduled', at: '2026-11-10T08:00:00' },
-      { status: 'cancelled', at: '2026-11-11T17:20:00' },
-    ],
-  },
-];
-
 @Component({
   selector: 'app-service-status-list',
+  standalone: true,
+  imports: [RouterLink, WhatsappLink],
   templateUrl: './service-status-list.html',
   styleUrl: './service-status-list.css',
 })
-export class ServiceStatusList {
+export class ServiceStatusList implements OnInit {
+  private readonly http = inject(HttpClient);
+  private readonly auth = inject(AuthService);
+  readonly loading = signal(true);
+  readonly error = signal('');
+  readonly isWorker = this.auth.getUser()?.role === 'worker';
   readonly labels: Record<ServiceStatus, string> = {
     scheduled: 'Programado',
     in_progress: 'En curso',
@@ -70,15 +42,24 @@ export class ServiceStatusList {
     cancelled: 'Cancelado',
   };
 
-  services = signal<ServiceItem[]>(DEMO_SERVICES);
+  services = signal<ServiceItem[]>([]);
   openId = signal<string | null>(null);
+
+  ngOnInit(): void {
+    const token = this.auth.getAccessToken();
+    if (!token) { this.loading.set(false); this.error.set('Inicia sesión para consultar tus servicios.'); return; }
+    this.http.get<ServiceItem[]>(`${API_URL}/services/mine`, { headers: { Authorization: `Bearer ${token}` } }).subscribe({
+      next: (services) => { this.services.set(services); this.loading.set(false); },
+      error: (error: HttpErrorResponse) => { this.error.set(error.error?.message ?? 'No se pudo cargar el historial.'); this.loading.set(false); },
+    });
+  }
 
   toggle(id: string) {
     this.openId.update((current) => (current === id ? null : id));
   }
 
   lastUpdate(service: ServiceItem): string {
-    return service.history[service.history.length - 1]?.at ?? '';
+    return service.history[service.history.length - 1]?.at ?? service.created_at ?? '';
   }
 
   formatDate(value: string) {

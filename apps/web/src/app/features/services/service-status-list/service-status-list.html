@@ -5,7 +5,11 @@
       <p>Consulta en qué etapa está cada una de tus solicitudes y servicios.</p>
     </header>
 
-    @if (services().length === 0) {
+    @if (loading()) {
+      <p role="status">Cargando tus servicios…</p>
+    } @else if (error()) {
+      <p role="alert">{{ error() }}</p>
+    } @else if (services().length === 0) {
       <div class="empty">
         <p class="empty-title">Aún no tienes solicitudes ni servicios.</p>
         <p class="note">Cuando publiques una solicitud o aceptes un trabajo, aparecerá aquí.</p>
@@ -43,6 +47,10 @@
                     </li>
                   }
                 </ol>
+                <app-whatsapp-link [phone]="s.contact_phone" [message]="'Hola, te contacto por el servicio: ' + s.title" />
+                @if (isWorker && s.status !== 'completed' && s.status !== 'cancelled') {
+                  <a class="details-link" [routerLink]="['/trabajador/servicios', s.id, 'estado']">Actualizar estado</a>
+                }
               </div>
             }
           </li>
