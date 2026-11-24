@@ -1,0 +1,74 @@
+<section class="status-page">
+  <div class="status-card">
+    <header class="status-header">
+      <h1>Estado del servicio</h1>
+      <p>Actualiza el avance del trabajo para mantener informado al cliente.</p>
+    </header>
+
+    @if (status() !== 'cancelled') {
+      <ol class="steps">
+        @for (step of steps; track step; let i = $index) {
+          <li
+            class="step"
+            [class.done]="i < currentStep()"
+            [class.current]="i === currentStep()"
+          >
+            <span class="dot">{{ i + 1 }}</span>
+            <span class="step-label">{{ labels[step] }}</span>
+          </li>
+        }
+      </ol>
+    }
+
+    <p class="current">
+      Estado actual: <strong>{{ labels[status()] }}</strong>
+    </p>
+
+    @switch (status()) {
+      @case ('scheduled') {
+        <p class="hint">Cuando llegues y empieces el trabajo, márcalo como iniciado.</p>
+        <button type="button" class="primary-button" (click)="startService()">
+          Iniciar servicio
+        </button>
+      }
+
+      @case ('in_progress') {
+        @if (confirmingFinish()) {
+          <div class="confirm-box">
+            <p>¿Terminaste el trabajo? Después no podrás volver a cambiar el estado.</p>
+            <div class="confirm-actions">
+              <button type="button" class="secondary-button" (click)="cancelFinish()">
+                Volver
+              </button>
+              <button type="button" class="primary-button" (click)="finishService()">
+                Sí, registrar finalización
+              </button>
+            </div>
+          </div>
+        } @else {
+          <p class="hint">Cuando termines el trabajo, registra la finalización.</p>
+          <button type="button" class="primary-button" (click)="askFinish()">
+            Registrar finalización
+          </button>
+        }
+      }
+
+      @case ('completed') {
+        <p class="alert alert-ok">
+          Servicio finalizado ({{ finishedAt() }}). Ya se pueden registrar
+          calificaciones y reclamos.
+        </p>
+      }
+
+      @case ('cancelled') {
+        <p class="alert alert-muted">Este servicio fue cancelado.</p>
+      }
+    }
+
+    @if (status() === 'scheduled' || status() === 'in_progress') {
+      <p class="note">
+        Si el trabajo no puede completarse, el servicio debe cancelarse.
+      </p>
+    }
+  </div>
+</section>
