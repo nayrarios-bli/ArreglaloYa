@@ -1,8 +1,8 @@
 
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { AuthService } from '../../../../core/auth.service';
 
@@ -13,7 +13,7 @@ import { AuthService } from '../../../../core/auth.service';
   templateUrl: './register.html',
   styleUrl: './register.css',
 })
-export class Register {
+export class Register implements OnInit {
   fullName = '';
   email = '';
   phone = '';
@@ -27,7 +27,14 @@ export class Register {
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
+    private readonly route: ActivatedRoute,
   ) {}
+
+  ngOnInit(): void {
+    if (this.route.snapshot.queryParamMap.get('role') === 'worker') {
+      this.role = 'worker';
+    }
+  }
 
   register(): void {
     this.errorMessage.set('');

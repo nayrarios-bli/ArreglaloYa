@@ -2,5 +2,23 @@
 html { scroll-behavior: smooth; }
 body { margin: 0; color: #202622; background: #fbfaf7; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; }
 a:focus-visible { outline: 3px solid #aa8953; outline-offset: 4px; }
+button, input, select, textarea { font: inherit; }
+button, [role="button"], .button, .primary-action, .profile-button, .requests-link {
+  font-weight: 650;
+  transition: color 160ms ease, background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+button:not(:disabled):hover, [role="button"]:hover, .button:hover, .primary-action:hover, .profile-button:hover, .requests-link:hover {
+  transform: translateY(-1px);
+}
+button:not(:disabled):active, .button:active, .primary-action:active, .profile-button:active, .requests-link:active {
+  transform: scale(.98);
+}
+button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible {
+  outline: 3px solid #aa8953;
+  outline-offset: 3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; }
+}
 ::selection { color: #fff; background: #456c54; }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }

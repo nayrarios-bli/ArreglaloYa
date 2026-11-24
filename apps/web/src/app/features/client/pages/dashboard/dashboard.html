@@ -1,15 +1,13 @@
 
 <header class="topbar">
-  <a class="brand" routerLink="/cliente" aria-label="ArreglaloYa, inicio">
-    <span class="brand-mark">A</span>
+  <a class="brand" routerLink="/" aria-label="ArreglaloYa, página pública">
+    <span class="brand-mark" aria-hidden="true"><img src="/brand/arreglalo-ya-mark.svg" alt="" /></span>
     <span>Arreglalo<span class="brand-accent">Ya</span></span>
   </a>
 
   <nav class="navigation" aria-label="Navegación del cliente">
     <a
-      routerLink="/cliente"
-      routerLinkActive="active"
-      [routerLinkActiveOptions]="{ exact: true }"
+      href="#inicio"
     >Inicio</a>
 
     <a
@@ -28,7 +26,7 @@
   </button>
 </header>
 
-<main class="dashboard">
+<main id="inicio" class="dashboard">
 
   <!-- Bienvenida -->
   <section class="hero">
