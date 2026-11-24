@@ -23,6 +23,12 @@ export class ServicesService {
     ]);
     if (requests.error || events.error || counterpartProfiles.error) throw new InternalServerErrorException('No se pudo cargar el historial de servicios.');
     const requestMap = new Map((requests.data ?? []).map((r) => [r.id, r]));
+    const categoryIds = [...new Set((requests.data ?? []).map((r) => r.category_id).filter(Boolean))];
+    const { data: categories, error: categoriesError } = categoryIds.length
+      ? await db.from('categories').select('id, name').in('id', categoryIds)
+      : { data: [], error: null };
+    if (categoriesError) throw new InternalServerErrorException('No se pudieron consultar las categorías.');
+    const categoryMap = new Map((categories ?? []).map((category) => [category.id, category.name]));
     const eventMap = new Map<string, { status: string; at: string }[]>();
     for (const event of events.data ?? []) {
       const list = eventMap.get(event.service_id) ?? [];
@@ -30,7 +36,7 @@ export class ServicesService {
       eventMap.set(event.service_id, list);
     }
     const contacts = new Map((counterpartProfiles.data ?? []).map((p) => [p.id, p.phone]));
-    return (rows ?? []).map((row) => ({ ...row, title: requestMap.get(row.request_id)?.title ?? 'Servicio', category: requestMap.get(row.request_id)?.category_id ?? '', contact_phone: contacts.get(profile.role === 'client' ? row.worker_id : row.client_id) ?? null, history: eventMap.get(row.id)?.length ? eventMap.get(row.id) : [{ status: 'scheduled', at: row.created_at }] }));
+    return (rows ?? []).map((row) => ({ ...row, title: requestMap.get(row.request_id)?.title ?? 'Servicio', category: categoryMap.get(requestMap.get(row.request_id)?.category_id ?? '') ?? 'Servicio', contact_phone: contacts.get(profile.role === 'client' ? row.worker_id : row.client_id) ?? null, history: eventMap.get(row.id)?.length ? eventMap.get(row.id) : [{ status: 'scheduled', at: row.created_at }] }));
   }
 
   async getWorkerService(serviceId: string, workerId: string) {
