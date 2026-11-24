@@ -11,8 +11,26 @@
   </nav>
 
   <div class="header-actions">
-    <a class="header-link" routerLink="/login">Iniciar sesión</a>
-    <a class="header-register" routerLink="/registro">Crear cuenta</a>
+    @if (user(); as account) {
+      <details class="account-menu">
+        <summary aria-label="Abrir menú de usuario">
+          <span>{{ firstName() }}</span>
+          <span class="account-menu-chevron" aria-hidden="true">⌄</span>
+        </summary>
+        <div class="account-menu-panel">
+          <p class="account-menu-name">{{ account.fullName }}</p>
+          @if (account.role === 'client') {
+            <a routerLink="/solicitudes/nueva">Publicar solicitud</a>
+          }
+          <a [routerLink]="dashboardLink()">Mi panel</a>
+          <button type="button" (click)="logout()">Cerrar sesión</button>
+        </div>
+      </details>
+    } @else {
+      <a class="header-link header-publish" routerLink="/solicitudes/nueva">Publicar solicitud</a>
+      <a class="header-link" routerLink="/login">Iniciar sesión</a>
+      <a class="header-register" routerLink="/registro">Crear cuenta</a>
+    }
   </div>
 </header>
 
@@ -22,7 +40,12 @@
       <p class="eyebrow"><span class="eyebrow-line"></span> Cochabamba · Bolivia</p>
       <h1 id="hero-title">Tu casa pide una mano. <em>Encuéntrala.</em></h1>
       <p class="hero-description">Conoce los servicios de ArreglaloYa y cómo conectar con trabajadores independientes. Puedes explorar la información pública sin iniciar sesión.</p>
-      <a class="button button-dark" href="#servicios">Explorar servicios <span aria-hidden="true">↘</span></a>
+      <div class="hero-actions">
+        <a class="button button-dark" href="#servicios">Explorar servicios <span aria-hidden="true">↘</span></a>
+        @if (!user() || user()?.role === 'client') {
+          <a class="text-action" routerLink="/solicitudes/nueva">Publicar una solicitud <span aria-hidden="true">↗</span></a>
+        }
+      </div>
       <p class="hero-footnote"><span aria-hidden="true">✳</span> Describe lo que necesitas y compara las propuestas que recibas.</p>
     </div>
 

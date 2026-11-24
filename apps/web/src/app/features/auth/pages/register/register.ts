@@ -2,6 +2,7 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 
 import { AuthService } from '../../../../core/auth.service';
 
@@ -21,15 +22,14 @@ export class Register {
   role: 'client' | 'worker' = 'client';
 
   readonly loading = signal(false);
-  readonly successMessage = signal('');
   readonly errorMessage = signal('');
 
   constructor(
     private readonly authService: AuthService,
+    private readonly router: Router,
   ) {}
 
   register(): void {
-    this.successMessage.set('');
     this.errorMessage.set('');
 
     if (this.password !== this.confirmPassword) {
@@ -53,22 +53,24 @@ export class Register {
       next: (response) => {
         this.loading.set(false);
 
-        if (response.emailConfirmationRequired) {
-          this.successMessage.set(
-            '¡Cuenta creada correctamente! Te enviamos un correo de verificación. Revisa tu bandeja de entrada para activar tu cuenta.',
-          );
-        } else {
-          this.successMessage.set(
-            '¡Cuenta creada correctamente! Ya puedes iniciar sesión.',
-          );
+        if (response.session) {
+          this.authService.saveSession({
+            message: response.message,
+            user: response.user,
+            session: response.session,
+          });
+
+          if (response.user.role === 'client') {
+            this.router.navigate(['/']);
+          } else {
+            this.router.navigate(['/trabajador/pendiente']);
+          }
+          return;
         }
 
-        this.fullName = '';
-        this.email = '';
-        this.phone = '';
-        this.password = '';
-        this.confirmPassword = '';
-        this.role = 'client';
+        this.router.navigate(['/login'], {
+          queryParams: { registered: 'confirmation-required' },
+        });
       },
 
       error: (error) => {

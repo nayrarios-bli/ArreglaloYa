@@ -1,7 +1,8 @@
+
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../../../core/auth.service';
 
 @Component({
@@ -22,7 +23,27 @@ export class Login {
   constructor(
     private readonly authService: AuthService,
     private readonly router: Router,
-  ) {}
+    private readonly route: ActivatedRoute,
+  ) {
+    if (
+      this.route.snapshot.queryParamMap.get('registered') ===
+      'confirmation-required'
+    ) {
+      this.successMessage.set(
+        'Cuenta creada. Confirma el correo que te enviamos y luego inicia sesión.',
+      );
+    }
+
+    const emailError = new URLSearchParams(
+      this.route.snapshot.fragment ?? '',
+    ).get('error_code');
+
+    if (emailError === 'otp_expired') {
+      this.errorMessage.set(
+        'El enlace de verificación venció o ya fue usado. Pide que te envíen uno nuevo y abre solo el enlace más reciente.',
+      );
+    }
+  }
 
   login(): void {
     this.successMessage.set('');
@@ -45,9 +66,29 @@ export class Login {
           this.authService.saveSession(response);
 
           const user = response.user;
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+
+          if (returnUrl?.startsWith('/') && !returnUrl.startsWith('//')) {
+            this.router.navigateByUrl(returnUrl);
+            return;
+          }
+          if (user.role === 'superadmin') {
+          this.router.navigate(['/superadmin']);
+          return;
+          }
+
+          //if (user.role === 'admin') {
+          //this.router.navigate(['/admin']);
+          //return;
+          //}
+
+          if (user.role === 'admin') {
+            this.router.navigate(['/admin']);
+            return;
+          }
 
           if (user.role === 'client') {
-            this.router.navigate(['/cliente']);
+            this.router.navigate(['/']);
             return;
           }
 
