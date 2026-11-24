@@ -66,6 +66,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'servicios',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['client', 'worker'] },
+    loadComponent: () => import('./features/services/service-status-list/service-status-list').then((m) => m.ServiceStatusList),
+    title: 'Mis servicios | ArreglaloYa',
+  },
+  {
     path: 'trabajador/perfil',
     canActivate: [authGuard, roleGuard],
     data: { role: 'worker' },
