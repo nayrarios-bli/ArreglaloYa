@@ -36,7 +36,7 @@ export class ServiceStatusUpdate implements OnInit {
     const headers = this.headers();
     if (!headers) return;
     this.loading.set(true);
-    this.http.get<ServiceState>(`${API_URL}/services/${this.serviceId}`, { headers }).subscribe({
+    this.http.get<ServiceState>(`${API_URL}/services/${this.serviceId}/status`, { headers }).subscribe({
       next: (service) => { this.status.set(service.status); this.finishedAt.set(service.completed_at); this.loading.set(false); },
       error: (error: HttpErrorResponse) => { this.error.set(error.error?.message ?? 'No se pudo cargar el servicio.'); this.loading.set(false); },
     });

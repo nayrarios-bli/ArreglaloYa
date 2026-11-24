@@ -14,7 +14,7 @@ interface AuthRequest extends Request { user: { id: string }; }
 export class ServicesController {
   constructor(private readonly services: ServicesService) {}
 
-  @Get(':serviceId')
+  @Get(':serviceId/status')
   getOne(@Req() req: AuthRequest, @Param('serviceId', ParseUUIDPipe) serviceId: string) {
     return this.services.getWorkerService(serviceId, req.user.id);
   }
