@@ -25,3 +25,24 @@
 .alert-muted { background: #f1f4f1; color: #4b5a52; }
 .note { margin: 18px 0 0; text-align: center; color: #718078; font-size: 12px; }
 @media (max-width: 520px) { .status-card { padding: 26px 18px; } .confirm-actions { grid-template-columns: 1fr; } }
+.list-header, .status-header { margin-top: 24px; text-align: left; }
+.list-header h1, .status-header h1 {
+  font-size: clamp(1.9rem, 5vw, 3rem);
+  font-weight: 750;
+  letter-spacing: -.04em;
+}
+.list-header p, .status-header p { color: #50675d; }
+.service-back, .details-link {
+  display: inline-block;
+  padding: .65rem .85rem;
+  border-radius: 10px;
+  background: #e8f3ed;
+  color: #195942;
+  font-weight: 700;
+  text-decoration: none;
+  transition: background-color 160ms ease;
+}
+.service-back:hover, .details-link:hover { background: #dcece3; }
+
+.primary-button:disabled { opacity: .65; cursor: wait; }
+[role="alert"] { color: #963f32; }

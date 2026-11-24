@@ -1,15 +1,111 @@
+<header class="topbar">
+  <a class="brand" routerLink="/trabajador" aria-label="ArreglaloYa, panel del trabajador">
+    <span class="brand-mark" aria-hidden="true"><img src="/brand/arreglalo-ya-mark.svg" alt="" /></span>
+    <span>arreglalo<span class="brand-accent">ya</span></span>
+    <span class="brand-divider" aria-hidden="true"></span>
+    <span class="brand-context">Espacio trabajador</span>
+  </a>
 
-<main class="page">
-  <a class="requests-link" routerLink="/servicios">Mis servicios y su estado</a>
-  <section class="card">
-    <h1>¡Bienvenido a ArreglaloYa!</h1>
-    <p>Tu cuenta de trabajador ha sido aprobada.</p>
-    <p>Ya puedes acceder a la plataforma como trabajador.</p>
-    <a class="requests-link" routerLink="/trabajador/solicitudes">Consultar solicitudes compatibles <span aria-hidden="true">→</span></a>
+  <nav class="top-nav" aria-label="Navegación del trabajador">
+    <a class="nav-link active" routerLink="/trabajador" aria-current="page">Panel</a>
+    <a class="nav-link" routerLink="/trabajador/solicitudes">Solicitudes compatibles</a>
+    <a class="nav-link" routerLink="/servicios">Mis servicios</a>
+    <a class="nav-link" routerLink="/trabajador/perfil">Mi perfil</a>
+    <button class="logout-button" type="button" (click)="logout()">
+      <span aria-hidden="true">↗</span> Cerrar sesión
+    </button>
+  </nav>
+</header>
+
+<main class="dashboard">
+  <section class="welcome-panel" aria-labelledby="welcome-title">
+    <div class="welcome-copy">
+      <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> CUENTA APROBADA · COCHABAMBA</p>
+      <h1 id="welcome-title">{{ greeting() }}, {{ firstName() }}.</h1>
+      <p class="welcome-description">
+        Este es tu espacio para encontrar solicitudes que coinciden con tu trabajo y mantener tu perfil al día.
+      </p>
+      <a class="primary-action" routerLink="/trabajador/solicitudes">
+        Explorar solicitudes <span aria-hidden="true">↗</span>
+      </a>
+    </div>
+
+    <div class="welcome-art" aria-hidden="true">
+      <div class="art-ring ring-large"></div>
+      <div class="art-ring ring-small"></div>
+      <div class="tool-disc"><span>⌁</span></div>
+      <div class="art-caption"><span class="caption-check">✓</span><span>Listo para trabajar</span></div>
+    </div>
   </section>
 
-  <button class="logout-button" (click)="logout()">
-  Cerrar sesión
-</button>
+  <section class="overview" aria-label="Resumen de tu espacio">
+    <article class="overview-card requests-card">
+      <div class="card-heading">
+        <span class="card-icon requests-icon" aria-hidden="true">⌕</span>
+        <span class="card-kicker">OPORTUNIDADES</span>
+      </div>
+      @if (loading()) {
+        <p class="metric-placeholder" role="status">Buscando solicitudes…</p>
+      } @else if (error()) {
+        <div class="inline-error" role="alert">
+          <p>{{ error() }}</p>
+          <button type="button" (click)="loadCompatibleRequests()">Reintentar</button>
+        </div>
+      } @else {
+        <p class="metric">{{ compatibleCount() }}</p>
+        <p class="card-description">
+          {{ compatibleCount() === 1 ? 'solicitud compatible disponible' : 'solicitudes compatibles disponibles' }}
+        </p>
+        <a class="card-link" routerLink="/trabajador/solicitudes">Ver solicitudes <span aria-hidden="true">→</span></a>
+      }
+    </article>
 
+    <article class="overview-card profile-card">
+      <div class="card-heading">
+        <span class="card-icon profile-icon" aria-hidden="true">◉</span>
+        <span class="card-kicker">TU PERFIL</span>
+      </div>
+      <p class="profile-state"><span aria-hidden="true">✓</span> Aprobado</p>
+      <p class="card-description">Mantén actualizadas tus especialidades, zonas y horarios.</p>
+      <a class="card-link" routerLink="/trabajador/perfil">Revisar mi perfil <span aria-hidden="true">→</span></a>
+    </article>
+  </section>
+
+  <section class="next-steps" aria-labelledby="next-title">
+    <div class="section-heading">
+      <div>
+        <p class="eyebrow">SIGUIENTE PASO</p>
+        <h2 id="next-title">Empieza por aquí</h2>
+      </div>
+      <p>Tu perfil y tus solicitudes, en un solo lugar.</p>
+    </div>
+
+    <div class="step-grid">
+      <a class="step-card" routerLink="/trabajador/solicitudes">
+        <span class="step-number">01</span>
+        <span class="step-symbol" aria-hidden="true">⌕</span>
+        <strong>Encuentra una solicitud</strong>
+        <span>Explora trabajos según tu especialidad y zona de atención.</span>
+        <span class="step-arrow" aria-hidden="true">↗</span>
+      </a>
+      <a class="step-card" routerLink="/trabajador/perfil">
+        <span class="step-number">02</span>
+        <span class="step-symbol profile-symbol" aria-hidden="true">◉</span>
+        <strong>Cuida tu perfil</strong>
+        <span>Actualiza tu presentación, disponibilidad y áreas de servicio.</span>
+        <span class="step-arrow" aria-hidden="true">↗</span>
+      </a>
+      <article class="step-card step-card-static">
+        <span class="step-number">03</span>
+        <span class="step-symbol contact-symbol" aria-hidden="true">↗</span>
+        <strong>Coordina con el cliente</strong>
+        <span>Cuando recibas una solicitud, presenta tu propuesta y acuerda los detalles.</span>
+      </article>
+    </div>
+  </section>
+
+  <footer class="dashboard-footer">
+    <span>ArreglaloYa · Cochabamba</span>
+    <a routerLink="/">Volver al inicio público</a>
+  </footer>
 </main>

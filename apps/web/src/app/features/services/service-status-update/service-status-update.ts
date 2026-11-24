@@ -1,6 +1,7 @@
+import { DatePipe } from '@angular/common';
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { API_URL } from '../../../core/api-url';
 import { AuthService } from '../../../core/auth.service';
 
@@ -8,6 +9,7 @@ type ServiceStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 interface ServiceState { id: string; status: ServiceStatus; completed_at: string | null; }
 
 @Component({
+  imports: [RouterLink, DatePipe],
   selector: 'app-service-status-update',
   templateUrl: './service-status-update.html',
   styleUrl: './service-status-update.css',
@@ -23,6 +25,7 @@ export class ServiceStatusUpdate implements OnInit {
   readonly finishedAt = signal<string | null>(null);
   readonly confirmingFinish = signal(false);
   readonly loading = signal(true);
+  readonly loaded = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
   readonly currentStep = computed(() => this.status() === 'completed' ? this.steps.length : this.steps.indexOf(this.status()));
@@ -36,8 +39,8 @@ export class ServiceStatusUpdate implements OnInit {
     const headers = this.headers();
     if (!headers) return;
     this.loading.set(true);
-    this.http.get<ServiceState>(`${API_URL}/services/${this.serviceId}`, { headers }).subscribe({
-      next: (service) => { this.status.set(service.status); this.finishedAt.set(service.completed_at); this.loading.set(false); },
+    this.http.get<ServiceState>(`${API_URL}/services/${this.serviceId}/status`, { headers }).subscribe({
+      next: (service) => { this.status.set(service.status); this.finishedAt.set(service.completed_at); this.loaded.set(true); this.loading.set(false); },
       error: (error: HttpErrorResponse) => { this.error.set(error.error?.message ?? 'No se pudo cargar el servicio.'); this.loading.set(false); },
     });
   }
