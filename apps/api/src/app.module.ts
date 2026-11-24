@@ -11,6 +11,7 @@ import { RequestsModule } from './requests/requests.module.js';
 import { WorkersModule } from './modules/workers/workers.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { SuperadminModule } from './modules/superadmin/superadmin.module.js';
+import { ServicesModule } from './modules/services/services.module.js';
 
 
 @Module({
@@ -28,6 +29,7 @@ import { SuperadminModule } from './modules/superadmin/superadmin.module.js';
     AdminModule,
     OffersModule,
     SuperadminModule,
+    ServicesModule,
   ],
   controllers: [AppController],
   providers: [AppService],

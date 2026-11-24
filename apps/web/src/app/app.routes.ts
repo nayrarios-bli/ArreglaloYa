@@ -94,6 +94,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'trabajador/servicios/:serviceId/estado',
+    canActivate: [authGuard, workerStatusGuard],
+    data: { status: 'approved' },
+    loadComponent: () =>
+      import('./features/services/service-status-update/service-status-update').then(
+        (m) => m.ServiceStatusUpdate,
+      ),
+    title: 'Actualizar servicio | ArreglaloYa',
+  },
+  {
     path: 'trabajador/solicitudes/:requestId',
     canActivate: [authGuard, workerStatusGuard],
     data: { status: 'approved' },
