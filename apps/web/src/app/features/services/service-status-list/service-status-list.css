@@ -52,3 +52,4 @@
 .item-head:hover, .item-head:focus-visible { background: #e8f3ed; }
 .item-head:focus-visible { outline-offset: -4px; }
 .details-link { margin-bottom: 12px; }
+.scheduled-summary { display: grid; gap: .25rem; margin: .9rem 0; padding: .8rem 1rem; border-radius: 12px; background: #eff7f0; color: #244e3c; font-size: .9rem; }

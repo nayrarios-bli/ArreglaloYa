@@ -10,7 +10,7 @@ export class ServicesService {
     const { data: profile, error: profileError } = await db.from('profiles').select('role').eq('id', userId).single();
     if (profileError || !profile || !['client', 'worker'].includes(profile.role)) throw new NotFoundException('No se encontró el perfil.');
     const ownerColumn = profile.role === 'client' ? 'client_id' : 'worker_id';
-    const { data: rows, error } = await db.from('services').select('id, request_id, client_id, worker_id, status, created_at, started_at, completed_at').eq(ownerColumn, userId).order('created_at', { ascending: false });
+    const { data: rows, error } = await db.from('services').select('id, request_id, client_id, worker_id, status, scheduled_start, scheduled_end, final_amount, created_at, started_at, completed_at').eq(ownerColumn, userId).order('created_at', { ascending: false });
     if (error) throw new InternalServerErrorException('No se pudieron consultar los servicios.');
     const ids = (rows ?? []).map((row) => row.id);
     if (!ids.length) return [];

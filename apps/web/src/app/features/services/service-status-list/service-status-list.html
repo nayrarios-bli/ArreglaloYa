@@ -48,7 +48,18 @@
                     </li>
                   }
                 </ol>
+                @if (s.scheduled_start && s.scheduled_end) {
+                  <div class="scheduled-summary">
+                    <strong>Horario acordado</strong>
+                    <span>{{ formatDate(s.scheduled_start) }} – {{ formatDate(s.scheduled_end) }}</span>
+                  </div>
+                }
                 <app-whatsapp-link [phone]="s.contact_phone" [message]="'Hola, te contacto por el servicio: ' + s.title" />
+                @if (s.status === 'scheduled') {
+                  <a class="details-link" [routerLink]="['/servicios', s.id, 'horario']">
+                    {{ s.scheduled_start ? 'Actualizar horario' : 'Coordinar horario' }}
+                  </a>
+                }
                 @if (isWorker && s.status !== 'completed' && s.status !== 'cancelled') {
                   <a class="details-link" [routerLink]="['/trabajador/servicios', s.id, 'estado']">Actualizar estado</a>
                 }
