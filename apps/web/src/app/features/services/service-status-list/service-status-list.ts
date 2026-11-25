@@ -19,6 +19,7 @@ interface ServiceItem {
   category: string;
   contact_phone: string | null;
   status: ServiceStatus;
+  final_amount: number | string | null;
   history: StatusEvent[];
 }
 
