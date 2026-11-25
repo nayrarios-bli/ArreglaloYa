@@ -1,0 +1,7 @@
+:host { display: block; }
+.wa-button { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; height: 45px; box-sizing: border-box; border-radius: 8px; background: #287b60; color: #fff; font-size: 14px; font-weight: 700; text-decoration: none; transition: background 0.2s; }
+.wa-button:hover { background: #21664f; }
+.wa-button:focus-visible { outline: none; box-shadow: 0 0 0 3px rgba(40, 123, 96, 0.3); }
+.wa-icon { width: 20px; height: 20px; flex-shrink: 0; }
+.wa-hint { margin: 8px 0 0; text-align: center; color: #718078; font-size: 12px; }
+.wa-empty { margin: 0; padding: 12px 14px; border-radius: 8px; background: #f1f4f1; color: #4b5a52; font-size: 14px; text-align: center; }
