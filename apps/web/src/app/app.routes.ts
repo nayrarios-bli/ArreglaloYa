@@ -66,6 +66,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'servicios/pagos',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['client', 'worker'] },
+    loadComponent: () =>
+      import('./features/services/payment-confirmation/payment-confirmation').then(
+        (module) => module.PaymentConfirmation,
+      ),
+    title: 'Confirmación de pago | ArreglaloYa',
+  },
+  {
     path: 'servicios/:serviceId/horario',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['client', 'worker'] },
