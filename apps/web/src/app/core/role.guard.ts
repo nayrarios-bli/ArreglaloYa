@@ -9,12 +9,17 @@ export const roleGuard: CanActivateFn = (route) => {
 
   const user = authService.getUser();
   const expectedRole = route.data['role'];
+  const allowedRoles = route.data['roles'] as string[] | undefined;
 
   if (!user) {
     return router.createUrlTree(['/login']);
   }
 
-  if (user.role === expectedRole) {
+  const hasPermission = allowedRoles
+    ? allowedRoles.includes(user.role)
+    : user.role === expectedRole;
+
+  if (hasPermission) {
     return true;
   }
 
@@ -34,6 +39,10 @@ export const roleGuard: CanActivateFn = (route) => {
     if (user.reviewStatus === 'rejected') {
       return router.createUrlTree(['/trabajador/rechazado']);
     }
+  }
+
+  if (user.role === 'admin' || user.role === 'superadmin') {
+    return router.createUrlTree(['/admin']);
   }
 
   return router.createUrlTree(['/login']);

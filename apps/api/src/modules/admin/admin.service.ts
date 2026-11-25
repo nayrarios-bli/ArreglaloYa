@@ -1,88 +1,216 @@
-import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
+
+import {
+  Injectable,
+  ConflictException,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+
 import { SupabaseService } from '../../database/supabase.service.js';
-import { FilterAdminReportDto } from './admin.dto.js';
+import { ReviewWorkerDto } from './dto/review-worker.dto.js';
 
 @Injectable()
 export class AdminService {
   constructor(private readonly supabase: SupabaseService) {}
 
-  async getSystemActivityReport(filters: FilterAdminReportDto) {
-    const startDate = filters.startDate ? new Date(filters.startDate).toISOString() : undefined;
-    const endDate = filters.endDate ? inclusiveEnd(filters.endDate) : undefined;
-    if (startDate && endDate && new Date(startDate) > new Date(endDate)) {
-      throw new BadRequestException('La fecha inicial no puede ser posterior a la fecha final.');
+  // CONSULTAR TRABAJADORES PENDIENTES
+  async getPendingWorkers() {
+    const client = this.supabase.admin;
+
+    const { data: workers, error } = await client
+      .from('worker_profiles')
+      .select('user_id, bio, review_status, submitted_at')
+      .eq('review_status', 'pending')
+      .not('submitted_at', 'is', null)
+      .order('submitted_at', { ascending: true });
+
+    if (error) {
+      throw new InternalServerErrorException(
+        'No se pudieron consultar los trabajadores pendientes.',
+      );
     }
 
-    const [users, clients, workers, services, complaints, reviews] = await Promise.all([
-      this.countProfiles(undefined, startDate, endDate),
-      this.countProfiles('client', startDate, endDate),
-      this.countProfiles('worker', startDate, endDate),
-      this.countCompletedServices(startDate, endDate),
-      this.countOpenComplaints(startDate, endDate),
-      this.averageReviewScore(startDate, endDate),
+    if (!workers?.length) {
+      return [];
+    }
+
+    const workerIds = workers.map((worker) => worker.user_id);
+
+    const [
+      profiles,
+      workerCategories,
+      workerZones,
+      availability,
+    ] = await Promise.all([
+      client
+        .from('profiles')
+        .select('id, full_name, phone')
+        .in('id', workerIds),
+
+      client
+        .from('worker_categories')
+        .select('worker_id, category_id')
+        .in('worker_id', workerIds),
+
+      client
+        .from('worker_zones')
+        .select('worker_id, zone_id')
+        .in('worker_id', workerIds),
+
+      client
+        .from('worker_availability')
+        .select('id, worker_id, weekday, starts_at, ends_at')
+        .in('worker_id', workerIds)
+        .order('weekday'),
     ]);
 
+    if (
+      profiles.error ||
+      workerCategories.error ||
+      workerZones.error ||
+      availability.error
+    ) {
+      throw new InternalServerErrorException(
+        'No se pudo consultar toda la información de los trabajadores.',
+      );
+    }
+
+    const categoryIds = [
+      ...new Set(
+        workerCategories.data?.map((item) => item.category_id) ?? [],
+      ),
+    ];
+
+    const zoneIds = [
+      ...new Set(
+        workerZones.data?.map((item) => item.zone_id) ?? [],
+      ),
+    ];
+
+    const [categories, zones] = await Promise.all([
+      categoryIds.length
+        ? client
+            .from('categories')
+            .select('id, name')
+            .in('id', categoryIds)
+        : Promise.resolve({ data: [], error: null }),
+
+      zoneIds.length
+        ? client
+            .from('service_zones')
+            .select('id, name, city')
+            .in('id', zoneIds)
+        : Promise.resolve({ data: [], error: null }),
+    ]);
+
+    if (categories.error || zones.error) {
+      throw new InternalServerErrorException(
+        'No se pudieron consultar las especialidades o zonas.',
+      );
+    }
+
+    return workers.map((worker) => {
+      const profile = profiles.data?.find(
+        (item) => item.id === worker.user_id,
+      );
+
+      return {
+        ...worker,
+        fullName: profile?.full_name ?? null,
+        phone: profile?.phone ?? null,
+
+        categories: (workerCategories.data ?? [])
+          .filter((item) => item.worker_id === worker.user_id)
+          .map((item) =>
+            categories.data?.find(
+              (category) => category.id === item.category_id,
+            ),
+          )
+          .filter(Boolean),
+
+        zones: (workerZones.data ?? [])
+          .filter((item) => item.worker_id === worker.user_id)
+          .map((item) =>
+            zones.data?.find(
+              (zone) => zone.id === item.zone_id,
+            ),
+          )
+          .filter(Boolean),
+
+        availability: (availability.data ?? []).filter(
+          (item) => item.worker_id === worker.user_id,
+        ),
+      };
+    });
+  }
+
+  // APROBAR O RECHAZAR UN TRABAJADOR
+  async reviewWorker(
+    workerId: string,
+    adminId: string,
+    input: ReviewWorkerDto,
+  ) {
+    const client = this.supabase.admin;
+
+    const { data: worker, error: searchError } = await client
+      .from('worker_profiles')
+      .select('user_id, review_status, submitted_at')
+      .eq('user_id', workerId)
+      .maybeSingle();
+
+    if (searchError) {
+      throw new InternalServerErrorException(
+        'No se pudo consultar el trabajador.',
+      );
+    }
+
+    if (!worker) {
+      throw new NotFoundException(
+        'No se encontró el trabajador.',
+      );
+    }
+
+    if (
+      worker.review_status !== 'pending' ||
+      !worker.submitted_at
+    ) {
+      throw new ConflictException(
+        'El trabajador no tiene una solicitud pendiente de revisión.',
+      );
+    }
+
+    const { data: updatedWorker, error: updateError } = await client
+      .from('worker_profiles')
+      .update({
+        review_status: input.decision,
+        reviewed_by: adminId,
+        reviewed_at: new Date().toISOString(),
+        review_notes: input.notes?.trim() || null,
+      })
+      .eq('user_id', workerId)
+      .eq('review_status', 'pending')
+      .not('submitted_at', 'is', null)
+      .select('user_id')
+      .maybeSingle();
+
+    if (updateError) {
+      throw new InternalServerErrorException(
+        'No se pudo registrar la decisión.',
+      );
+    }
+
+    if (!updatedWorker) {
+      throw new ConflictException(
+        'La solicitud ya fue revisada por otro administrador.',
+      );
+    }
+
     return {
-      generatedAt: new Date().toISOString(),
-      filtersApplied: { startDate: filters.startDate ?? null, endDate: filters.endDate ?? null },
-      metrics: {
-        totalUsers: users,
-        activeClients: clients,
-        activeWorkers: workers,
-        completedServices: services,
-        pendingComplaints: complaints,
-        averageRating: reviews,
-      },
+      message:
+        input.decision === 'approved'
+          ? 'Trabajador aprobado correctamente.'
+          : 'Trabajador rechazado correctamente.',
+      reviewStatus: input.decision,
     };
   }
-
-  private async countProfiles(role: 'client' | 'worker' | undefined, startDate?: string, endDate?: string) {
-    let query = this.supabase.admin.from('profiles').select('id', { count: 'exact', head: true });
-    if (role) query = query.eq('role', role);
-    if (startDate) query = query.gte('created_at', startDate);
-    if (endDate) query = query.lte('created_at', endDate);
-    const { count, error } = await query;
-    if (error) throw new InternalServerErrorException('No se pudieron contar los usuarios.');
-    return count ?? 0;
-  }
-
-  private async countCompletedServices(startDate?: string, endDate?: string) {
-    let query = this.supabase.admin
-      .from('services')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'completed');
-    if (startDate) query = query.gte('completed_at', startDate);
-    if (endDate) query = query.lte('completed_at', endDate);
-    const { count, error } = await query;
-    if (error) throw new InternalServerErrorException('No se pudieron contar los servicios finalizados.');
-    return count ?? 0;
-  }
-
-  private async countOpenComplaints(startDate?: string, endDate?: string) {
-    let query = this.supabase.admin
-      .from('complaints')
-      .select('id', { count: 'exact', head: true })
-      .eq('status', 'open');
-    if (startDate) query = query.gte('created_at', startDate);
-    if (endDate) query = query.lte('created_at', endDate);
-    const { count, error } = await query;
-    if (error) throw new InternalServerErrorException('No se pudieron contar los reclamos pendientes.');
-    return count ?? 0;
-  }
-
-  private async averageReviewScore(startDate?: string, endDate?: string): Promise<number | null> {
-    let query = this.supabase.admin.from('reviews').select('score');
-    if (startDate) query = query.gte('created_at', startDate);
-    if (endDate) query = query.lte('created_at', endDate);
-    const { data, error } = await query;
-    if (error) throw new InternalServerErrorException('No se pudieron consultar las calificaciones.');
-    if (!data?.length) return null;
-    const average = data.reduce((sum, review) => sum + Number(review.score), 0) / data.length;
-    return Math.round(average * 100) / 100;
-  }
-}
-
-function inclusiveEnd(value: string): string {
-  if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return `${value}T23:59:59.999Z`;
-  return new Date(value).toISOString();
 }
