@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/auth.service';
 import {
   PaymentApiService,
@@ -7,70 +8,18 @@ import {
   ServicePayment,
 } from '../payment-api.service';
 
-// Ponlo en true SOLO para ver el diseño sin datos reales.
-// Déjalo en false antes de hacer commit.
-const USE_DEMO_DATA = false;
-
-const DEMO_SERVICES: ServicePayment[] = [
-  {
-    id: 'demo0001-aaaa',
-    request_id: 'r1',
-    status: 'completed',
-    final_amount: 450,
-    myConfirmation: null,
-    otherConfirmation: null,
-    paymentState: 'not_started',
-  },
-  {
-    id: 'demo0002-bbbb',
-    request_id: 'r2',
-    status: 'completed',
-    final_amount: 300,
-    myConfirmation: null,
-    otherConfirmation: {
-      service_id: 'demo0002-bbbb',
-      confirmed_by: 'otro',
-      declared_amount: 300,
-      method: 'qr',
-      confirmed_at: '2026-11-23T10:00:00Z',
-    },
-    paymentState: 'waiting_for_me',
-  },
-  {
-    id: 'demo0003-cccc',
-    request_id: 'r3',
-    status: 'completed',
-    final_amount: 120,
-    myConfirmation: {
-      service_id: 'demo0003-cccc',
-      confirmed_by: 'yo',
-      declared_amount: 120,
-      method: 'cash',
-      confirmed_at: '2026-11-23T10:00:00Z',
-    },
-    otherConfirmation: {
-      service_id: 'demo0003-cccc',
-      confirmed_by: 'otro',
-      declared_amount: 100,
-      method: 'cash',
-      confirmed_at: '2026-11-23T10:05:00Z',
-    },
-    paymentState: 'mismatch',
-  },
-];
-
 type Tone = 'neutral' | 'info' | 'success' | 'warning';
 
 @Component({
   selector: 'app-payment-confirmation',
+  standalone: true,
+  imports: [RouterLink],
   templateUrl: './payment-confirmation.html',
   styleUrl: './payment-confirmation.css',
 })
 export class PaymentConfirmation implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly api = inject(PaymentApiService);
-
-  readonly demoMode = USE_DEMO_DATA;
 
   readonly methods: { value: PaymentMethod; label: string }[] = [
     { value: 'cash', label: 'Efectivo' },
@@ -116,12 +65,6 @@ export class PaymentConfirmation implements OnInit {
   }
 
   private async load() {
-    if (USE_DEMO_DATA) {
-      this.services.set(DEMO_SERVICES);
-      this.loading.set(false);
-      return;
-    }
-
     const token = await this.auth.getAccessToken();
     if (!token) {
       this.loadError.set('Tu sesión expiró. Vuelve a iniciar sesión.');
@@ -170,11 +113,6 @@ export class PaymentConfirmation implements OnInit {
 
     if (!validAmount) {
       this.saveError.set('Ingresa un monto válido (0 o más, con hasta dos decimales).');
-      return;
-    }
-
-    if (USE_DEMO_DATA) {
-      this.saveSuccess.set('Modo de ejemplo: no se envió nada al servidor.');
       return;
     }
 

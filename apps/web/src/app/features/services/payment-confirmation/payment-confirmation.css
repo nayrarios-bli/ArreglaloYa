@@ -1,6 +1,9 @@
 :host { display: block; }
 .pay-page { min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; background: #f4f7f2; box-sizing: border-box; }
 .pay-card { width: 100%; max-width: 560px; padding: 36px; background: #fff; border: 1px solid #e7ece6; border-radius: 14px; box-shadow: 0 12px 35px rgba(30, 60, 45, 0.06); box-sizing: border-box; }
+.pay-back { color: #195942; font-weight: 700; text-decoration: none; }
+.pay-back:hover { text-decoration: underline; }
+.eyebrow { margin: 1.8rem 0 .5rem; color: #287b60; font-size: .78rem; font-weight: 800; letter-spacing: .09em; }
 .pay-header { text-align: center; margin-bottom: 26px; }
 .pay-header h1 { margin: 0 0 10px; color: #183d32; font-size: 26px; font-weight: 700; }
 .pay-header p, .muted, .state-message { margin: 0; color: #718078; font-size: 14px; }

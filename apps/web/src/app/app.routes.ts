@@ -45,14 +45,6 @@ export const routes: Routes = [
       ),
     title: 'Panel de administración | ArreglaloYa',
   },
-  {
-    path: 'prueba/hu-08',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/services/payment-test/payment-test')
-        .then(m => m.PaymentTest),
-    title: 'Prueba HU-08 | ArreglaloYa',
-  },
 
   {
     path: 'solicitudes/nueva',
@@ -72,6 +64,16 @@ export const routes: Routes = [
       import('./features/client/pages/dashboard/dashboard').then(
         (module) => module.ClientDashboard,
       ),
+  },
+  {
+    path: 'servicios/pagos',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['client', 'worker'] },
+    loadComponent: () =>
+      import('./features/services/payment-confirmation/payment-confirmation').then(
+        (module) => module.PaymentConfirmation,
+      ),
+    title: 'Confirmación de pago | ArreglaloYa',
   },
   {
     path: 'servicios',

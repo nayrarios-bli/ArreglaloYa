@@ -12,6 +12,7 @@ import { WorkersModule } from './modules/workers/workers.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { SuperadminModule } from './modules/superadmin/superadmin.module.js';
 import { ServicesModule } from './modules/services/services.module.js';
+import { PaymentsModule } from './payments/payments.module.js';
 
 
 @Module({
@@ -30,6 +31,7 @@ import { ServicesModule } from './modules/services/services.module.js';
     OffersModule,
     SuperadminModule,
     ServicesModule,
+    PaymentsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

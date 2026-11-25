@@ -49,6 +49,9 @@
                   }
                 </ol>
                 <app-whatsapp-link [phone]="s.contact_phone" [message]="'Hola, te contacto por el servicio: ' + s.title" />
+                @if (s.status === 'completed' && s.final_amount !== null) {
+                  <a class="details-link" routerLink="/servicios/pagos">Confirmar pago</a>
+                }
                 @if (isWorker && s.status !== 'completed' && s.status !== 'cancelled') {
                   <a class="details-link" [routerLink]="['/trabajador/servicios', s.id, 'estado']">Actualizar estado</a>
                 }

@@ -38,6 +38,7 @@ export class PaymentsService {
       .from('services')
       .select('id, request_id, status, final_amount')
       .eq(participantColumn, userId)
+      .eq('status', 'completed')
       .not('final_amount', 'is', null)
       .order('created_at', { ascending: false });
 
@@ -84,6 +85,9 @@ export class PaymentsService {
       ? service.client_id === userId
       : service.worker_id === userId;
     if (!isParticipant) throw new NotFoundException('No se encontró el servicio.');
+    if (service.status !== 'completed') {
+      throw new BadRequestException('Solo se puede confirmar el pago de un servicio finalizado.');
+    }
     if (service.final_amount === null) {
       throw new BadRequestException('El servicio debe tener un precio acordado antes de confirmar el pago.');
     }

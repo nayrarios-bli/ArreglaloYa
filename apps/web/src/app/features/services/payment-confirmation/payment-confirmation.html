@@ -1,14 +1,13 @@
 <section class="pay-page">
   <div class="pay-card">
+    <a class="pay-back" routerLink="/servicios">← Volver a Mis servicios</a>
     <header class="pay-header">
+      <p class="eyebrow">CIERRE DEL SERVICIO</p>
       <h1>Confirmación de pago</h1>
       <p>
         Registra lo que tú declaras sobre el pago. La plataforma no procesa ni
         verifica pagos reales.
       </p>
-      @if (demoMode) {
-        <p class="demo-banner">Datos de ejemplo: no se envía nada al servidor.</p>
-      }
     </header>
 
     @if (loading()) {
