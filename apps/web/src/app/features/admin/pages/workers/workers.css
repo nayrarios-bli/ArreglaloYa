@@ -11,9 +11,8 @@
 .admin-layout {
   min-height: 100vh;
   display: flex;
-  background: #f5f7fa;
-  color: #263445;
-  font-family: Arial, sans-serif;
+  background: var(--ay-background);
+  color: var(--ay-ink);
 }
 
 .sidebar {
@@ -22,7 +21,7 @@
   padding: 28px 18px;
   display: flex;
   flex-direction: column;
-  background: #287f64;
+  background: var(--ay-accent);
   color: white;
   flex-shrink: 0;
 }
@@ -42,7 +41,7 @@
   place-items: center;
   border-radius: 12px;
   background: white;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 22px;
   font-weight: 800;
 }
@@ -142,7 +141,7 @@
   justify-content: space-between;
   gap: 20px;
   padding-bottom: 25px;
-  border-bottom: 1px solid #e2e7ed;
+  border-bottom: 1px solid var(--ay-border);
 }
 
 .breadcrumb {
@@ -152,14 +151,14 @@
 
 .page-header h1 {
   margin: 8px 0;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 26px;
 }
 
 .page-header p,
 .section-heading p {
   margin: 0;
-  color: #758294;
+  color: var(--ay-muted);
   font-size: 13px;
   line-height: 1.6;
 }
@@ -171,18 +170,18 @@
   flex-direction: column;
   align-items: center;
   gap: 5px;
-  border: 1px solid #e2e7ed;
+  border: 1px solid var(--ay-border);
   border-radius: 10px;
   background: white;
 }
 
 .pending-counter span {
-  color: #758294;
+  color: var(--ay-muted);
   font-size: 11px;
 }
 
 .pending-counter strong {
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 24px;
 }
 
@@ -200,24 +199,24 @@
 
 .section-heading h2 {
   margin: 0 0 7px;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 18px;
 }
 
 .refresh-button,
 .secondary-button {
   padding: 10px 14px;
-  border: 1px solid #d7e0e9;
+  border: 1px solid var(--ay-border);
   border-radius: 8px;
   background: white;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 12px;
   cursor: pointer;
 }
 
 .refresh-button:hover,
 .secondary-button:hover {
-  background: #eaf3ef;
+  background: var(--ay-tint);
 }
 
 .workers-list {
@@ -228,7 +227,7 @@
 
 .worker-card {
   padding: 24px;
-  border: 1px solid #e5eaf0;
+  border: 1px solid var(--ay-border);
   border-radius: 12px;
   background: white;
   box-shadow: 0 3px 12px rgba(40, 127, 100, 0.035);
@@ -248,8 +247,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #eaf3ef;
-  color: #287f64;
+  background: var(--ay-tint);
+  color: var(--ay-accent);
   font-size: 19px;
   font-weight: 700;
 }
@@ -260,7 +259,7 @@
 
 .worker-identity h3 {
   margin: 0 0 5px;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 16px;
 }
 
@@ -287,7 +286,7 @@
 
 .information-block h4 {
   margin: 0 0 10px;
-  color: #526275;
+  color: var(--ay-text);
   font-size: 12px;
 }
 
@@ -297,6 +296,50 @@
   font-size: 13px;
   line-height: 1.6;
   overflow-wrap: anywhere;
+}
+
+.documents-block {
+  padding: 14px;
+  border: 1px solid var(--ay-border);
+  border-radius: 9px;
+  background: #fbfcfd;
+}
+
+.document-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.document-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 11px;
+  border: 1px solid #d9e9e1;
+  border-radius: 7px;
+  color: #246c55;
+  background: white;
+  font-size: 11px;
+  font-weight: 650;
+  text-decoration: none;
+  transition: background 150ms ease, transform 150ms ease;
+}
+
+.document-links a:hover {
+  background: var(--ay-tint);
+  transform: translateY(-1px);
+}
+
+.document-privacy-note,
+.approval-requirement {
+  margin: 9px 0 0 !important;
+  color: #8793a1 !important;
+  font-size: 10px !important;
+}
+
+.approval-requirement {
+  text-align: right;
 }
 
 .muted {
@@ -313,8 +356,8 @@
   padding: 6px 10px;
   border: 1px solid #d9e9e1;
   border-radius: 6px;
-  background: #eaf3ef;
-  color: #287f64;
+  background: var(--ay-tint);
+  color: var(--ay-accent);
   font-size: 11px;
 }
 
@@ -329,12 +372,12 @@
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 10px;
-  color: #526275;
+  color: var(--ay-text);
   font-size: 12px;
 }
 
 .availability-item strong {
-  color: #35495e;
+  color: var(--ay-text);
 }
 
 .submitted-date {
@@ -366,11 +409,11 @@
 }
 
 .approve-button {
-  background: #287f64;
+  background: var(--ay-accent);
 }
 
 .approve-button:hover {
-  background: #226b55;
+  background: var(--ay-accent-hover);
 }
 
 .reject-button {
@@ -395,7 +438,7 @@
   justify-content: center;
   align-items: center;
   gap: 12px;
-  border: 1px solid #e5eaf0;
+  border: 1px solid var(--ay-border);
   border-radius: 12px;
   background: white;
   text-align: center;
@@ -403,13 +446,13 @@
 
 .state-card p {
   margin: 0;
-  color: #758294;
+  color: var(--ay-muted);
   font-size: 13px;
 }
 
 .empty-state h2 {
   margin: 0;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 18px;
 }
 
@@ -424,8 +467,8 @@
   display: grid;
   place-items: center;
   border-radius: 50%;
-  background: #eaf3ef;
-  color: #287f64;
+  background: var(--ay-tint);
+  color: var(--ay-accent);
   font-size: 25px;
 }
 
@@ -437,7 +480,7 @@
   width: 28px;
   height: 28px;
   border: 3px solid #e0e7ee;
-  border-top-color: #287f64;
+  border-top-color: var(--ay-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -474,7 +517,7 @@
 .error-message button {
   border: none;
   background: transparent;
-  color: #287f64;
+  color: var(--ay-accent);
   font-weight: 700;
   cursor: pointer;
 }
@@ -513,7 +556,7 @@
 
 .modal-header h2 {
   margin: 7px 0 0;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 19px;
 }
 
@@ -538,13 +581,13 @@
 }
 
 .modal-description strong {
-  color: #287f64;
+  color: var(--ay-accent);
 }
 
 .review-modal label {
   display: block;
   margin-bottom: 8px;
-  color: #35495e;
+  color: var(--ay-text);
   font-size: 12px;
   font-weight: 700;
 }
@@ -555,14 +598,14 @@
   resize: vertical;
   border: 1px solid #d9e0e7;
   border-radius: 8px;
-  color: #35495e;
+  color: var(--ay-text);
   font: inherit;
   font-size: 13px;
 }
 
 .review-modal textarea:focus {
   outline: 2px solid #b9d8cb;
-  border-color: #287f64;
+  border-color: var(--ay-accent);
 }
 
 .character-count {
@@ -589,10 +632,10 @@
 
 .cancel-button {
   padding: 11px 16px;
-  border: 1px solid #d7e0e9;
+  border: 1px solid var(--ay-border);
   border-radius: 8px;
   background: white;
-  color: #526275;
+  color: var(--ay-text);
   font-size: 12px;
   cursor: pointer;
 }

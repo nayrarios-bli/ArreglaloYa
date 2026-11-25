@@ -2,7 +2,7 @@
 <div class="admin-layout">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-icon">A</div>
+      <span class="brand-icon"><img src="/brand/arreglalo-ya-mark.svg" alt="" /></span>
       <div>
         <h2>ArreglaloYa</h2>
         <span>Administración</span>
@@ -24,23 +24,15 @@
 
       <span class="nav-label secondary-label">OTRAS FUNCIONES</span>
 
-      <div class="nav-disabled">
-        <span class="nav-icon">◇</span>
-        Categorías y zonas
-        <small>Próximamente</small>
-      </div>
-
-      <div class="nav-disabled">
+      <a routerLink="/admin/reclamos">
         <span class="nav-icon">▤</span>
         Gestión de reclamos
-        <small>Próximamente</small>
-      </div>
+      </a>
 
-      <div class="nav-disabled">
+      <a routerLink="/admin/reportes">
         <span class="nav-icon">▥</span>
         Reportes
-        <small>Próximamente</small>
-      </div>
+      </a>
     </nav>
 
     <a routerLink="/admin" class="back-link">
@@ -60,7 +52,7 @@
 
       <div class="pending-counter">
         <span>Pendientes</span>
-        <strong>{{ workers.length }}</strong>
+        <strong>{{ loading || (errorMessage && !workers.length) ? '—' : workers.length }}</strong>
       </div>
     </header>
 
@@ -70,7 +62,7 @@
       </div>
     }
 
-    @if (errorMessage) {
+    @if (errorMessage && !selectedWorker) {
       <div class="error-message">
         {{ errorMessage }}
         <button type="button" (click)="loadWorkers()">Reintentar</button>
@@ -83,20 +75,18 @@
           <div class="loader"></div>
           <p>Cargando trabajadores pendientes...</p>
         </div>
-      } @else if (workers.length === 0) {
+      } @else if (!errorMessage && workers.length === 0) {
         <div class="state-card empty-state">
           <div class="empty-icon">✓</div>
           <h2>No hay trabajadores pendientes</h2>
-          <p>
-            Cuando un trabajador envíe su perfil para revisión,
-            aparecerá en esta sección.
-          </p>
+          <p>No hay perfiles pendientes para revisar en este momento.</p>
           <button type="button" class="secondary-button"
                   (click)="loadWorkers()">
             Actualizar listado
           </button>
+          <a class="empty-state-link" routerLink="/admin">Volver al panel</a>
         </div>
-      } @else {
+      } @else if (workers.length > 0) {
         <div class="section-heading">
           <div>
             <h2>Solicitudes recibidas</h2>
@@ -180,6 +170,26 @@
                   }
                 </div>
 
+                <div class="information-block documents-block">
+                  <h4>Documentos privados</h4>
+                  <div class="document-links">
+                    @for (document of worker.documents; track document.document_type) {
+                      @if (document.signed_url) {
+                        <a [href]="document.signed_url" target="_blank" rel="noopener noreferrer">
+                        {{ document.document_type === 'identity_card' ? 'Ver documento de identidad' : 'Ver certificado de antecedentes' }}
+                        <span>↗</span>
+                        </a>
+                      } @else {
+                        <p>Documento no disponible. Actualiza la lista para volver a intentarlo.</p>
+                      }
+                    }
+                    @if (!worker.documents.length) {
+                      <p class="muted">No hay documentos adjuntos.</p>
+                    }
+                  </div>
+                  <p class="document-privacy-note">Enlaces temporales, disponibles solo para personal autorizado.</p>
+                </div>
+
                 <div class="submitted-date">
                   Enviado el:
                   {{ worker.submitted_at | date:'dd/MM/yyyy HH:mm' }}
@@ -197,10 +207,14 @@
                 <button
                   type="button"
                   class="approve-button"
+                  [disabled]="!hasIdentityDocument(worker)"
                   (click)="openReview(worker, 'approved')">
                   Aprobar perfil
                 </button>
               </div>
+              @if (!hasIdentityDocument(worker)) {
+                <p class="approval-requirement">Se necesita una CI disponible para aprobar este perfil.</p>
+              }
             </article>
           }
         </div>

@@ -6,10 +6,10 @@
   width: min(100%, 620px);
   margin: 2rem auto;
   padding: 1.5rem;
-  border: 1px solid #d8dee8;
+  border: 1px solid var(--ay-border);
   border-radius: 12px;
   background: #fff;
-  color: #1d2939;
+  color: var(--ay-ink);
   box-shadow: 0 4px 18px rgb(16 24 40 / 8%);
 }
 
@@ -19,7 +19,7 @@ h3 {
 }
 
 .intro {
-  color: #475467;
+  color: var(--ay-muted);
   line-height: 1.5;
 }
 
@@ -67,7 +67,7 @@ button {
   padding: 0.75rem 1rem;
   border: 0;
   border-radius: 8px;
-  background: #175cd3;
+  background: var(--ay-accent);
   color: #fff;
   font: inherit;
   font-weight: 600;
@@ -80,7 +80,7 @@ button:hover {
 
 .notice {
   margin-top: 1rem;
-  color: #175cd3;
+  color: var(--ay-accent);
 }
 
 .preview {

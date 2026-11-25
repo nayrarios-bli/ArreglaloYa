@@ -1,4 +1,4 @@
-import { Controller, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, ParseUUIDPipe, Post, Req, UseGuards } from '@nestjs/common';
 import type { Request } from 'express';
 import { Roles } from '../auth/decorators/roles.decorator.js';
 import { RolesGuard } from '../auth/guards/roles.guard.js';
@@ -15,4 +15,10 @@ export class ServiceHistoryController {
   @Get('mine')
   @Roles('client', 'worker')
   listMine(@Req() req: AuthRequest) { return this.services.listMine(req.user.id); }
+
+  @Post(':serviceId/completion-code')
+  @Roles('client')
+  issueCode(@Req() req: AuthRequest, @Param('serviceId', ParseUUIDPipe) serviceId: string) {
+    return this.services.issueCompletionCode(serviceId, req.user.id);
+  }
 }

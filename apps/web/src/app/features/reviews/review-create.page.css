@@ -9,7 +9,7 @@
   align-items: flex-start;
   justify-content: center;
   padding: 40px 20px;
-  background: #f4f7f2;
+  background: var(--ay-background);
 }
 
 .reviews-card {
@@ -17,7 +17,7 @@
   max-width: 560px;
   padding: 40px;
   background: #ffffff;
-  border: 1px solid #e7ece6;
+  border: 1px solid var(--ay-border);
   border-radius: 14px;
   box-shadow: 0 12px 35px rgba(30, 60, 45, 0.06);
 }
@@ -32,7 +32,7 @@
   align-items: center;
   gap: 9px;
   margin-bottom: 25px;
-  color: #183d32;
+  color: var(--ay-ink);
   font-size: 20px;
   font-weight: 700;
   text-decoration: none;
@@ -45,24 +45,24 @@
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: #287b60;
+  background: var(--ay-accent);
   color: white;
 }
 
 .brand-accent {
-  color: #287b60;
+  color: var(--ay-accent);
 }
 
 .reviews-header h1 {
   margin: 0 0 10px;
-  color: #183d32;
+  color: var(--ay-ink);
   font-size: 28px;
   font-weight: 700;
 }
 
 .reviews-header p {
   margin: 0;
-  color: #718078;
+  color: var(--ay-muted);
   font-size: 14px;
 }
 
@@ -74,7 +74,7 @@
 }
 
 .service-id code {
-  color: #456c54;
+  color: var(--ay-accent);
 }
 
 .form-group {
@@ -86,7 +86,7 @@
 
 .form-group label,
 .form-group legend {
-  color: #24352e;
+  color: var(--ay-text);
   font-size: 14px;
   font-weight: 600;
 }
@@ -114,7 +114,7 @@
   gap: 2px;
   flex: 1;
   padding: 8px 4px;
-  border: 1px solid #d8e2d9;
+  border: 1px solid var(--ay-border);
   border-radius: 8px;
   color: #b9c4bc;
   cursor: pointer;
@@ -122,13 +122,13 @@
 }
 
 .score-option:hover {
-  border-color: #287b60;
+  border-color: var(--ay-accent);
 }
 
 .score-option.selected {
-  border-color: #287b60;
+  border-color: var(--ay-accent);
   background: #f0f7f3;
-  color: #287b60;
+  color: var(--ay-accent);
 }
 
 .score-option input {
@@ -150,22 +150,22 @@
 }
 
 .score-value {
-  color: #718078;
+  color: var(--ay-muted);
   font-size: 12px;
   font-weight: 600;
 }
 
 .score-option.selected .score-value {
-  color: #287b60;
+  color: var(--ay-accent);
 }
 
 textarea {
   width: 100%;
   padding: 12px 13px;
-  border: 1px solid #d8e2d9;
+  border: 1px solid var(--ay-border);
   border-radius: 8px;
   outline: none;
-  color: #24352e;
+  color: var(--ay-text);
   font-family: inherit;
   font-size: 14px;
   resize: vertical;
@@ -173,7 +173,7 @@ textarea {
 }
 
 textarea:focus {
-  border-color: #287b60;
+  border-color: var(--ay-accent);
   box-shadow: 0 0 0 3px rgba(40, 123, 96, 0.1);
 }
 
@@ -193,7 +193,7 @@ textarea::placeholder {
   margin-top: 5px;
   border: none;
   border-radius: 8px;
-  background: #287b60;
+  background: var(--ay-accent);
   color: white;
   font-size: 14px;
   font-weight: 700;
@@ -202,7 +202,7 @@ textarea::placeholder {
 }
 
 .submit-button:hover:not(:disabled) {
-  background: #21664f;
+  background: var(--ay-accent-hover);
 }
 
 .submit-button:disabled {
@@ -234,18 +234,18 @@ textarea::placeholder {
 .reviews-list {
   margin-top: 32px;
   padding-top: 24px;
-  border-top: 1px solid #e7ece6;
+  border-top: 1px solid var(--ay-border);
 }
 
 .reviews-list h2 {
   margin: 0 0 16px;
-  color: #183d32;
+  color: var(--ay-ink);
   font-size: 18px;
 }
 
 .status-text {
   margin: 0;
-  color: #718078;
+  color: var(--ay-muted);
   font-size: 14px;
 }
 
@@ -260,7 +260,7 @@ textarea::placeholder {
 
 .review-item {
   padding: 14px;
-  border: 1px solid #e7ece6;
+  border: 1px solid var(--ay-border);
   border-radius: 10px;
   background: #fbfdfb;
 }
@@ -286,7 +286,7 @@ textarea::placeholder {
 
 .review-comment {
   margin: 0;
-  color: #24352e;
+  color: var(--ay-text);
   font-size: 14px;
   line-height: 1.5;
   overflow-wrap: anywhere;

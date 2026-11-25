@@ -5,7 +5,7 @@
   justify-content: center;
   align-items: center;
   padding: 24px;
-  background: #f5f7fa;
+  background: var(--ay-background);
 }
 
 .card {
@@ -13,18 +13,19 @@
   width: 100%;
   padding: 40px;
   text-align: center;
-  background: white;
+  background: var(--ay-surface);
+  border: 1px solid var(--ay-border);
   border-radius: 16px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
 }
 
 h1 {
-  color: #1f3b5b;
+  color: var(--ay-ink);
   margin-bottom: 16px;
 }
 
 p {
-  color: #555;
+  color: var(--ay-muted);
   line-height: 1.6;
 }
 
@@ -32,9 +33,9 @@ p {
   display: inline-block;
   margin-top: 20px;
   padding: 14px 22px;
-  border-radius: 3px;
+  border-radius: 8px;
   color: white;
-  background: #304b38;
+  background: var(--ay-accent);
   font-size: 12px;
   font-weight: 650;
   text-decoration: none;
@@ -42,7 +43,7 @@ p {
 }
 
 .profile-button:hover {
-  background: #243e2c;
+  background: var(--ay-accent-hover);
 }
 
 .contact-note {

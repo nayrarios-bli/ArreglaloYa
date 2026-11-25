@@ -17,6 +17,14 @@ export interface WorkerProfile {
   categoryIds: string[];
   zoneIds: string[];
   availability: WorkerAvailability[];
+  documents: WorkerDocument[];
+}
+
+export type WorkerDocumentType = 'identity_card' | 'criminal_record';
+
+export interface WorkerDocument {
+  document_type: WorkerDocumentType;
+  uploaded_at: string;
 }
 
 export interface UpdateWorkerProfilePayload {
@@ -62,6 +70,20 @@ export class WorkerApiService {
     return this.http.post<{ message: string; reviewStatus: string }>(
       `${this.endpoint}/submit`,
       {},
+      { headers: this.headers(token) },
+    );
+  }
+
+  uploadDocument(
+    documentType: WorkerDocumentType,
+    file: File,
+    token: string,
+  ): Observable<WorkerDocument> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<WorkerDocument>(
+      `${this.endpoint}/documents/${documentType}`,
+      formData,
       { headers: this.headers(token) },
     );
   }

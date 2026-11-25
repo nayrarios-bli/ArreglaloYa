@@ -2,8 +2,8 @@
 :host {
   display: block;
   min-height: 100vh;
-  color: #26384a;
-  background: #f5f7fa;
+  color: var(--ay-ink);
+  background: var(--ay-background);
 }
 
 * {
@@ -12,7 +12,7 @@
 
 .page {
   min-height: 100vh;
-  background: #f5f7fa;
+  background: var(--ay-background);
 }
 
 /* BARRA SUPERIOR */
@@ -23,7 +23,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: #287f64;
+  background: var(--ay-accent);
   color: white;
 }
 
@@ -42,7 +42,7 @@
   place-items: center;
   border-radius: 10px;
   background: white;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 21px;
   font-weight: 800;
 }
@@ -56,6 +56,21 @@
 .user-label {
   color: #e0f0e8;
   font-size: 13px;
+}
+
+.workers-review-link {
+  padding: 9px 13px;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  border-radius: 8px;
+  color: white;
+  font-size: 12px;
+  font-weight: 650;
+  text-decoration: none;
+  transition: background 150ms ease;
+}
+
+.workers-review-link:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .logout-button {
@@ -100,7 +115,7 @@
 
 h1 {
   margin: 0;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: clamp(25px, 3vw, 32px);
 }
 
@@ -131,7 +146,7 @@ h1 {
 }
 
 .primary-button {
-  background: #287f64;
+  background: var(--ay-accent);
   color: white;
 }
 
@@ -225,8 +240,8 @@ h1 {
 }
 
 .total-icon {
-  background: #eaf5ef;
-  color: #287f64;
+  background: var(--ay-tint);
+  color: var(--ay-accent);
 }
 
 .active-icon {
@@ -247,7 +262,7 @@ h1 {
 }
 
 .stat-card strong {
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 27px;
 }
 
@@ -272,7 +287,7 @@ h1 {
 
 .table-heading h2 {
   margin: 0;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 18px;
 }
 
@@ -356,8 +371,8 @@ tbody tr:hover {
   place-items: center;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #eaf5ef;
-  color: #287f64;
+  background: var(--ay-tint);
+  color: var(--ay-accent);
   font-weight: 750;
 }
 
@@ -488,8 +503,8 @@ tbody tr:hover {
   display: grid;
   place-items: center;
   border-radius: 15px;
-  background: #eaf5ef;
-  color: #287f64;
+  background: var(--ay-tint);
+  color: var(--ay-accent);
   font-size: 23px;
   font-weight: 800;
 }
@@ -512,7 +527,7 @@ tbody tr:hover {
   display: inline-block;
   vertical-align: middle;
   border: 2px solid #dce4ec;
-  border-top-color: #287f64;
+  border-top-color: var(--ay-accent);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
@@ -557,7 +572,7 @@ tbody tr:hover {
 
 .modal-heading h2 {
   margin: 0;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 21px;
 }
 
@@ -651,7 +666,7 @@ tbody tr:hover {
 
 .detail-profile h3 {
   margin: 0 0 7px;
-  color: #287f64;
+  color: var(--ay-accent);
   font-size: 18px;
 }
 

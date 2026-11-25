@@ -2,7 +2,7 @@
 <div class="admin-layout">
   <aside class="sidebar">
     <div class="brand">
-      <div class="brand-icon">A</div>
+      <span class="brand-icon"><img src="/brand/arreglalo-ya-mark.svg" alt="" /></span>
       <div>
         <h2>ArreglaloYa</h2>
         <span>Administración</span>
@@ -25,23 +25,15 @@
 
       <span class="nav-label secondary-label">OTRAS FUNCIONES</span>
 
-      <div class="nav-disabled">
-        <span class="nav-icon">◇</span>
-        Categorías y zonas
-        <small>Próximamente</small>
-      </div>
-
-      <div class="nav-disabled">
+      <a routerLink="/admin/reclamos">
         <span class="nav-icon">▤</span>
         Gestión de reclamos
-        <small>Próximamente</small>
-      </div>
+      </a>
 
-      <div class="nav-disabled">
+      <a routerLink="/admin/reportes">
         <span class="nav-icon">▥</span>
         Reportes
-        <small>Próximamente</small>
-      </div>
+      </a>
     </nav>
 
     <button class="logout-button" (click)="logout()">
@@ -92,8 +84,8 @@
           <div>
             <span class="summary-label">Trabajadores pendientes</span>
 
-            @if (loading) {
-              <strong class="summary-number">...</strong>
+            @if (loading || errorMessage) {
+              <strong class="summary-number">—</strong>
             } @else {
               <strong class="summary-number">{{ pendingCount }}</strong>
             }

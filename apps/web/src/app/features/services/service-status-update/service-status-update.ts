@@ -24,6 +24,7 @@ export class ServiceStatusUpdate implements OnInit {
   readonly status = signal<ServiceStatus>('scheduled');
   readonly finishedAt = signal<string | null>(null);
   readonly confirmingFinish = signal(false);
+  readonly completionCode = signal('');
   readonly loading = signal(true);
   readonly loaded = signal(false);
   readonly saving = signal(false);
@@ -47,15 +48,28 @@ export class ServiceStatusUpdate implements OnInit {
 
   startService(): void { this.saveStatus('in_progress'); }
   askFinish(): void { this.confirmingFinish.set(true); }
-  cancelFinish(): void { this.confirmingFinish.set(false); }
-  finishService(): void { this.saveStatus('completed'); }
+  cancelFinish(): void {
+    this.confirmingFinish.set(false);
+    this.completionCode.set('');
+  }
+
+  finishService(): void {
+    if (!/^\d{6}$/.test(this.completionCode().trim())) {
+      this.error.set('Ingresa el código de 6 dígitos que te dio el cliente.');
+      return;
+    }
+    this.saveStatus('completed');
+  }
 
   private saveStatus(status: 'in_progress' | 'completed'): void {
     const headers = this.headers();
     if (!headers || this.saving()) return;
     this.saving.set(true);
     this.error.set('');
-    this.http.patch<ServiceState>(`${API_URL}/services/${this.serviceId}/status`, { status }, { headers }).subscribe({
+    const body = status === 'completed'
+      ? { status, code: this.completionCode().trim() }
+      : { status };
+    this.http.patch<ServiceState>(`${API_URL}/services/${this.serviceId}/status`, body, { headers }).subscribe({
       next: (service) => { this.status.set(service.status); this.finishedAt.set(service.completed_at); this.confirmingFinish.set(false); this.saving.set(false); },
       error: (error: HttpErrorResponse) => { this.error.set(error.error?.message ?? 'No se pudo guardar el nuevo estado.'); this.saving.set(false); },
     });

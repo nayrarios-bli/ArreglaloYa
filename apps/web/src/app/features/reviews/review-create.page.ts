@@ -1,5 +1,5 @@
 import { HttpErrorResponse } from '@angular/common/http';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
@@ -29,6 +29,10 @@ export class ReviewCreatePage implements OnInit {
   comment = '';
 
   readonly reviews = signal<Review[]>([]);
+  readonly ownReview = computed(() => {
+    const userId = this.authService.getUser()?.id;
+    return userId ? this.reviews().find((review) => review.author_id === userId) ?? null : null;
+  });
   readonly loadingReviews = signal(false);
   readonly submitting = signal(false);
   readonly successMessage = signal('');

@@ -12,6 +12,12 @@ La tabla `request_attachments` guarda el `storage_path` del objeto (por ejemplo,
 
 El endpoint de carga está implementado, pero la pantalla aún no lo invoca. Falta integrar HU-F16 para obtener un token y encadenar la creación de solicitud con la carga de cada foto. Si falla la asociación del archivo en `request_attachments`, NestJS intenta retirar el objeto para evitar archivos huérfanos.
 
+## Documentos de trabajadores
+
+La migración `202611250002_worker_documents.sql` crea la tabla `worker_documents` y el bucket privado `worker-documents`. El trabajador carga su CI (obligatorio para enviar el perfil a revisión) y, si cuenta con uno, su certificado de antecedentes. Se aceptan PDF, JPG, PNG y WebP de hasta 10 MB. El archivo se valida y se envía desde NestJS usando `SUPABASE_SECRET_KEY`; el navegador nunca accede directamente al bucket.
+
+El panel de revisión usa URLs firmadas de diez minutos para que personal autorizado consulte los documentos. No se almacenan URLs públicas ni se conceden permisos directos a `anon` o `authenticated`. El endpoint de aprobación vuelve a comprobar la existencia del CI. No aplicar esta migración sobre un entorno hasta que el flujo backend/frontend de esta rama esté integrado.
+
 ## HU-07: horario del servicio
 
 La migración `202611240002_prevent_service_schedule_overlap.sql` agrega una restricción para impedir horarios superpuestos de un mismo trabajador en servicios programados o en curso. Revísala y aplícala una sola vez desde el SQL Editor. Si ya existen cruces de horario, la migración se detiene y muestra un error; corrige esos datos antes de volver a aplicarla. No modifica ni elimina horarios.

@@ -42,6 +42,11 @@ export class AdminController {
     return this.adminService.getPendingWorkers();
   }
 
+  @Get('workers/pending/count')
+  getPendingWorkerCount() {
+    return this.adminService.getPendingWorkerCount();
+  }
+
   // APROBAR O RECHAZAR UN TRABAJADOR
   @Patch('workers/:workerId/review')
   reviewWorker(

@@ -3,11 +3,15 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Post,
   Put,
   Req,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import type { Request } from 'express';
 
 import { Roles } from '../auth/decorators/roles.decorator.js';
@@ -46,4 +50,28 @@ export class WorkersController {
   submitForReview(@Req() request: AuthenticatedRequest) {
     return this.workersService.submitForReview(request.user.id);
   }
+
+  @Post('me/documents/:documentType')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { fileSize: 10 * 1024 * 1024, files: 1 },
+    }),
+  )
+  uploadDocument(
+    @Req() request: AuthenticatedRequest,
+    @Param('documentType') documentType: string,
+    @UploadedFile() file: UploadedWorkerDocument | undefined,
+  ) {
+    return this.workersService.uploadDocument(
+      request.user.id,
+      documentType,
+      file,
+    );
+  }
+}
+
+interface UploadedWorkerDocument {
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
 }

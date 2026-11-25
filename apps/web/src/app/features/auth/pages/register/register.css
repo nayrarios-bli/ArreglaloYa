@@ -2,8 +2,7 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #f5f8f3;
-  font-family: Arial, sans-serif;
+  background: var(--ay-background);
 }
 
 .register-container {
@@ -26,14 +25,14 @@
 
 .register-card h1 {
   margin: 0 0 10px;
-  color: #19372e;
+  color: var(--ay-ink);
   font-size: 28px;
   text-align: center;
 }
 
 .register-card > p {
   margin-bottom: 28px;
-  color: #77847c;
+  color: var(--ay-muted);
   font-size: 14px;
   text-align: center;
 }
@@ -46,7 +45,7 @@
 }
 
 .form-group label {
-  color: #294139;
+  color: var(--ay-text);
   font-size: 13px;
   font-weight: 600;
 }
@@ -59,14 +58,14 @@
   border: 1px solid #dfe6df;
   border-radius: 7px;
   outline: none;
-  color: #294139;
+  color: var(--ay-text);
   background: #ffffff;
   font-size: 13px;
 }
 
 .form-group input:focus,
 .form-group select:focus {
-  border-color: #28795f;
+  border-color: var(--ay-accent);
   box-shadow: 0 0 0 3px #28795f18;
 }
 
@@ -81,7 +80,7 @@ button[type="submit"] {
   border: none;
   border-radius: 7px;
   color: white;
-  background: #28795f;
+  background: var(--ay-accent);
   font-size: 14px;
   font-weight: 650;
   cursor: pointer;
@@ -89,7 +88,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover:not(:disabled) {
-  background: #1f684f;
+  background: var(--ay-accent-hover);
 }
 
 button[type="submit"]:disabled {
@@ -99,13 +98,13 @@ button[type="submit"]:disabled {
 
 .register-card .login-text {
   margin: 24px 0 0;
-  color: #77847c;
+  color: var(--ay-muted);
   font-size: 13px;
   text-align: center;
 }
 
 .login-text a {
-  color: #28795f;
+  color: var(--ay-accent);
   font-weight: 650;
   text-decoration: none;
 }
@@ -116,7 +115,7 @@ button[type="submit"]:disabled {
 
 .success-message,
 .register-card .success-message {
-  color: #28795f;
+  color: var(--ay-accent);
   font-size: 13px;
   text-align: center;
   margin-top: 18px;

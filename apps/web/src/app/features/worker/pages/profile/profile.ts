@@ -10,7 +10,7 @@ import {
   type CatalogCategory,
   type CatalogZone,
 } from '../../../../core/catalog-api.service.js';
-import { WorkerApiService } from '../worker-api.service.js';
+import { WorkerApiService, type WorkerDocumentType } from '../worker-api.service.js';
 
 interface ScheduleDay {
   weekday: number;
@@ -55,6 +55,8 @@ export class WorkerProfilePage implements OnInit {
   readonly feedback = signal('');
   readonly feedbackType = signal<'info' | 'error' | 'success'>('info');
   readonly reviewStatus = signal<'pending' | 'approved' | 'rejected'>('pending');
+  readonly uploadedDocuments = signal<WorkerDocumentType[]>([]);
+  readonly uploadingDocument = signal<WorkerDocumentType | null>(null);
 
   readonly form = this.formBuilder.nonNullable.group({
     bio: ['', [Validators.required, Validators.maxLength(1000)]],
@@ -92,6 +94,7 @@ export class WorkerProfilePage implements OnInit {
         this.selectedCategoryIds.set(profile.categoryIds);
         this.selectedZoneIds.set(profile.zoneIds);
         this.reviewStatus.set(profile.review_status);
+        this.uploadedDocuments.set(profile.documents.map((item) => item.document_type));
 
         const savedSchedules = new Map(
           profile.availability.map((item) => [item.weekday, item]),
@@ -178,6 +181,53 @@ export class WorkerProfilePage implements OnInit {
     }
 
     void this.persistProfile(true);
+  }
+
+  uploadDocument(documentType: WorkerDocumentType, event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) return;
+
+    const allowedTypes = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    if (!allowedTypes.includes(file.type)) {
+      this.showFeedback('El archivo debe ser PDF, JPG, PNG o WebP.', 'error');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      this.showFeedback('El archivo no puede superar 10 MB.', 'error');
+      return;
+    }
+
+    const token = this.authService.getAccessToken();
+    if (!token) {
+      this.showFeedback('Tu sesión expiró. Inicia sesión nuevamente.', 'error');
+      return;
+    }
+
+    this.uploadingDocument.set(documentType);
+    this.showFeedback('Subiendo el documento de forma privada…', 'info');
+    this.workerApi.uploadDocument(documentType, file, token).subscribe({
+      next: () => {
+        this.uploadedDocuments.update((documents) =>
+          documents.includes(documentType) ? documents : [...documents, documentType],
+        );
+        this.showFeedback(
+          documentType === 'identity_card'
+            ? 'Documento de identidad guardado de forma privada.'
+            : 'Certificado de antecedentes guardado de forma privada.',
+          'success',
+        );
+        this.uploadingDocument.set(null);
+      },
+      error: (error: unknown) => {
+        this.showFeedback(
+          this.apiErrorMessage(error, 'No se pudo subir el documento.'),
+          'error',
+        );
+        this.uploadingDocument.set(null);
+      },
+    });
   }
 
   private async persistProfile(sendForReview: boolean): Promise<void> {

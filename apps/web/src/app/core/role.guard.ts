@@ -42,7 +42,9 @@ export const roleGuard: CanActivateFn = (route) => {
   }
 
   if (user.role === 'admin' || user.role === 'superadmin') {
-    return router.createUrlTree(['/admin']);
+    return router.createUrlTree([
+      user.role === 'superadmin' ? '/superadmin' : '/admin',
+    ]);
   }
 
   return router.createUrlTree(['/login']);
