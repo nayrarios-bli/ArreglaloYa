@@ -1,0 +1,68 @@
+<main class="detail-page">
+  <a class="back-link" routerLink="/trabajador/solicitudes"><span aria-hidden="true">←</span> Volver a solicitudes</a>
+
+  @if (loading()) {
+    <section class="state-card" role="status" aria-busy="true"><span class="loader"></span><p>Cargando detalle…</p></section>
+  } @else if (error()) {
+    <section class="state-card" role="alert">
+      <span class="state-icon" aria-hidden="true">!</span>
+      <h1>No se pudo abrir la solicitud</h1>
+      <p>{{ error() }}</p>
+      <a class="text-link" routerLink="/trabajador/solicitudes">Volver a la lista</a>
+    </section>
+  } @else if (request(); as item) {
+    <article class="request-detail">
+      <header class="detail-heading">
+        <p class="eyebrow">{{ item.category?.name ?? 'Servicio' }}</p>
+        <h1>{{ item.title }}</h1>
+        <div class="location-line"><span aria-hidden="true">⌖</span>{{ item.zone?.name ?? 'Zona' }}, {{ item.zone?.city ?? 'Cochabamba' }}</div>
+      </header>
+
+      <section class="detail-grid">
+        <div class="main-content">
+          <section class="content-section">
+            <h2>Lo que necesita el cliente</h2>
+            <p class="description">{{ item.description }}</p>
+          </section>
+
+          <section class="content-section">
+            <h2>Fotos del problema</h2>
+            @if (item.attachments.length > 0) {
+              <div class="photo-grid">
+                @for (photo of item.attachments; track photo.id; let index = $index) {
+                  <a class="photo-frame" [href]="photo.signed_url" target="_blank" rel="noopener noreferrer" [attr.aria-label]="'Abrir foto ' + (index + 1) + ' en una pestaña nueva'">
+                    <img [src]="photo.signed_url" [alt]="'Foto ' + (index + 1) + ' del problema descrito'" loading="lazy" />
+                  </a>
+                }
+              </div>
+            } @else {
+              <p class="quiet-copy">El cliente no adjuntó fotografías.</p>
+            }
+          </section>
+
+          <section class="content-section offer-section">
+            @if (offerSubmitted()) {
+              <p class="offer-submitted" role="status">
+                Ya presentaste una oferta para esta solicitud.
+              </p>
+            } @else if (accessToken(); as token) {
+              <app-offer-form
+                [requestId]="item.id"
+                [accessToken]="token"
+                (offerReady)="markOfferSubmitted()"
+              />
+            }
+          </section>
+        </div>
+
+        <aside class="info-card" aria-label="Datos de la solicitud">
+          <div class="info-row"><span class="info-label">Especialidad</span><strong>{{ item.category?.name ?? 'Servicio' }}</strong></div>
+          <div class="info-row"><span class="info-label">Zona de atención</span><strong>{{ item.zone?.name ?? 'Zona' }}</strong><small>{{ item.zone?.city ?? 'Cochabamba' }}</small></div>
+          <div class="info-row"><span class="info-label">Disponibilidad indicada</span><strong>{{ availability(item) }}</strong></div>
+          <div class="info-row"><span class="info-label">Publicada</span><strong>{{ formatDate(item.created_at) }}</strong></div>
+          <p class="privacy-note"><span aria-hidden="true">◇</span> La dirección exacta del cliente no se muestra antes de que el servicio esté aceptado y activo.</p>
+        </aside>
+      </section>
+    </article>
+  }
+</main>

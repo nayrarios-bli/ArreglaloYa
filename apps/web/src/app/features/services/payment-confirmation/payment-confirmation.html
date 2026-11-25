@@ -1,0 +1,125 @@
+<section class="pay-page">
+  <div class="pay-card">
+    <a class="pay-back" routerLink="/servicios">← Volver a Mis servicios</a>
+    <header class="pay-header">
+      <p class="eyebrow">CIERRE DEL SERVICIO</p>
+      <h1>Confirmación de pago</h1>
+      <p>
+        Registra lo que tú declaras sobre el pago. La plataforma no procesa ni
+        verifica pagos reales.
+      </p>
+    </header>
+
+    @if (loading()) {
+      <p class="state-message">Cargando tus servicios…</p>
+    } @else if (loadError()) {
+      <p class="alert alert-error" role="alert">{{ loadError() }}</p>
+    } @else if (services().length === 0) {
+      <div class="empty">
+        <p class="state-message">Aún no tienes servicios con precio acordado.</p>
+        <p class="note">Cuando acuerdes un precio con la otra parte, aparecerá aquí.</p>
+      </div>
+    } @else {
+      <div class="service-list">
+        @for (s of services(); track s.id) {
+          <button
+            type="button"
+            class="service-item"
+            [class.selected]="s.id === selectedId()"
+            (click)="select(s)"
+          >
+            <span>Servicio {{ shortId(s.id) }}</span>
+            <span>{{ formatAmount(s.final_amount) }}</span>
+          </button>
+        }
+      </div>
+
+      @if (selected(); as service) {
+        <div class="summary">
+          <p class="label">Precio acordado</p>
+          <p class="price">{{ formatAmount(service.final_amount) }}</p>
+        </div>
+
+        <div class="declarations">
+          <div class="declaration">
+            <h3>Tu declaración</h3>
+            @if (service.myConfirmation; as mine) {
+              <p class="amount">{{ formatAmount(mine.declared_amount) }}</p>
+              <p class="muted">{{ methodLabel(mine.method) }}</p>
+            } @else {
+              <p class="muted">Aún no declaraste.</p>
+            }
+          </div>
+          <div class="declaration">
+            <h3>La otra parte</h3>
+            @if (service.otherConfirmation; as other) {
+              <p class="amount">{{ formatAmount(other.declared_amount) }}</p>
+              <p class="muted">{{ methodLabel(other.method) }}</p>
+            } @else {
+              <p class="muted">Aún no declaró.</p>
+            }
+          </div>
+        </div>
+
+        <p [class]="'status status-' + stateInfo[service.paymentState].tone">
+          {{ stateInfo[service.paymentState].text }}
+        </p>
+
+        <form (submit)="onSubmit($event)">
+          <div class="field">
+            <label for="amount">Monto que declaras (Bs)</label>
+            <input
+              #amountInput
+              id="amount"
+              type="number"
+              min="0"
+              step="0.01"
+              inputmode="decimal"
+              placeholder="0.00"
+              [value]="amountText()"
+              (input)="amountText.set(amountInput.value)"
+            />
+          </div>
+
+          <div class="field">
+            <label for="method">Método de pago</label>
+            <select
+              #methodSelect
+              id="method"
+              (change)="method.set($any(methodSelect.value))"
+            >
+              @for (m of methods; track m.value) {
+                <option [value]="m.value" [selected]="m.value === method()">
+                  {{ m.label }}
+                </option>
+              }
+            </select>
+          </div>
+
+          @if (saveError()) {
+            <p class="alert alert-error" role="alert">{{ saveError() }}</p>
+          }
+          @if (saveSuccess()) {
+            <p class="alert alert-ok">{{ saveSuccess() }}</p>
+          }
+
+          <button type="submit" class="submit-button" [disabled]="saving()">
+            @if (saving()) {
+              Guardando…
+            } @else if (service.myConfirmation) {
+              Actualizar mi declaración
+            } @else {
+              Guardar mi declaración
+            }
+          </button>
+        </form>
+
+        <p class="note">
+          Que las declaraciones coincidan no significa que el pago esté verificado.
+        </p>
+      } @else {
+        <p class="state-message">Elige un servicio para ver o registrar tu declaración.</p>
+      }
+    }
+  </div>
+</section>

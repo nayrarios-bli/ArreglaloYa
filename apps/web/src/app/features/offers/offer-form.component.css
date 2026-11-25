@@ -1,0 +1,91 @@
+:host {
+  display: block;
+}
+
+.offer-card {
+  width: min(100%, 620px);
+  margin: 2rem auto;
+  padding: 1.5rem;
+  border: 1px solid #d8dee8;
+  border-radius: 12px;
+  background: #fff;
+  color: #1d2939;
+  box-shadow: 0 4px 18px rgb(16 24 40 / 8%);
+}
+
+h2,
+h3 {
+  margin-top: 0;
+}
+
+.intro {
+  color: #475467;
+  line-height: 1.5;
+}
+
+.field {
+  display: grid;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+}
+
+label,
+legend {
+  font-weight: 600;
+}
+
+input[type='number'],
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #98a2b3;
+  border-radius: 8px;
+  font: inherit;
+}
+
+fieldset {
+  padding: 0;
+  border: 0;
+}
+
+.radio-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  font-weight: 400;
+}
+
+.error {
+  margin: 0;
+  color: #b42318;
+  font-size: 0.9rem;
+}
+
+button {
+  padding: 0.75rem 1rem;
+  border: 0;
+  border-radius: 8px;
+  background: #175cd3;
+  color: #fff;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #1849a9;
+}
+
+.notice {
+  margin-top: 1rem;
+  color: #175cd3;
+}
+
+.preview {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  background: #f2f4f7;
+}
