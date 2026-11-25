@@ -1,9 +1,14 @@
-
-import { NestFactory } from '@nestjs/core';
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import process from 'node:process';
 import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module.js';
 
 async function bootstrap() {
+  const envPath = fileURLToPath(new URL('../.env', import.meta.url));
+  if (existsSync(envPath)) process.loadEnvFile(envPath);
+
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({

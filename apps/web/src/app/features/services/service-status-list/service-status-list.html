@@ -1,8 +1,78 @@
-<h2>Mis servicios</h2>
-<ul>
-  @for (s of services; track s.id) {
-    <li>{{ s.title }} — <strong>{{ labels[s.status] }}</strong></li>
-  } @empty {
-    <li>Aún no tienes solicitudes ni servicios.</li>
-  }
-</ul>
+<section class="list-page">
+  <div class="list-card">
+    <a class="service-back" [routerLink]="isWorker ? '/trabajador' : '/cliente'">← Volver al panel</a>
+    <header class="list-header">
+      <h1>Mis servicios</h1>
+      <p>Consulta en qué etapa está cada una de tus solicitudes y servicios.</p>
+    </header>
+
+    @if (loading()) {
+      <p role="status">Cargando tus servicios…</p>
+    } @else if (error()) {
+      <p role="alert">{{ error() }}</p>
+    } @else if (services().length === 0) {
+      <div class="empty">
+        <p class="empty-title">Aún no tienes solicitudes ni servicios.</p>
+        <p class="note">Cuando publiques una solicitud o aceptes un trabajo, aparecerá aquí.</p>
+      </div>
+    } @else {
+      <ul class="items">
+        @for (s of services(); track s.id) {
+          <li class="item" [class.open]="openId() === s.id">
+            <button
+              type="button"
+              class="item-head"
+              [attr.aria-expanded]="openId() === s.id"
+              (click)="toggle(s.id)"
+            >
+              <span class="item-main">
+                <span class="item-title">{{ s.title }}</span>
+                <span class="item-meta">
+                  {{ s.category }}
+                  @if (lastUpdate(s); as updated) {
+                    · Actualizado {{ formatDate(updated) }}
+                  }
+                </span>
+              </span>
+              <span [class]="'badge badge-' + s.status">{{ labels[s.status] }}</span>
+            </button>
+
+            @if (openId() === s.id) {
+              <div class="detail">
+                <p class="detail-title">Historial</p>
+                <ol class="history">
+                  @for (event of s.history; track $index) {
+                    <li>
+                      <span class="history-status">{{ labels[event.status] }}</span>
+                      <span class="history-date">{{ formatDate(event.at) }}</span>
+                    </li>
+                  }
+                </ol>
+                @if (s.scheduled_start && s.scheduled_end) {
+                  <div class="scheduled-summary">
+                    <strong>Horario acordado</strong>
+                    <span>{{ formatDate(s.scheduled_start) }} – {{ formatDate(s.scheduled_end) }}</span>
+                  </div>
+                }
+                <app-whatsapp-link [phone]="s.contact_phone" [message]="'Hola, te contacto por el servicio: ' + s.title" />
+                @if (s.status === 'scheduled') {
+                  <a class="details-link" [routerLink]="['/servicios', s.id, 'horario']">
+                    {{ s.scheduled_start ? 'Actualizar horario' : 'Coordinar horario' }}
+                  </a>
+                }
+                @if (s.status === 'completed' && s.final_amount !== null) {
+                  <a class="details-link" routerLink="/servicios/pagos">Confirmar pago</a>
+                }
+                @if (isWorker && s.status !== 'completed' && s.status !== 'cancelled') {
+                  <a class="details-link" [routerLink]="['/trabajador/servicios', s.id, 'estado']">Actualizar estado</a>
+                }
+              </div>
+            }
+          </li>
+        }
+      </ul>
+
+      <p class="note">El seguimiento es informativo: no muestra la ubicación del trabajador.</p>
+    }
+  </div>
+</section>
