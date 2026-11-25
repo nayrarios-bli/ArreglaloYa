@@ -1,0 +1,226 @@
+<header class="profile-header">
+  <a class="brand" routerLink="/" aria-label="ArreglaloYa, volver al inicio">
+    <span class="brand-symbol" aria-hidden="true"><img src="/brand/arreglalo-ya-mark.svg" alt="" /></span>
+    <span>arreglalo<span class="brand-accent">ya</span></span>
+  </a>
+  <a class="back-link" routerLink="/trabajador/pendiente">Volver</a>
+</header>
+
+<main class="profile-layout">
+  <section class="profile-intro">
+
+    <h1>Tu experiencia, <em>tu perfil.</em></h1>
+
+    <p class="intro-copy">
+      Cuéntales a tus futuros clientes qué servicios realizas, en qué zonas
+      trabajas y cuándo estás disponible.
+    </p>
+
+    <div class="privacy-note">
+      <span aria-hidden="true">◇</span>
+      <p>
+        Tu perfil no estará visible para los clientes hasta que administración
+        lo revise y apruebe.
+      </p>
+    </div>
+
+    <div class="status-note">
+      <span>Estado de tu perfil</span>
+      <strong>{{ reviewStatus() === 'approved'
+        ? 'Aprobado'
+        : reviewStatus() === 'rejected'
+          ? 'Requiere correcciones'
+          : 'Pendiente de revisión' }}</strong>
+    </div>
+  </section>
+
+  <form class="profile-form" [formGroup]="form" (ngSubmit)="saveProfile()" novalidate>
+    <div class="form-heading">
+      <span>01 / PRESENTACIÓN</span>
+      <span>Información profesional</span>
+    </div>
+
+    @if (isLoading()) {
+      <p class="loading-message">Cargando tu perfil...</p>
+    } @else {
+      <label class="field-label" for="bio">
+        Cuéntanos sobre tu experiencia <span>*</span>
+      </label>
+
+      <textarea
+        id="bio"
+        formControlName="bio"
+        rows="5"
+        maxlength="1000"
+        placeholder="Describe tu experiencia, los trabajos que realizas y qué pueden esperar tus clientes..."
+        [attr.aria-invalid]="form.controls.bio.touched && form.controls.bio.invalid"
+      ></textarea>
+
+      <div class="field-meta">
+        <span>Escribe una presentación clara y profesional.</span>
+        <span>{{ form.controls.bio.value.length }}/1000</span>
+      </div>
+
+      @if (form.controls.bio.touched && form.controls.bio.hasError('required')) {
+        <small class="field-error">La presentación es obligatoria.</small>
+      }
+
+      <div class="form-heading section-heading">
+        <span>02 / ESPECIALIDADES</span>
+        <span>Selecciona una o varias</span>
+      </div>
+
+      <p class="section-copy">
+        Elige los tipos de trabajo que puedes realizar.
+      </p>
+
+      @if (categories().length === 0) {
+        <p class="empty-message">No hay especialidades disponibles.</p>
+      } @else {
+        <div class="option-grid">
+          @for (category of categories(); track category.id) {
+            <label class="option-card">
+              <input
+                type="checkbox"
+                [checked]="selectedCategoryIds().includes(category.id)"
+                (change)="toggleCategory(category.id, $event)"
+              />
+              <span class="custom-check"></span>
+              <span class="option-content">
+                <strong>{{ category.name }}</strong>
+                @if (category.description) {
+                  <small>{{ category.description }}</small>
+                }
+              </span>
+            </label>
+          }
+        </div>
+      }
+
+      <div class="form-heading section-heading">
+        <span>03 / ZONAS DE SERVICIO</span>
+        <span>Selecciona una o varias</span>
+      </div>
+
+      <p class="section-copy">
+        Indica las zonas donde puedes atender solicitudes.
+      </p>
+
+      @if (zones().length === 0) {
+        <p class="empty-message">No hay zonas de servicio disponibles.</p>
+      } @else {
+        <div class="option-grid">
+          @for (zone of zones(); track zone.id) {
+            <label class="option-card">
+              <input
+                type="checkbox"
+                [checked]="selectedZoneIds().includes(zone.id)"
+                (change)="toggleZone(zone.id, $event)"
+              />
+              <span class="custom-check"></span>
+              <span class="option-content">
+                <strong>{{ zone.name }}</strong>
+                <small>{{ zone.city }}</small>
+              </span>
+            </label>
+          }
+        </div>
+      }
+
+      <div class="form-heading section-heading">
+        <span>04 / DISPONIBILIDAD</span>
+        <span>Horarios de atención</span>
+      </div>
+
+      <p class="section-copy">
+        Activa los días en los que trabajas y establece tu horario.
+      </p>
+
+      <div class="schedule-list">
+        @for (day of schedules(); track day.weekday) {
+          <div class="schedule-row" [class.schedule-active]="day.enabled">
+            <label class="day-toggle">
+              <input
+                type="checkbox"
+                [checked]="day.enabled"
+                (change)="toggleDay(day.weekday, $event)"
+              />
+              <span class="custom-check"></span>
+              <strong>{{ day.name }}</strong>
+            </label>
+
+            @if (day.enabled) {
+              <div class="time-fields">
+                <label>
+                  <span>Desde</span>
+                  <input
+                    type="time"
+                    [value]="day.startsAt"
+                    (change)="updateScheduleTime(day.weekday, 'startsAt', $event)"
+                  />
+                </label>
+                <label>
+                  <span>Hasta</span>
+                  <input
+                    type="time"
+                    [value]="day.endsAt"
+                    (change)="updateScheduleTime(day.weekday, 'endsAt', $event)"
+                  />
+                </label>
+              </div>
+            } @else {
+              <span class="day-unavailable">No disponible</span>
+            }
+          </div>
+        }
+      </div>
+
+      <div class="form-heading section-heading">
+        <span>05 / DOCUMENTACIÓN</span>
+        <span>Pendiente de definición</span>
+      </div>
+
+      <p class="documentation-note">
+        Los documentos requeridos se habilitarán cuando se definan los
+        requisitos de revisión del trabajador.
+      </p>
+
+      @if (feedback()) {
+        <p
+          class="submit-feedback"
+          [class.error-feedback]="feedbackType() === 'error'"
+          [class.success-feedback]="feedbackType() === 'success'"
+          role="status"
+        >
+          {{ feedback() }}
+        </p>
+      }
+
+      <button
+        class="submit-button secondary-button"
+        type="submit"
+        [disabled]="isSaving()"
+      >
+        {{ isSaving() ? 'Guardando...' : 'Guardar cambios' }}
+        <span aria-hidden="true">↓</span>
+      </button>
+
+      @if (reviewStatus() !== 'approved') {
+        <button
+          class="submit-button"
+          type="button"
+          [disabled]="isSaving()"
+          (click)="sendForReview()"
+        >
+          {{ isSaving() ? 'Procesando...' : 'Enviar perfil a revisión' }}
+          <span aria-hidden="true">→</span>
+        </button>
+      }
+
+      <p class="form-footnote">
+        Los campos marcados con * son obligatorios. Tu perfil será visible
+        para los clientes únicamente después de su aprobación.
+      </p>
+    }
+  </form>
+</main>

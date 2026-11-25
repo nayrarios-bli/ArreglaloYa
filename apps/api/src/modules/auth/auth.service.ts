@@ -64,8 +64,8 @@ export class AuthService {
         },
       });
 
-    // Supabase puede devolver un usuario ficticio sin identidades cuando
-    // el correo ya existe y la confirmación de email está habilitada.
+    // Supabase puede devolver un usuario ficticio sin identidades
+    // cuando el correo ya existe y la confirmación está habilitada.
     const emailAlreadyRegistered =
       authData.user?.identities?.length === 0;
 
@@ -147,7 +147,35 @@ export class AuthService {
       );
     }
 
-    // 3. Consultar perfil del usuario.
+    // 3. Consultar el estado actual de la cuenta en Supabase Auth.
+    const { data: authData, error: authError } =
+      await this.supabaseService.admin.auth.admin.getUserById(
+        data.user.id,
+      );
+
+    if (authError || !authData.user) {
+      throw new UnauthorizedException(
+        'No se pudo verificar el estado de la cuenta.',
+      );
+    }
+
+    // 4. Comprobar si la cuenta está desactivada.
+    const bannedUntil = authData.user.banned_until;
+
+    if (bannedUntil) {
+      const banExpiration = new Date(bannedUntil).getTime();
+
+      if (
+        !Number.isFinite(banExpiration) ||
+        banExpiration > Date.now()
+      ) {
+        throw new UnauthorizedException(
+          'Tu cuenta está desactivada. Contacta con el administrador.',
+        );
+      }
+    }
+
+    // 5. Consultar perfil del usuario.
     const { data: profile, error: profileError } =
       await this.supabaseService.admin
         .from('profiles')
@@ -161,7 +189,7 @@ export class AuthService {
       );
     }
 
-    // 4. Consultar estado de aprobación si es trabajador.
+    // 6. Consultar estado de aprobación si es trabajador.
     let reviewStatus: string | null = null;
 
     if (profile.role === 'worker') {
@@ -181,7 +209,7 @@ export class AuthService {
       reviewStatus = workerProfile.review_status;
     }
 
-    // 5. Devolver información del usuario y su sesión.
+    // 7. Devolver información del usuario y su sesión.
     return {
       message: 'Inicio de sesión exitoso.',
       user: {

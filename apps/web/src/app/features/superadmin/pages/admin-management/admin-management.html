@@ -1,0 +1,407 @@
+
+<main class="page">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-icon">A</span>
+      <span>ArreglaloYa</span>
+    </div>
+
+    <div class="user-area">
+      <span class="user-label">Panel de superadministrador</span>
+      <button class="logout-button" (click)="logout()">
+        Cerrar sesión
+      </button>
+    </div>
+  </header>
+
+  <section class="content">
+    <div class="page-heading">
+      <div>
+        <span class="eyebrow">ADMINISTRACIÓN DEL SISTEMA</span>
+        <h1>Gestión de administradores</h1>
+        <p>
+          Administra las cuentas de acceso de los administradores
+          de ArreglaloYa.
+        </p>
+      </div>
+
+      <button class="primary-button" (click)="openCreateForm()">
+        <span>+</span>
+        Nuevo administrador
+      </button>
+    </div>
+
+    <!-- MENSAJES -->
+    <div class="alert success-alert" *ngIf="successMessage">
+      {{ successMessage }}
+      <button (click)="successMessage = ''">×</button>
+    </div>
+
+    <div class="alert error-alert" *ngIf="errorMessage">
+      {{ errorMessage }}
+      <button (click)="errorMessage = ''">×</button>
+    </div>
+
+    <!-- INDICADORES -->
+    <section class="stats">
+      <article class="stat-card">
+        <div class="stat-icon total-icon">A</div>
+        <div>
+          <span>Total de administradores</span>
+          <strong>{{ admins.length }}</strong>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon active-icon">✓</div>
+        <div>
+          <span>Cuentas activas</span>
+          <strong>{{ activeCount }}</strong>
+        </div>
+      </article>
+
+      <article class="stat-card">
+        <div class="stat-icon inactive-icon">!</div>
+        <div>
+          <span>Cuentas inactivas</span>
+          <strong>{{ inactiveCount }}</strong>
+        </div>
+      </article>
+    </section>
+
+    <!-- LISTADO -->
+    <section class="table-card">
+      <div class="table-heading">
+        <div>
+          <h2>Administradores registrados</h2>
+          <p>Consulta y administra las cuentas existentes.</p>
+        </div>
+
+        <div class="search-box">
+          <span>⌕</span>
+          <input
+            type="search"
+            placeholder="Buscar por nombre o correo..."
+            [(ngModel)]="searchTerm"
+            aria-label="Buscar administradores"
+          />
+        </div>
+      </div>
+
+      <div class="loading" *ngIf="isLoading">
+        <span class="loader"></span>
+        Cargando administradores...
+      </div>
+
+      <div class="empty-state" *ngIf="!isLoading && admins.length === 0">
+        <span class="empty-icon">A</span>
+        <h3>No hay administradores registrados</h3>
+        <p>Cuando crees una cuenta, aparecerá en este listado.</p>
+        <button class="primary-button" (click)="openCreateForm()">
+          Crear administrador
+        </button>
+      </div>
+
+      <div
+        class="empty-state"
+        *ngIf="!isLoading && admins.length > 0 && filteredAdmins.length === 0"
+      >
+        <h3>No se encontraron resultados</h3>
+        <p>Prueba con otro nombre o correo electrónico.</p>
+      </div>
+
+      <div
+        class="table-wrapper"
+        *ngIf="!isLoading && filteredAdmins.length > 0"
+      >
+        <table>
+          <thead>
+            <tr>
+              <th>Administrador</th>
+              <th>Teléfono</th>
+              <th>Estado</th>
+              <th>Fecha de registro</th>
+              <th class="actions-heading">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let admin of filteredAdmins">
+              <td>
+                <div class="admin-info">
+                  <div class="avatar">
+                    {{ admin.full_name.charAt(0).toUpperCase() }}
+                  </div>
+                  <div>
+                    <strong>{{ admin.full_name }}</strong>
+                    <span>{{ admin.email }}</span>
+                  </div>
+                </div>
+              </td>
+
+              <td>{{ admin.phone || 'No registrado' }}</td>
+
+              <td>
+                <span
+                  class="status"
+                  [class.status-active]="admin.isActive"
+                  [class.status-inactive]="!admin.isActive"
+                >
+                  <span class="status-dot"></span>
+                  {{ admin.isActive ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+
+              <td>
+                {{ admin.created_at ? (admin.created_at | date:'dd/MM/yyyy') : '—' }}
+              </td>
+
+              <td>
+                <div class="actions">
+                  <button
+                    class="action-button view-action"
+                    title="Ver detalles"
+                    aria-label="Ver detalles"
+                    (click)="viewAdmin(admin)"
+                  >
+                    Ver
+                  </button>
+
+                  <button
+                    class="action-button edit-action"
+                    title="Editar administrador"
+                    aria-label="Editar administrador"
+                    (click)="openEditForm(admin)"
+                  >
+                    Editar
+                  </button>
+
+                  <button
+                    class="action-button"
+                    [class.activate-action]="!admin.isActive"
+                    [class.deactivate-action]="admin.isActive"
+                    [title]="admin.isActive ? 'Desactivar cuenta' : 'Reactivar cuenta'"
+                    (click)="toggleAdminStatus(admin)"
+                  >
+                    {{ admin.isActive ? 'Desactivar' : 'Reactivar' }}
+                  </button>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer" *ngIf="!isLoading && admins.length > 0">
+        Mostrando {{ filteredAdmins.length }}
+        de {{ admins.length }} administradores
+      </div>
+    </section>
+  </section>
+
+  <!-- FORMULARIO DE CREACIÓN Y EDICIÓN -->
+  <div class="modal-backdrop" *ngIf="showForm" (click)="closeForm()">
+    <section
+      class="modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="form-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow">
+            {{ editingAdmin ? 'ACTUALIZACIÓN DE CUENTA' : 'NUEVA CUENTA' }}
+          </span>
+
+          <h2 id="form-title">
+            {{ editingAdmin ? 'Editar administrador' : 'Crear administrador' }}
+          </h2>
+        </div>
+
+        <button
+          class="close-button"
+          type="button"
+          aria-label="Cerrar"
+          (click)="closeForm()"
+        >
+          ×
+        </button>
+      </div>
+
+      <form (ngSubmit)="saveAdmin()" #adminForm="ngForm">
+        <label for="fullName">Nombre completo</label>
+        <input
+          id="fullName"
+          name="fullName"
+          type="text"
+          [(ngModel)]="form.fullName"
+          minlength="2"
+          maxlength="100"
+          required
+          placeholder="Nombre del administrador"
+        />
+
+        <label for="email">Correo electrónico</label>
+        <input
+          id="email"
+          name="email"
+          type="email"
+          [(ngModel)]="form.email"
+          maxlength="254"
+          required
+          placeholder="correo@ejemplo.com"
+        />
+
+        <label for="phone">Teléfono</label>
+        <input
+          id="phone"
+          name="phone"
+          type="tel"
+          [(ngModel)]="form.phone"
+          pattern="[0-9]{7,15}"
+          placeholder="Número de teléfono"
+        />
+
+        <label for="password">
+          Contraseña
+          <span *ngIf="editingAdmin" class="optional-label">
+            (opcional)
+          </span>
+        </label>
+
+        <input
+          id="password"
+          name="password"
+          type="password"
+          [(ngModel)]="form.password"
+          [required]="!editingAdmin"
+          [minlength]="editingAdmin ? 12 : 8"
+          maxlength="72"
+          [placeholder]="editingAdmin ? 'Dejar vacío para conservar la actual' : 'Mínimo 8 caracteres'"
+        />
+
+        <p class="form-hint" *ngIf="editingAdmin">
+          Si no deseas cambiar la contraseña, deja este campo vacío.
+        </p>
+
+        <div class="alert error-alert form-error" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="modal-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="isSaving"
+            (click)="closeForm()"
+          >
+            Cancelar
+          </button>
+
+          <button
+            type="submit"
+            class="primary-button"
+            [disabled]="isSaving || adminForm.invalid"
+          >
+            {{
+              isSaving
+                ? 'Guardando...'
+                : editingAdmin
+                  ? 'Guardar cambios'
+                  : 'Crear administrador'
+            }}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+
+  <!-- DETALLES DEL ADMINISTRADOR -->
+  <div class="modal-backdrop" *ngIf="showDetails" (click)="closeDetails()">
+    <section
+      class="modal details-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="details-title"
+      (click)="$event.stopPropagation()"
+    >
+      <div class="modal-heading">
+        <div>
+          <span class="eyebrow">INFORMACIÓN DE LA CUENTA</span>
+          <h2 id="details-title">Detalle del administrador</h2>
+        </div>
+
+        <button
+          class="close-button"
+          type="button"
+          aria-label="Cerrar"
+          (click)="closeDetails()"
+        >
+          ×
+        </button>
+      </div>
+
+      <div class="detail-profile" *ngIf="selectedAdmin">
+        <div class="detail-avatar">
+          {{ selectedAdmin.full_name.charAt(0).toUpperCase() }}
+        </div>
+
+        <h3>{{ selectedAdmin.full_name }}</h3>
+        <span class="role-label">Administrador</span>
+      </div>
+
+      <div class="detail-list" *ngIf="selectedAdmin">
+        <div>
+          <span>Correo electrónico</span>
+          <strong>{{ selectedAdmin.email }}</strong>
+        </div>
+
+        <div>
+          <span>Teléfono</span>
+          <strong>{{ selectedAdmin.phone || 'No registrado' }}</strong>
+        </div>
+
+        <div>
+          <span>Estado de la cuenta</span>
+          <strong
+            [class.active-text]="selectedAdmin.isActive"
+            [class.inactive-text]="!selectedAdmin.isActive"
+          >
+            {{ selectedAdmin.isActive ? 'Activo' : 'Inactivo' }}
+          </strong>
+        </div>
+
+        <div>
+          <span>Fecha de registro</span>
+          <strong>
+            {{
+              selectedAdmin.created_at
+                ? (selectedAdmin.created_at | date:'dd/MM/yyyy')
+                : 'No disponible'
+            }}
+          </strong>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          class="secondary-button"
+          type="button"
+          (click)="closeDetails()"
+        >
+          Cerrar
+        </button>
+
+        <button
+          class="primary-button"
+          type="button"
+          *ngIf="selectedAdmin"
+          (click)="openEditForm(selectedAdmin)"
+        >
+          Editar administrador
+        </button>
+      </div>
+    </section>
+  </div>
+</main>
