@@ -169,7 +169,16 @@ export const routes: Routes = [
         (module) => module.WorkerRejected,
       ),
   },
-{
+  {
+    path: 'servicios/:serviceId/calificar',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/reviews/review-create.page').then(
+        (module) => module.ReviewCreatePage,
+      ),
+    title: 'Calificar servicio | ArreglaloYa',
+  },
+  {
     path: 'superadmin',
     canActivate: [authGuard, roleGuard],
     data: { role: 'superadmin' },
@@ -189,14 +198,34 @@ export const routes: Routes = [
     title: 'Ofertas recibidas | ArreglaloYa',
   },
   {
-    path: 'admin/reportes',
-    canActivate: [authGuard, roleGuard],
-    data: { roles: ['admin', 'superadmin'] },
-    loadComponent: () =>
-      import('./features/admin/admin-reports.page').then(
-        (module) => module.AdminReportsPage,
-      ),
-    title: 'Reportes de administración | ArreglaloYa',
+  path: 'admin/reportes',
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['admin', 'superadmin'] },
+  loadComponent: () =>
+    import('./features/admin/admin-reports.page').then(
+      (module) => module.AdminReportsPage,
+    ),
+  title: 'Reportes de administración | ArreglaloYa',
+},
+{
+  path: 'reclamos',
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['client', 'worker'] },
+  loadComponent: () =>
+    import('./features/complaints/complaint-create.page').then(
+      (module) => module.ComplaintCreatePage,
+    ),
+  title: 'Reclamos | ArreglaloYa',
+},
+{
+  path: 'admin/reclamos',
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['admin', 'superadmin'] },
+  loadComponent: () =>
+    import('./features/complaints/admin-complaints.page').then(
+      (module) => module.AdminComplaintsPage,
+    ),
+  title: 'Reclamos registrados | ArreglaloYa',
   },
   { path: '**', redirectTo: '' },
 ];

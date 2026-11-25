@@ -1,0 +1,105 @@
+<main class="reviews-page">
+  <section class="reviews-card">
+    <header class="reviews-header">
+      <a class="brand" routerLink="/" aria-label="ArreglaloYa, inicio">
+        <span class="brand-mark">A</span>
+        <span>Arreglalo<span class="brand-accent">Ya</span></span>
+      </a>
+
+      <h1>Calificar servicio</h1>
+      <p>Comparte tu experiencia con este servicio.</p>
+
+      @if (serviceId) {
+        <p class="service-id">Servicio: <code>{{ serviceId }}</code></p>
+      }
+    </header>
+
+    @if (!serviceId) {
+      <p class="error-message" role="alert">
+        No se indicó el servicio a calificar.
+      </p>
+    } @else {
+      <form (ngSubmit)="submit()">
+        <fieldset class="form-group score-group">
+          <legend>Puntuación</legend>
+
+          <div class="score-options">
+            @for (value of scores; track value) {
+              <label class="score-option" [class.selected]="score >= value">
+                <input
+                  type="radio"
+                  name="score"
+                  [value]="value"
+                  [(ngModel)]="score"
+                />
+                <span class="star" aria-hidden="true">★</span>
+                <span class="score-value">{{ value }}</span>
+              </label>
+            }
+          </div>
+        </fieldset>
+
+        <div class="form-group">
+          <label for="comment">
+            Comentario <span class="optional">(opcional)</span>
+          </label>
+          <textarea
+            id="comment"
+            name="comment"
+            rows="4"
+            maxlength="1000"
+            [(ngModel)]="comment"
+            placeholder="Cuéntanos cómo fue el servicio..."
+          ></textarea>
+          <span class="hint">{{ comment.length }}/1000 caracteres</span>
+        </div>
+
+        <button type="submit" class="submit-button" [disabled]="submitting()">
+          {{ submitting() ? 'Enviando...' : 'Enviar calificación' }}
+        </button>
+      </form>
+
+      @if (successMessage()) {
+        <p class="success-message" role="status">{{ successMessage() }}</p>
+      }
+
+      @if (errorMessage()) {
+        <p class="error-message" role="alert">{{ errorMessage() }}</p>
+      }
+    }
+
+    <section class="reviews-list">
+      <h2>Calificaciones del servicio</h2>
+
+      @if (loadingReviews()) {
+        <p class="status-text">Cargando calificaciones...</p>
+      } @else if (listError()) {
+        <p class="error-message" role="alert">{{ listError() }}</p>
+      } @else if (reviews().length === 0) {
+        <p class="status-text">Este servicio todavía no tiene calificaciones.</p>
+      } @else {
+        <ul>
+          @for (review of reviews(); track review.id) {
+            <li class="review-item">
+              <div class="review-top">
+                <span
+                  class="review-stars"
+                  [attr.aria-label]="review.score + ' de 5'"
+                >
+                  {{ starsFor(review.score) }}
+                </span>
+                <time [attr.datetime]="review.created_at">
+                  {{ review.created_at | date: 'dd/MM/yyyy HH:mm' }}
+                </time>
+              </div>
+
+              <p class="review-comment">
+                {{ review.comment || 'Sin comentario.' }}
+              </p>
+            </li>
+          }
+        </ul>
+      }
+    </section>
+  </section>
+</main>
