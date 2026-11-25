@@ -1,0 +1,95 @@
+<main class="profile-page">
+  <section class="profile-card">
+    <header class="profile-header">
+      <a class="brand" routerLink="/" aria-label="ArreglaloYa, inicio">
+        <span class="brand-mark">A</span>
+        <span>Arreglalo<span class="brand-accent">Ya</span></span>
+      </a>
+
+      <h1>Perfil público</h1>
+      <p>Información visible del usuario en la plataforma.</p>
+    </header>
+
+    @if (loading()) {
+      <p class="status-text">Cargando perfil...</p>
+    } @else if (errorMessage()) {
+      <div class="error-box" role="alert">
+        <p class="error-message">{{ errorMessage() }}</p>
+        <button type="button" class="secondary-button" (click)="loadProfile()">
+          Reintentar
+        </button>
+      </div>
+    } @else if (profile(); as p) {
+      <div class="profile-summary">
+        <div class="avatar" aria-hidden="true">
+          {{ p.fullName.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <h2>{{ p.fullName }}</h2>
+          <span class="role-badge">{{ roleLabel(p.role) }}</span>
+        </div>
+      </div>
+
+      <dl class="details">
+        <div class="detail-row">
+          <dt>Rol</dt>
+          <dd>{{ roleLabel(p.role) }}</dd>
+        </div>
+
+        @if (p.zone) {
+          <div class="detail-row">
+            <dt>Zona</dt>
+            <dd>{{ p.zone.name }} — {{ p.zone.city }}</dd>
+          </div>
+        }
+
+        @if (p.bio) {
+          <div class="detail-row">
+            <dt>Biografía</dt>
+            <dd class="bio">{{ p.bio }}</dd>
+          </div>
+        }
+      </dl>
+
+      @if (canViewClientAddress()) {
+        <section class="address-section">
+          <h3>Dirección del cliente</h3>
+          <p class="section-hint">
+            Solo disponible si tienes un servicio activo con este cliente.
+          </p>
+
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="addressLoading()"
+            (click)="loadClientAddress()"
+          >
+            {{
+              addressLoading()
+                ? 'Consultando...'
+                : 'Consultar dirección privada'
+            }}
+          </button>
+
+          @if (addressError()) {
+            <p class="error-message" role="alert">{{ addressError() }}</p>
+          }
+
+          @if (address() !== null) {
+            <p class="address-value">
+              {{ address() || 'El cliente no tiene una dirección registrada.' }}
+            </p>
+          }
+        </section>
+      }
+
+      <footer class="profile-actions">
+        <a routerLink="/">Volver al inicio</a>
+
+        @if (isOwnProfile()) {
+          <a routerLink="/mi-perfil">Editar mi perfil</a>
+        }
+      </footer>
+    }
+  </section>
+</main>

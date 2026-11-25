@@ -1,0 +1,182 @@
+<main class="my-profile-page">
+  <section class="my-profile-card">
+    <header class="my-profile-header">
+      <a class="brand" routerLink="/" aria-label="ArreglaloYa, inicio">
+        <span class="brand-mark">A</span>
+        <span>Arreglalo<span class="brand-accent">Ya</span></span>
+      </a>
+
+      <h1>Mi perfil</h1>
+      <p>Consulta y actualiza los datos de tu perfil.</p>
+    </header>
+
+    @if (!user) {
+      <p class="error-message" role="alert">
+        No se encontró una sesión activa. Vuelve a iniciar sesión.
+      </p>
+    } @else {
+      @if (loadingProfile()) {
+        <p class="status-text">Cargando perfil...</p>
+      } @else if (profileError()) {
+        <div class="error-box" role="alert">
+          <p class="error-message">{{ profileError() }}</p>
+          <button type="button" class="secondary-button" (click)="loadProfile()">
+            Reintentar
+          </button>
+        </div>
+      } @else if (profile(); as p) {
+        <div class="profile-summary">
+          <div class="avatar" aria-hidden="true">
+            {{ p.fullName.charAt(0).toUpperCase() }}
+          </div>
+          <div>
+            <h2>{{ p.fullName }}</h2>
+            <span class="role-badge">{{ roleLabel(p.role) }}</span>
+          </div>
+          <a class="public-link" [routerLink]="['/perfil', p.id]">
+            Ver perfil público
+          </a>
+        </div>
+      }
+
+      <form (ngSubmit)="save()">
+        <div class="form-group">
+          <label for="fullName">Nombre completo</label>
+          <input
+            type="text"
+            id="fullName"
+            name="fullName"
+            maxlength="120"
+            [(ngModel)]="fullName"
+            autocomplete="name"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="phone">Teléfono</label>
+          <input
+            type="text"
+            id="phone"
+            name="phone"
+            maxlength="30"
+            [(ngModel)]="phone"
+            placeholder="Ej. 8888-8888"
+            autocomplete="tel"
+          />
+        </div>
+
+        @if (role === 'client') {
+          <div class="form-group">
+            <label for="exactAddress">Dirección exacta</label>
+            <textarea
+              id="exactAddress"
+              name="exactAddress"
+              rows="3"
+              maxlength="500"
+              [(ngModel)]="exactAddress"
+              placeholder="Dirección donde se realizan los servicios..."
+            ></textarea>
+            <span class="hint">
+              Solo la verán trabajadores con un servicio activo contigo.
+            </span>
+          </div>
+
+          <div class="form-group">
+            <label for="homeZone">Zona de servicio</label>
+
+            @if (zonesUnavailable()) {
+              <input
+                type="text"
+                id="homeZone"
+                name="homeZone"
+                [(ngModel)]="homeZoneId"
+                placeholder="UUID de la zona"
+                autocomplete="off"
+              />
+              <span class="hint">
+                No se pudieron cargar las zonas. Puedes ingresar el ID
+                manualmente.
+              </span>
+            } @else {
+              <select id="homeZone" name="homeZone" [(ngModel)]="homeZoneId">
+                <option value="">Mantener zona actual</option>
+                @for (zone of zones(); track zone.id) {
+                  <option [value]="zone.id">
+                    {{ zone.name }} — {{ zone.city }}
+                  </option>
+                }
+              </select>
+            }
+
+            @if (profile()?.zone; as zone) {
+              <span class="hint">
+                Zona actual: {{ zone.name }} — {{ zone.city }}
+              </span>
+            }
+          </div>
+        }
+
+        @if (role === 'worker') {
+          <div class="form-group">
+            <label for="bio">Biografía</label>
+            <textarea
+              id="bio"
+              name="bio"
+              rows="5"
+              maxlength="2000"
+              [(ngModel)]="bio"
+              placeholder="Presenta tu experiencia y los servicios que ofreces..."
+            ></textarea>
+            <span class="hint">{{ bio.length }}/2000 caracteres</span>
+          </div>
+        }
+
+        <button type="submit" class="submit-button" [disabled]="saving()">
+          {{ saving() ? 'Guardando...' : 'Guardar cambios' }}
+        </button>
+      </form>
+
+      @if (successMessage()) {
+        <p class="success-message" role="status">{{ successMessage() }}</p>
+      }
+
+      @if (errorMessage()) {
+        <p class="error-message" role="alert">{{ errorMessage() }}</p>
+      }
+
+      @if (role === 'client') {
+        <section class="address-section">
+          <h2>Mi dirección privada</h2>
+          <p class="section-hint">
+            Esta dirección no es pública. Solo se muestra a trabajadores con un
+            servicio activo contigo.
+          </p>
+
+          <button
+            type="button"
+            class="secondary-button"
+            [disabled]="addressLoading()"
+            (click)="loadPrivateAddress()"
+          >
+            {{ addressLoading() ? 'Consultando...' : 'Actualizar dirección' }}
+          </button>
+
+          @if (addressError()) {
+            <p class="error-message" role="alert">{{ addressError() }}</p>
+          }
+
+          @if (address() !== null) {
+            <p class="address-value">
+              {{ address() || 'No tienes una dirección registrada.' }}
+            </p>
+          }
+        </section>
+      }
+
+      <footer class="my-profile-actions">
+        <a routerLink="/">Volver al inicio</a>
+      </footer>
+    }
+  </section>
+</main>
