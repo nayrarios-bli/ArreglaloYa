@@ -169,7 +169,16 @@ export const routes: Routes = [
         (module) => module.WorkerRejected,
       ),
   },
-{
+  {
+    path: 'servicios/:serviceId/calificar',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/reviews/review-create.page').then(
+        (module) => module.ReviewCreatePage,
+      ),
+    title: 'Calificar servicio | ArreglaloYa',
+  },
+  {
     path: 'superadmin',
     canActivate: [authGuard, roleGuard],
     data: { role: 'superadmin' },
