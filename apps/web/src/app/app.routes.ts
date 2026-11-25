@@ -198,34 +198,51 @@ export const routes: Routes = [
     title: 'Ofertas recibidas | ArreglaloYa',
   },
   {
-  path: 'admin/reportes',
-  canActivate: [authGuard, roleGuard],
-  data: { roles: ['admin', 'superadmin'] },
-  loadComponent: () =>
-    import('./features/admin/admin-reports.page').then(
-      (module) => module.AdminReportsPage,
-    ),
-  title: 'Reportes de administración | ArreglaloYa',
-},
-{
-  path: 'reclamos',
-  canActivate: [authGuard, roleGuard],
-  data: { roles: ['client', 'worker'] },
-  loadComponent: () =>
-    import('./features/complaints/complaint-create.page').then(
-      (module) => module.ComplaintCreatePage,
-    ),
-  title: 'Reclamos | ArreglaloYa',
-},
-{
-  path: 'admin/reclamos',
-  canActivate: [authGuard, roleGuard],
-  data: { roles: ['admin', 'superadmin'] },
-  loadComponent: () =>
-    import('./features/complaints/admin-complaints.page').then(
-      (module) => module.AdminComplaintsPage,
-    ),
-  title: 'Reclamos registrados | ArreglaloYa',
+path: 'perfil/:id',
+    loadComponent: () =>
+      import('./features/profiles/public-profile.page').then(
+        (module) => module.PublicProfilePage,
+      ),
+    title: 'Perfil | ArreglaloYa',
+  },
+  {
+    path: 'mi-perfil',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/profiles/my-profile.page').then(
+        (module) => module.MyProfilePage,
+      ),
+    title: 'Mi perfil | ArreglaloYa',
+  },
+  {
+    path: 'admin/reportes',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin', 'superadmin'] },
+    loadComponent: () =>
+      import('./features/admin/admin-reports.page').then(
+        (module) => module.AdminReportsPage,
+      ),
+    title: 'Reportes de administración | ArreglaloYa',
+  },
+  {
+    path: 'reclamos',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['client', 'worker'] },
+    loadComponent: () =>
+      import('./features/complaints/complaint-create.page').then(
+        (module) => module.ComplaintCreatePage,
+      ),
+    title: 'Reclamos | ArreglaloYa',
+  },
+  {
+    path: 'admin/reclamos',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin', 'superadmin'] },
+    loadComponent: () =>
+      import('./features/complaints/admin-complaints.page').then(
+        (module) => module.AdminComplaintsPage,
+      ),
+    title: 'Reclamos registrados | ArreglaloYa',
   },
   { path: '**', redirectTo: '' },
 ];

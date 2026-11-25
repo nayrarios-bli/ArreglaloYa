@@ -1,0 +1,251 @@
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 40px 20px;
+  background: #f4f7f2;
+}
+
+.profile-card {
+  width: 100%;
+  max-width: 560px;
+  padding: 40px;
+  background: #ffffff;
+  border: 1px solid #e7ece6;
+  border-radius: 14px;
+  box-shadow: 0 12px 35px rgba(30, 60, 45, 0.06);
+}
+
+.profile-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 25px;
+  color: #183d32;
+  font-size: 20px;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.brand-mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  background: #287b60;
+  color: white;
+}
+
+.brand-accent {
+  color: #287b60;
+}
+
+.profile-header h1 {
+  margin: 0 0 10px;
+  color: #183d32;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.profile-header p {
+  margin: 0;
+  color: #718078;
+  font-size: 14px;
+}
+
+.status-text {
+  margin: 0;
+  color: #718078;
+  font-size: 14px;
+}
+
+.error-box {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.error-message {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #fdf1f0;
+  border: 1px solid #f2cdc9;
+  color: #a3362b;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+.profile-summary {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-bottom: 22px;
+  margin-bottom: 22px;
+  border-bottom: 1px solid #e7ece6;
+}
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #287b60;
+  color: white;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.profile-summary h2 {
+  margin: 0 0 6px;
+  color: #183d32;
+  font-size: 20px;
+  overflow-wrap: anywhere;
+}
+
+.role-badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: #eef2ee;
+  color: #456c54;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.details {
+  margin: 0 0 26px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f4f0;
+}
+
+.detail-row:last-child {
+  border-bottom: none;
+}
+
+.detail-row dt {
+  color: #9aa69f;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.detail-row dd {
+  margin: 0;
+  color: #24352e;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
+.address-section {
+  padding: 18px;
+  border: 1px solid #e7ece6;
+  border-radius: 10px;
+  background: #fbfdfb;
+}
+
+.address-section h3 {
+  margin: 0 0 6px;
+  color: #183d32;
+  font-size: 16px;
+}
+
+.section-hint {
+  margin: 0 0 14px;
+  color: #718078;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.secondary-button {
+  height: 40px;
+  padding: 0 18px;
+  border: 1px solid #287b60;
+  border-radius: 8px;
+  background: transparent;
+  color: #287b60;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.secondary-button:hover:not(:disabled) {
+  background: #287b60;
+  color: white;
+}
+
+.secondary-button:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.address-section .error-message {
+  margin-top: 14px;
+}
+
+.address-value {
+  margin: 14px 0 0;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: #eef8f1;
+  border: 1px solid #c7e6d2;
+  color: #1f6b43;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.profile-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #e7ece6;
+}
+
+.profile-actions a {
+  color: #287b60;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.profile-actions a:hover {
+  text-decoration: underline;
+}
+
+@media (max-width: 520px) {
+  .profile-card {
+    padding: 30px 22px;
+  }
+
+  .profile-header h1 {
+    font-size: 25px;
+  }
+}
