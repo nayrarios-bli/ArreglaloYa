@@ -43,7 +43,7 @@
                 <ol class="history">
                   @for (event of s.history; track $index) {
                     <li>
-                      <span class="history-status">{{ labels[event.status] }}</span>
+                      <span class="history-status">{{ labels[event.status] || event.status }}</span>
                       <span class="history-date">{{ formatDate(event.at) }}</span>
                     </li>
                   }
@@ -60,8 +60,53 @@
                     {{ s.scheduled_start ? 'Actualizar horario' : 'Coordinar horario' }}
                   </a>
                 }
-                @if (s.status === 'completed' && s.final_amount !== null) {
-                  <a class="details-link" routerLink="/servicios/pagos">Confirmar pago</a>
+                @if (s.status === 'completed') {
+                  <a class="details-link review-link" [routerLink]="['/servicios', s.id, 'calificar']">
+                    {{ isWorker ? 'Calificar al cliente' : 'Calificar al trabajador' }}
+                  </a>
+                }
+                @if (s.offer?.requires_visit && s.status !== 'completed' && s.status !== 'cancelled') {
+                  <section class="service-action-panel">
+                    <h2>Cotización de la visita</h2>
+                    @for (quote of quotes(); track quote.id) {
+                      <p>{{ quote.quote_type === 'transport' ? 'Transporte' : 'Precio definitivo' }} · Bs {{ quote.amount }}</p>
+                      @if (quote.notes) { <p>{{ quote.notes }}</p> }
+                      @if (quote.decision) {
+                        <p>{{ quote.decision === 'accepted' ? 'Aceptada' : 'Rechazada' }}</p>
+                      } @else if (!isWorker && quote.quote_type === 'final') {
+                        <button type="button" [disabled]="busy()" (click)="decideQuote(s.id, quote.id, 'accepted')">Aceptar precio</button>
+                        <button type="button" [disabled]="busy()" (click)="decideQuote(s.id, quote.id, 'rejected')">Rechazar precio</button>
+                      }
+                    }
+                    @if (isWorker && !hasFinalQuote()) {
+                      <label for="quote-amount">Monto en bolivianos · {{ hasTransportQuote() ? 'Precio definitivo' : 'Transporte' }}</label>
+                      <input #amount id="quote-amount" type="number" min="0" step="0.01">
+                      <button type="button" [disabled]="busy()" (click)="submitQuote(s.id, hasTransportQuote() ? 'final' : 'transport', amount.value)">Enviar cotización</button>
+                    } @else if (!isWorker && !hasFinalQuote() && !busy()) {
+                      <p>El trabajador todavía no envió el precio definitivo.</p>
+                    }
+                  </section>
+                }
+                @if (!isWorker && s.status === 'in_progress') {
+                  <section class="service-action-panel">
+                    <h2>Código de cierre</h2>
+                    @if (s.final_amount === null) {
+                      <p>Acepta el precio definitivo para habilitar el código.</p>
+                    } @else {
+                      <p>Acuerda el pago con el trabajador. Comparte el código cuando estés listo para cerrar el servicio.</p>
+                      <button type="button" [disabled]="busy()" (click)="issueCode(s.id)">
+                        {{ code()?.serviceId === s.id ? 'Generar otro código' : 'Generar código' }}
+                      </button>
+                      @if (code(); as issued) {
+                        @if (issued.serviceId === s.id) {
+                          <p role="status"><strong class="completion-code">{{ issued.code }}</strong> · Vence {{ formatDate(issued.expiresAt) }}</p>
+                        }
+                      }
+                    }
+                  </section>
+                }
+                @if (actionError()) {
+                  <p role="alert">{{ actionError() }}</p>
                 }
                 @if (isWorker && s.status !== 'completed' && s.status !== 'cancelled') {
                   <a class="details-link" [routerLink]="['/trabajador/servicios', s.id, 'estado']">Actualizar estado</a>

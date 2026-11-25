@@ -2,7 +2,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../../core/auth.service';
 import {
@@ -22,9 +22,9 @@ interface AdminForm {
 @Component({
   selector: 'app-admin-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './admin-management.html',
-  styleUrl: './admin-management.css',
+  styleUrls: ['./admin-management.css', '../../../admin/admin-panels.css'],
 })
 export class AdminManagement implements OnInit {
   admins: Admin[] = [];

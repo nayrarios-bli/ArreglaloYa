@@ -19,6 +19,14 @@
         No se indicó el servicio a calificar.
       </p>
     } @else {
+      @if (loadingReviews()) {
+        <p class="status-text" role="status">Comprobando si ya calificaste este servicio…</p>
+      } @else if (ownReview(); as existingReview) {
+        <p class="success-message" role="status">
+          Ya calificaste este servicio con {{ existingReview.score }} de 5 estrellas. Gracias por compartir tu experiencia.
+        </p>
+        <a class="back-to-services" routerLink="/servicios">Volver a mis servicios</a>
+      } @else {
       <form (ngSubmit)="submit()">
         <fieldset class="form-group score-group">
           <legend>Puntuación</legend>
@@ -65,6 +73,7 @@
 
       @if (errorMessage()) {
         <p class="error-message" role="alert">{{ errorMessage() }}</p>
+      }
       }
     }
 

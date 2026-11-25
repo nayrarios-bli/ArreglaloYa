@@ -2,12 +2,15 @@
 <main class="page">
   <header class="topbar">
     <div class="brand">
-      <span class="brand-icon">A</span>
+      <span class="brand-icon"><img src="/brand/arreglalo-ya-mark.svg" alt="" /></span>
       <span>ArreglaloYa</span>
     </div>
 
     <div class="user-area">
       <span class="user-label">Panel de superadministrador</span>
+      <a class="workers-review-link" routerLink="/admin/workers">
+        Revisar trabajadores
+      </a>
       <button class="logout-button" (click)="logout()">
         Cerrar sesión
       </button>

@@ -9,6 +9,13 @@ export interface AdminWorker {
   categories: AdminCategory[];
   zones: AdminZone[];
   availability: AdminAvailability[];
+  documents: AdminWorkerDocument[];
+}
+
+export interface AdminWorkerDocument {
+  document_type: 'identity_card' | 'criminal_record';
+  uploaded_at: string;
+  signed_url: string | null;
 }
 
 export interface AdminCategory {

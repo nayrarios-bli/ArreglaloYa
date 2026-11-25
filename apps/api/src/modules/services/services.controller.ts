@@ -23,8 +23,8 @@ export class ServicesController {
   updateStatus(
     @Req() req: AuthRequest,
     @Param('serviceId', ParseUUIDPipe) serviceId: string,
-    @Body() body: { status?: unknown },
+    @Body() body: { status?: unknown; code?: unknown },
   ) {
-    return this.services.updateStatus(serviceId, req.user.id, body?.status);
+    return this.services.updateStatus(serviceId, req.user.id, body?.status, body?.code);
   }
 }

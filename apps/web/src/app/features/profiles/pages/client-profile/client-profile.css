@@ -2,8 +2,8 @@
 :host {
   display: block;
   min-height: 100vh;
-  background: #f7f8f3;
-  color: #26382e;
+  background: var(--ay-background);
+  color: var(--ay-ink);
   font-family: inherit;
 }
 
@@ -14,7 +14,7 @@
 /* ENCABEZADO */
 
 .profile-header {
-  background: #eaf0e8;
+  background: var(--ay-tint);
   padding: 38px 24px 58px;
 }
 
@@ -26,7 +26,7 @@
 .back-link {
   display: inline-block;
   margin-bottom: 34px;
-  color: #47664f;
+  color: var(--ay-muted);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;
@@ -198,13 +198,13 @@
 }
 
 .btn-primary {
-  border: 1px solid #416b49;
-  background: #416b49;
+  border: 1px solid var(--ay-accent);
+  background: var(--ay-accent);
   color: #ffffff;
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: #34583b;
+  background: var(--ay-accent-hover);
   transform: translateY(-1px);
 }
 

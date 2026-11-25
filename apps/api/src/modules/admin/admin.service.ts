@@ -1,5 +1,6 @@
 
 import {
+  BadRequestException,
   Injectable,
   ConflictException,
   InternalServerErrorException,
@@ -13,15 +14,29 @@ import { ReviewWorkerDto } from './dto/review-worker.dto.js';
 export class AdminService {
   constructor(private readonly supabase: SupabaseService) {}
 
+  private pendingWorkers() {
+    return this.supabase.admin.from('worker_profiles')
+      .select('user_id, bio, review_status, submitted_at')
+      .eq('review_status', 'pending')
+      .not('submitted_at', 'is', null);
+  }
+
+  async getPendingWorkerCount() {
+    const { count, error } = await this.supabase.admin.from('worker_profiles')
+      .select('user_id', { count: 'exact', head: true })
+      .eq('review_status', 'pending')
+      .not('submitted_at', 'is', null);
+    if (error) {
+      throw new InternalServerErrorException('No se pudieron contar los perfiles pendientes.');
+    }
+    return { count: count ?? 0 };
+  }
+
   // CONSULTAR TRABAJADORES PENDIENTES
   async getPendingWorkers() {
     const client = this.supabase.admin;
 
-    const { data: workers, error } = await client
-      .from('worker_profiles')
-      .select('user_id, bio, review_status, submitted_at')
-      .eq('review_status', 'pending')
-      .not('submitted_at', 'is', null)
+    const { data: workers, error } = await this.pendingWorkers()
       .order('submitted_at', { ascending: true });
 
     if (error) {
@@ -41,6 +56,7 @@ export class AdminService {
       workerCategories,
       workerZones,
       availability,
+      documents,
     ] = await Promise.all([
       client
         .from('profiles')
@@ -62,13 +78,19 @@ export class AdminService {
         .select('id, worker_id, weekday, starts_at, ends_at')
         .in('worker_id', workerIds)
         .order('weekday'),
+
+      client
+        .from('worker_documents')
+        .select('worker_id, document_type, storage_path, uploaded_at')
+        .in('worker_id', workerIds),
     ]);
 
     if (
       profiles.error ||
       workerCategories.error ||
       workerZones.error ||
-      availability.error
+      availability.error ||
+      documents.error
     ) {
       throw new InternalServerErrorException(
         'No se pudo consultar toda la información de los trabajadores.',
@@ -109,6 +131,16 @@ export class AdminService {
       );
     }
 
+    const bucketName = process.env.SUPABASE_WORKER_DOCUMENTS_BUCKET ?? 'worker-documents';
+    const storage = client.storage.from(bucketName);
+    const documentRows = documents.data ?? [];
+    const signed = documentRows.length
+      ? await storage.createSignedUrls(documentRows.map((row) => row.storage_path), 600)
+      : null;
+    const signedByPath = new Map(
+      (signed?.data ?? []).map((item) => [item.path, item.signedUrl]),
+    );
+
     return workers.map((worker) => {
       const profile = profiles.data?.find(
         (item) => item.id === worker.user_id,
@@ -140,6 +172,13 @@ export class AdminService {
         availability: (availability.data ?? []).filter(
           (item) => item.worker_id === worker.user_id,
         ),
+        documents: documentRows
+          .filter((document) => document.worker_id === worker.user_id)
+          .map((document) => ({
+            document_type: document.document_type,
+            uploaded_at: document.uploaded_at,
+            signed_url: signedByPath.get(document.storage_path) ?? null,
+          })),
       };
     });
   }
@@ -177,6 +216,26 @@ export class AdminService {
       throw new ConflictException(
         'El trabajador no tiene una solicitud pendiente de revisión.',
       );
+    }
+
+    if (input.decision === 'approved') {
+      const { data: identityDocument, error: documentError } = await client
+        .from('worker_documents')
+        .select('id')
+        .eq('worker_id', workerId)
+        .eq('document_type', 'identity_card')
+        .maybeSingle();
+
+      if (documentError) {
+        throw new InternalServerErrorException(
+          'No se pudo verificar el documento de identidad del trabajador.',
+        );
+      }
+      if (!identityDocument) {
+        throw new BadRequestException(
+          'No se puede aprobar al trabajador sin un documento de identidad.',
+        );
+      }
     }
 
     const { data: updatedWorker, error: updateError } = await client

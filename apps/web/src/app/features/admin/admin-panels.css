@@ -1,0 +1,60 @@
+:host {
+  --panel-ink: var(--ay-ink);
+  --panel-accent: var(--ay-accent);
+  --panel-muted: var(--ay-muted);
+  --panel-border: var(--ay-border);
+  --panel-tint: var(--ay-tint);
+}
+.admin-layout, .page {
+  background: var(--ay-background);
+  color: var(--panel-ink);
+  font-family: inherit;
+}
+.sidebar, .page > .topbar {
+  background: white;
+  color: var(--panel-ink);
+  border: 1px solid var(--panel-border);
+}
+.brand { border-color: var(--panel-border); }
+.brand span, .nav-label, .user-label, .breadcrumb { color: var(--panel-muted); }
+.brand .brand-icon { background: transparent; margin: 0; flex-shrink: 0; }
+.brand-icon img { display: block; width: 100%; height: 100%; }
+.navigation a, .back-link, .logout-button, .workers-review-link {
+  color: var(--panel-accent);
+  border-color: var(--panel-border);
+  font-weight: 650;
+}
+.navigation a:hover, .navigation a.active, .back-link:hover,
+.logout-button:hover, .workers-review-link:hover {
+  background: var(--panel-tint);
+  color: var(--panel-ink);
+}
+.page-header, .main-content > .topbar, .page-heading {
+  padding: clamp(18px, 4vw, 34px);
+  border: 1px solid var(--panel-border);
+  border-radius: 20px;
+  background: var(--panel-tint);
+}
+.page-header h1, .topbar h1, .page-heading h1 {
+  color: var(--panel-ink);
+  font-size: clamp(24px, 4vw, 40px);
+  font-weight: 750;
+  letter-spacing: -.045em;
+}
+.page-header p, .page-heading p, .welcome p, .section-heading p,
+.state-card p, .module-information p { color: var(--panel-muted); }
+.worker-card, .summary-card, .module-card, .table-card, .stat-card, .state-card {
+  border: 1px solid var(--panel-border);
+  border-radius: 18px;
+  box-shadow: 0 10px 24px #16352c08;
+}
+.empty-state-link { color: var(--panel-accent); font-size: .875rem; }
+.user-area { flex-wrap: wrap; }
+button, .module-link, .workers-review-link {
+  transition: background-color 150ms ease, color 150ms ease, transform 100ms ease;
+}
+button:enabled:active, .module-link:active { transform: scale(.98); }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--ay-focus); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}

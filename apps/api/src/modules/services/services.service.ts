@@ -1,5 +1,6 @@
 import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../../database/supabase.service.js';
+import { createHmac, randomInt } from 'node:crypto';
 
 @Injectable()
 export class ServicesService {
@@ -10,7 +11,7 @@ export class ServicesService {
     const { data: profile, error: profileError } = await db.from('profiles').select('role').eq('id', userId).single();
     if (profileError || !profile || !['client', 'worker'].includes(profile.role)) throw new NotFoundException('No se encontró el perfil.');
     const ownerColumn = profile.role === 'client' ? 'client_id' : 'worker_id';
-    const { data: rows, error } = await db.from('services').select('id, request_id, client_id, worker_id, status, scheduled_start, scheduled_end, final_amount, created_at, started_at, completed_at').eq(ownerColumn, userId).order('created_at', { ascending: false });
+    const { data: rows, error } = await db.from('services').select('id, request_id, client_id, worker_id, status, scheduled_start, scheduled_end, final_amount, created_at, started_at, completed_at, offer:offers(requires_visit)').eq(ownerColumn, userId).order('created_at', { ascending: false });
     if (error) throw new InternalServerErrorException('No se pudieron consultar los servicios.');
     const ids = (rows ?? []).map((row) => row.id);
     if (!ids.length) return [];
@@ -51,9 +52,27 @@ export class ServicesService {
     return data;
   }
 
-  async updateStatus(serviceId: string, workerId: string, value: unknown) {
+  async updateStatus(serviceId: string, workerId: string, value: unknown, code?: unknown) {
     if (value !== 'in_progress' && value !== 'completed') {
       throw new BadRequestException('El estado solicitado no es válido.');
+    }
+    if (value === 'completed') {
+      if (typeof code !== 'string' || !/^\d{6}$/.test(code)) {
+        throw new BadRequestException('Ingresa el código de 6 dígitos que te dio el cliente.');
+      }
+
+      const { data, error } = await this.supabase.admin.rpc('complete_service_with_code', {
+        p_service_id: serviceId,
+        p_worker_id: workerId,
+        p_code_digest: this.digestCompletionCode(serviceId, code),
+      });
+      if (error?.code === 'P0002') throw new NotFoundException('No se encontró el servicio.');
+      if (error?.code === '22023') throw new ConflictException('El servicio ya no permite finalizar.');
+      if (error) throw new InternalServerErrorException('No se pudo finalizar el servicio.');
+      if (!data?.id) {
+        throw new BadRequestException('El código no es válido, venció o agotó sus intentos.');
+      }
+      return data;
     }
     const { data, error } = await this.supabase.admin.rpc('transition_service_status', {
       p_service_id: serviceId,
@@ -65,5 +84,24 @@ export class ServicesService {
     if (error?.code === '22023') throw new ConflictException('El servicio ya no permite ese cambio de estado.');
     if (error) throw new InternalServerErrorException('No se pudo actualizar el estado del servicio.');
     return data;
+  }
+
+  async issueCompletionCode(serviceId: string, clientId: string) {
+    const code = String(randomInt(1_000_000)).padStart(6, '0');
+    const { data, error } = await this.supabase.admin.rpc('issue_service_completion_code', {
+      p_service_id: serviceId,
+      p_client_id: clientId,
+      p_code_digest: this.digestCompletionCode(serviceId, code),
+    });
+    if (error?.code === 'P0002') throw new NotFoundException('No se encontró el servicio.');
+    if (error?.code === '22023') throw new ConflictException('El servicio debe estar en curso y tener el precio final acordado.');
+    if (error || !data) throw new InternalServerErrorException('No se pudo generar el código.');
+    return { code, expiresAt: data };
+  }
+
+  private digestCompletionCode(serviceId: string, code: string): string {
+    const secret = process.env.SUPABASE_SECRET_KEY;
+    if (!secret) throw new InternalServerErrorException('No se pudo validar el código de cierre.');
+    return createHmac('sha256', secret).update(`${serviceId.toLowerCase()}:${code}`).digest('hex');
   }
 }

@@ -1,29 +1,29 @@
 :host { display: block; }
-.status-page { min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; background: #f4f7f2; box-sizing: border-box; }
-.status-card { width: 100%; max-width: 560px; padding: 36px; background: #fff; border: 1px solid #e7ece6; border-radius: 14px; box-shadow: 0 12px 35px rgba(30, 60, 45, 0.06); box-sizing: border-box; }
+.status-page { min-height: 100vh; display: flex; justify-content: center; align-items: flex-start; padding: 40px 20px; background: var(--ay-background); box-sizing: border-box; }
+.status-card { width: 100%; max-width: 560px; padding: 36px; background: #fff; border: 1px solid var(--ay-border); border-radius: 14px; box-shadow: 0 12px 35px rgba(30, 60, 45, 0.06); box-sizing: border-box; }
 .status-header { text-align: center; margin-bottom: 26px; }
-.status-header h1 { margin: 0 0 10px; color: #183d32; font-size: 26px; font-weight: 700; }
-.status-header p, .hint { margin: 0; color: #718078; font-size: 14px; }
+.status-header h1 { margin: 0 0 10px; color: var(--ay-ink); font-size: 26px; font-weight: 700; }
+.status-header p, .hint { margin: 0; color: var(--ay-muted); font-size: 14px; }
 .steps { display: flex; justify-content: space-between; gap: 8px; list-style: none; margin: 0 0 24px; padding: 0; }
 .step { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; color: #9aa7a0; font-size: 13px; }
-.dot { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 2px solid #d8e2d9; border-radius: 50%; background: #fff; font-weight: 700; }
-.step.done .dot { border-color: #287b60; background: #287b60; color: #fff; }
-.step.current .dot { border-color: #287b60; color: #287b60; box-shadow: 0 0 0 3px rgba(40, 123, 96, 0.12); }
-.step.done, .step.current { color: #183d32; font-weight: 600; }
-.current { margin: 0 0 14px; text-align: center; color: #24352e; font-size: 15px; }
+.dot { width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border: 2px solid var(--ay-border); border-radius: 50%; background: #fff; font-weight: 700; }
+.step.done .dot { border-color: var(--ay-accent); background: var(--ay-accent); color: #fff; }
+.step.current .dot { border-color: var(--ay-accent); color: var(--ay-accent); box-shadow: 0 0 0 3px rgba(40, 123, 96, 0.12); }
+.step.done, .step.current { color: var(--ay-ink); font-weight: 600; }
+.current { margin: 0 0 14px; text-align: center; color: var(--ay-text); font-size: 15px; }
 .hint { margin-bottom: 16px; text-align: center; }
 .primary-button, .secondary-button { width: 100%; height: 45px; border-radius: 8px; font-size: 14px; font-weight: 700; cursor: pointer; transition: background 0.2s; }
-.primary-button { border: none; background: #287b60; color: #fff; }
-.primary-button:hover { background: #21664f; }
-.secondary-button { border: 1px solid #d8e2d9; background: #fff; color: #24352e; }
-.secondary-button:hover { border-color: #287b60; }
+.primary-button { border: none; background: var(--ay-accent); color: #fff; }
+.primary-button:hover { background: var(--ay-accent-hover); }
+.secondary-button { border: 1px solid var(--ay-border); background: #fff; color: var(--ay-text); }
+.secondary-button:hover { border-color: var(--ay-accent); }
 .confirm-box { padding: 16px; border: 1px solid #f0d9a8; border-radius: 10px; background: #fffaf0; }
 .confirm-box p { margin: 0 0 14px; color: #7a5b00; font-size: 14px; }
 .confirm-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 .alert { margin: 0; padding: 12px 14px; border-radius: 8px; font-size: 14px; }
 .alert-ok { background: #e6f4ec; color: #1e6a4a; }
 .alert-muted { background: #f1f4f1; color: #4b5a52; }
-.note { margin: 18px 0 0; text-align: center; color: #718078; font-size: 12px; }
+.note { margin: 18px 0 0; text-align: center; color: var(--ay-muted); font-size: 12px; }
 @media (max-width: 520px) { .status-card { padding: 26px 18px; } .confirm-actions { grid-template-columns: 1fr; } }
 .list-header, .status-header { margin-top: 24px; text-align: left; }
 .list-header h1, .status-header h1 {
@@ -36,7 +36,7 @@
   display: inline-block;
   padding: .65rem .85rem;
   border-radius: 10px;
-  background: #e8f3ed;
+  background: var(--ay-tint);
   color: #195942;
   font-weight: 700;
   text-decoration: none;
@@ -46,3 +46,4 @@
 
 .primary-button:disabled { opacity: .65; cursor: wait; }
 [role="alert"] { color: #963f32; }
+.review-button { display: inline-block; text-decoration: none; }

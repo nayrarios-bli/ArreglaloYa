@@ -1,8 +1,10 @@
 
-import { Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectorRef, Component, DestroyRef, OnInit, inject } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
+import { finalize, timeout } from 'rxjs';
 
 import { AuthService } from '../../../../core/auth.service';
 import { AdminApiService } from '../../services/admin-api.service';
@@ -15,9 +17,11 @@ type ReviewDecision = 'approved' | 'rejected';
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   templateUrl: './workers.html',
-  styleUrl: './workers.css',
+  styleUrls: ['./workers.css', '../../admin-panels.css'],
 })
 export class AdminWorkers implements OnInit {
+  private readonly changeDetector = inject(ChangeDetectorRef);
+  private readonly destroyRef = inject(DestroyRef);
   private readonly authService = inject(AuthService);
   private readonly adminApi = inject(AdminApiService);
   private readonly router = inject(Router);
@@ -27,7 +31,7 @@ export class AdminWorkers implements OnInit {
   reviewDecision: ReviewDecision | null = null;
 
   reviewNotes = '';
-  loading = true;
+  loading = false;
   submitting = false;
 
   errorMessage = '';
@@ -38,6 +42,7 @@ export class AdminWorkers implements OnInit {
   }
 
   loadWorkers(): void {
+    if (this.loading) return;
     const token = this.authService.getAccessToken();
 
     if (!token) {
@@ -48,15 +53,24 @@ export class AdminWorkers implements OnInit {
     this.loading = true;
     this.errorMessage = '';
 
-    this.adminApi.getPendingWorkers(token).subscribe({
+    this.adminApi.getPendingWorkers(token).pipe(
+      timeout(12000),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        this.loading = false;
+        this.changeDetector.markForCheck();
+      }),
+    ).subscribe({
       next: (workers) => {
         this.workers = workers;
-        this.loading = false;
       },
-      error: () => {
-        this.errorMessage =
-          'No se pudieron cargar los trabajadores pendientes.';
-        this.loading = false;
+      error: (error) => {
+        const apiMessage = error?.error?.message;
+        this.errorMessage = Array.isArray(apiMessage)
+          ? apiMessage.join(' ')
+          : apiMessage || (error?.name === 'TimeoutError'
+            ? 'La API tardó demasiado en responder. Revisa la consola de NestJS y vuelve a intentar.'
+            : 'No se pudieron cargar los trabajadores pendientes. Verifica la sesión y la configuración de Supabase.');
       },
     });
   }
@@ -82,7 +96,7 @@ export class AdminWorkers implements OnInit {
   confirmReview(): void {
     const token = this.authService.getAccessToken();
 
-    if (!token || !this.selectedWorker || !this.reviewDecision) {
+    if (this.submitting || !token || !this.selectedWorker || !this.reviewDecision) {
       return;
     }
 
@@ -99,6 +113,13 @@ export class AdminWorkers implements OnInit {
         notes: this.reviewNotes.trim() || undefined,
       },
       token,
+    ).pipe(
+      timeout(12000),
+      takeUntilDestroyed(this.destroyRef),
+      finalize(() => {
+        this.submitting = false;
+        this.changeDetector.markForCheck();
+      }),
     ).subscribe({
       next: (response) => {
         this.workers = this.workers.filter(
@@ -109,13 +130,11 @@ export class AdminWorkers implements OnInit {
         this.selectedWorker = null;
         this.reviewDecision = null;
         this.reviewNotes = '';
-        this.submitting = false;
       },
       error: (error) => {
         this.errorMessage =
           error?.error?.message ??
-          'No se pudo registrar la decisión. Intenta nuevamente.';
-        this.submitting = false;
+          'No se pudo confirmar el resultado. Cierra el diálogo y actualiza la lista antes de reintentar.';
       },
     });
   }
@@ -132,5 +151,11 @@ export class AdminWorkers implements OnInit {
     ];
 
     return days[weekday] ?? 'Día no definido';
+  }
+
+  hasIdentityDocument(worker: AdminWorker): boolean {
+    return worker.documents.some((document) =>
+      document.document_type === 'identity_card' && !!document.signed_url,
+    );
   }
 }

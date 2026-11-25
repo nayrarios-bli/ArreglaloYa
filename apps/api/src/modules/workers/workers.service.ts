@@ -6,9 +6,51 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 
 import { SupabaseService } from '../../database/supabase.service.js';
 import { UpdateWorkerProfileDto } from './dto/update-worker-profile.dto.js';
+
+const MAX_WORKER_DOCUMENT_BYTES = 10 * 1024 * 1024;
+const DOCUMENT_TYPES = ['identity_card', 'criminal_record'] as const;
+type WorkerDocumentType = (typeof DOCUMENT_TYPES)[number];
+
+const DOCUMENT_MIME_TYPES: Record<
+  string,
+  { extension: string; signature: (buffer: Buffer) => boolean }
+> = {
+  'application/pdf': {
+    extension: 'pdf',
+    signature: (buffer) => buffer.subarray(0, 5).toString('ascii') === '%PDF-',
+  },
+  'image/jpeg': {
+    extension: 'jpg',
+    signature: (buffer) =>
+      buffer.length >= 3 &&
+      buffer[0] === 0xff &&
+      buffer[1] === 0xd8 &&
+      buffer[2] === 0xff,
+  },
+  'image/png': {
+    extension: 'png',
+    signature: (buffer) =>
+      buffer
+        .subarray(0, 8)
+        .equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a])),
+  },
+  'image/webp': {
+    extension: 'webp',
+    signature: (buffer) =>
+      buffer.subarray(0, 4).toString('ascii') === 'RIFF' &&
+      buffer.subarray(8, 12).toString('ascii') === 'WEBP',
+  },
+};
+
+interface UploadedWorkerDocument {
+  buffer: Buffer;
+  mimetype: string;
+  size: number;
+}
 
 @Injectable()
 export class WorkersService {
@@ -47,7 +89,12 @@ export class WorkersService {
         .order('weekday'),
     ]);
 
-    if (categories.error || zones.error || availability.error) {
+    const documents = await client
+      .from('worker_documents')
+      .select('document_type, uploaded_at')
+      .eq('worker_id', workerId);
+
+    if (categories.error || zones.error || availability.error || documents.error) {
       this.fail('No se pudo consultar toda la información del trabajador.');
     }
 
@@ -56,7 +103,88 @@ export class WorkersService {
       categoryIds: categories.data?.map((item) => item.category_id) ?? [],
       zoneIds: zones.data?.map((item) => item.zone_id) ?? [],
       availability: availability.data ?? [],
+      documents: documents.data ?? [],
     };
+  }
+
+  async uploadDocument(
+    workerId: string,
+    documentType: string,
+    file: UploadedWorkerDocument | undefined,
+  ) {
+    if (!DOCUMENT_TYPES.includes(documentType as WorkerDocumentType)) {
+      throw new BadRequestException('Tipo de documento no válido.');
+    }
+    if (!file) {
+      throw new BadRequestException('Selecciona un archivo para subir.');
+    }
+    if (file.size > MAX_WORKER_DOCUMENT_BYTES) {
+      throw new BadRequestException('El archivo no puede superar 10 MB.');
+    }
+
+    const format = DOCUMENT_MIME_TYPES[file.mimetype];
+    if (!format || !format.signature(file.buffer)) {
+      throw new BadRequestException('Usa un archivo PDF, JPG, PNG o WebP válido.');
+    }
+
+    const client = this.supabase.admin;
+    const { data: worker, error: workerError } = await client
+      .from('worker_profiles')
+      .select('review_status')
+      .eq('user_id', workerId)
+      .maybeSingle();
+
+    if (workerError) this.fail('No se pudo verificar el perfil del trabajador.');
+    if (!worker) {
+      throw new NotFoundException('No se encontró el perfil del trabajador.');
+    }
+    if (worker.review_status === 'approved') {
+      throw new ConflictException(
+        'Tu perfil ya fue aprobado y no admite cambios de documentación.',
+      );
+    }
+
+    const type = documentType as WorkerDocumentType;
+    const bucket = process.env.SUPABASE_WORKER_DOCUMENTS_BUCKET ?? 'worker-documents';
+    const storage = client.storage.from(bucket);
+    const storagePath = `${workerId}/${type}/${randomUUID()}.${format.extension}`;
+
+    const { data: previousDocument, error: previousError } = await client
+      .from('worker_documents')
+      .select('storage_path')
+      .eq('worker_id', workerId)
+      .eq('document_type', type)
+      .maybeSingle();
+    if (previousError) this.fail('No se pudo consultar el documento existente.');
+
+    const { error: uploadError } = await storage.upload(storagePath, file.buffer, {
+      contentType: file.mimetype,
+      upsert: false,
+    });
+    if (uploadError) this.fail('No se pudo guardar el documento de forma segura.');
+
+    const { error: saveError } = await client
+      .from('worker_documents')
+      .upsert(
+        {
+          worker_id: workerId,
+          document_type: type,
+          storage_path: storagePath,
+          uploaded_at: new Date().toISOString(),
+        },
+        { onConflict: 'worker_id,document_type' },
+      );
+
+    if (saveError) {
+      await storage.remove([storagePath]);
+      this.fail('No se pudo registrar el documento.');
+    }
+
+    if (previousDocument?.storage_path) {
+      await storage.remove([previousDocument.storage_path]);
+    }
+
+    return { document_type: type, uploaded_at: new Date().toISOString() };
   }
 
   // ACTUALIZAR PERFIL
@@ -259,6 +387,20 @@ export class WorkersService {
     if (profile.availability.length === 0) {
       throw new BadRequestException(
         'Registra al menos un horario disponible.',
+      );
+    }
+
+    const { data: identityDocument, error: documentError } = await client
+      .from('worker_documents')
+      .select('id')
+      .eq('worker_id', workerId)
+      .eq('document_type', 'identity_card')
+      .maybeSingle();
+
+    if (documentError) this.fail('No se pudo verificar tu documento de identidad.');
+    if (!identityDocument) {
+      throw new BadRequestException(
+        'Sube tu documento de identidad antes de enviar el perfil a revisión.',
       );
     }
 

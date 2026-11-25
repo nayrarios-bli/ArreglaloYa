@@ -9,7 +9,7 @@
   align-items: flex-start;
   justify-content: center;
   padding: 40px 20px;
-  background: #f4f7f2;
+  background: var(--ay-background);
 }
 
 .my-profile-card {
@@ -17,7 +17,7 @@
   max-width: 620px;
   padding: 40px;
   background: #ffffff;
-  border: 1px solid #e7ece6;
+  border: 1px solid var(--ay-border);
   border-radius: 14px;
   box-shadow: 0 12px 35px rgba(30, 60, 45, 0.06);
 }
@@ -32,7 +32,7 @@
   align-items: center;
   gap: 9px;
   margin-bottom: 25px;
-  color: #183d32;
+  color: var(--ay-ink);
   font-size: 20px;
   font-weight: 700;
   text-decoration: none;
@@ -45,30 +45,30 @@
   width: 34px;
   height: 34px;
   border-radius: 9px;
-  background: #287b60;
+  background: var(--ay-accent);
   color: white;
 }
 
 .brand-accent {
-  color: #287b60;
+  color: var(--ay-accent);
 }
 
 .my-profile-header h1 {
   margin: 0 0 10px;
-  color: #183d32;
+  color: var(--ay-ink);
   font-size: 28px;
   font-weight: 700;
 }
 
 .my-profile-header p {
   margin: 0;
-  color: #718078;
+  color: var(--ay-muted);
   font-size: 14px;
 }
 
 .status-text {
   margin: 0 0 20px;
-  color: #718078;
+  color: var(--ay-muted);
   font-size: 14px;
 }
 
@@ -78,7 +78,7 @@
   gap: 14px;
   padding-bottom: 22px;
   margin-bottom: 24px;
-  border-bottom: 1px solid #e7ece6;
+  border-bottom: 1px solid var(--ay-border);
 }
 
 .avatar {
@@ -89,7 +89,7 @@
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: #287b60;
+  background: var(--ay-accent);
   color: white;
   font-size: 20px;
   font-weight: 700;
@@ -97,7 +97,7 @@
 
 .profile-summary h2 {
   margin: 0 0 5px;
-  color: #183d32;
+  color: var(--ay-ink);
   font-size: 18px;
   overflow-wrap: anywhere;
 }
@@ -107,14 +107,14 @@
   padding: 3px 10px;
   border-radius: 999px;
   background: #eef2ee;
-  color: #456c54;
+  color: var(--ay-accent);
   font-size: 12px;
   font-weight: 600;
 }
 
 .public-link {
   margin-left: auto;
-  color: #287b60;
+  color: var(--ay-accent);
   font-size: 13px;
   font-weight: 600;
   text-decoration: none;
@@ -133,7 +133,7 @@
 }
 
 .form-group label {
-  color: #24352e;
+  color: var(--ay-text);
   font-size: 14px;
   font-weight: 600;
 }
@@ -143,10 +143,10 @@
 .form-group textarea {
   width: 100%;
   padding: 0 13px;
-  border: 1px solid #d8e2d9;
+  border: 1px solid var(--ay-border);
   border-radius: 8px;
   outline: none;
-  color: #24352e;
+  color: var(--ay-text);
   font-family: inherit;
   font-size: 14px;
   background: #ffffff;
@@ -166,7 +166,7 @@
 .form-group input:focus,
 .form-group select:focus,
 .form-group textarea:focus {
-  border-color: #287b60;
+  border-color: var(--ay-accent);
   box-shadow: 0 0 0 3px rgba(40, 123, 96, 0.1);
 }
 
@@ -188,7 +188,7 @@
   margin-top: 5px;
   border: none;
   border-radius: 8px;
-  background: #287b60;
+  background: var(--ay-accent);
   color: white;
   font-size: 14px;
   font-weight: 700;
@@ -197,7 +197,7 @@
 }
 
 .submit-button:hover:not(:disabled) {
-  background: #21664f;
+  background: var(--ay-accent-hover);
 }
 
 .submit-button:disabled {
@@ -241,10 +241,10 @@
 .secondary-button {
   height: 40px;
   padding: 0 18px;
-  border: 1px solid #287b60;
+  border: 1px solid var(--ay-accent);
   border-radius: 8px;
   background: transparent;
-  color: #287b60;
+  color: var(--ay-accent);
   font-size: 14px;
   font-weight: 600;
   cursor: pointer;
@@ -252,7 +252,7 @@
 }
 
 .secondary-button:hover:not(:disabled) {
-  background: #287b60;
+  background: var(--ay-accent);
   color: white;
 }
 
@@ -264,18 +264,18 @@
 .address-section {
   margin-top: 30px;
   padding-top: 24px;
-  border-top: 1px solid #e7ece6;
+  border-top: 1px solid var(--ay-border);
 }
 
 .address-section h2 {
   margin: 0 0 6px;
-  color: #183d32;
+  color: var(--ay-ink);
   font-size: 18px;
 }
 
 .section-hint {
   margin: 0 0 14px;
-  color: #718078;
+  color: var(--ay-muted);
   font-size: 13px;
   line-height: 1.5;
 }
@@ -298,11 +298,11 @@
 .my-profile-actions {
   margin-top: 28px;
   padding-top: 20px;
-  border-top: 1px solid #e7ece6;
+  border-top: 1px solid var(--ay-border);
 }
 
 .my-profile-actions a {
-  color: #287b60;
+  color: var(--ay-accent);
   font-size: 14px;
   font-weight: 600;
   text-decoration: none;

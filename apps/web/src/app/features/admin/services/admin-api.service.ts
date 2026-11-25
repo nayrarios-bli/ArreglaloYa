@@ -28,6 +28,12 @@ export class AdminApiService {
     );
   }
 
+  getPendingWorkerCount(token: string): Observable<{ count: number }> {
+    return this.http.get<{ count: number }>(`${this.endpoint}/workers/pending/count`, {
+      headers: this.headers(token),
+    });
+  }
+
   reviewWorker(
     workerId: string,
     payload: ReviewWorkerPayload,

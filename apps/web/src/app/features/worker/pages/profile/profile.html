@@ -177,13 +177,42 @@
 
       <div class="form-heading section-heading">
         <span>05 / DOCUMENTACIÓN</span>
-        <span>Pendiente de definición</span>
+        <span>Archivos privados</span>
       </div>
 
-      <p class="documentation-note">
-        Los documentos requeridos se habilitarán cuando se definan los
-        requisitos de revisión del trabajador.
+      <p class="section-copy">
+        Adjunta tu documento de identidad para solicitar la revisión. El certificado de antecedentes es opcional.
       </p>
+
+      <div class="document-list">
+        <section class="document-card">
+          <div class="document-copy">
+            <strong>Documento de identidad <span>*</span></strong>
+            <small>CI en PDF, JPG, PNG o WebP · máximo 10 MB</small>
+            <span class="document-status" [class.document-uploaded]="uploadedDocuments().includes('identity_card')">
+              {{ uploadedDocuments().includes('identity_card') ? 'Documento cargado' : 'Obligatorio para enviar a revisión' }}
+            </span>
+          </div>
+          <label class="document-button">
+            {{ uploadingDocument() === 'identity_card' ? 'Subiendo…' : uploadedDocuments().includes('identity_card') ? 'Reemplazar' : 'Elegir archivo' }}
+            <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" [disabled]="!!uploadingDocument() || reviewStatus() === 'approved'" (change)="uploadDocument('identity_card', $event)" />
+          </label>
+        </section>
+
+        <section class="document-card">
+          <div class="document-copy">
+            <strong>Certificado de antecedentes</strong>
+            <small>Opcional · adjúntalo si cuentas con uno</small>
+            <span class="document-status" [class.document-uploaded]="uploadedDocuments().includes('criminal_record')">
+              {{ uploadedDocuments().includes('criminal_record') ? 'Documento cargado' : 'Opcional' }}
+            </span>
+          </div>
+          <label class="document-button">
+            {{ uploadingDocument() === 'criminal_record' ? 'Subiendo…' : uploadedDocuments().includes('criminal_record') ? 'Reemplazar' : 'Elegir archivo' }}
+            <input type="file" accept="application/pdf,image/jpeg,image/png,image/webp" [disabled]="!!uploadingDocument() || reviewStatus() === 'approved'" (change)="uploadDocument('criminal_record', $event)" />
+          </label>
+        </section>
+      </div>
 
       @if (feedback()) {
         <p
