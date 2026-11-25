@@ -6,6 +6,7 @@ import {
   Param,
   ParseUUIDPipe,
   Patch,
+  Query,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -17,6 +18,8 @@ import { SupabaseAuthGuard } from '../auth/guards/supabase-auth.guard.js';
 
 import { AdminService } from './admin.service.js';
 import { ReviewWorkerDto } from './dto/review-worker.dto.js';
+import { FilterAdminReportDto } from './admin.dto.js';
+import { AdminReportsService } from './admin-reports.service.js';
 
 interface AuthenticatedRequest extends Request {
   user: {
@@ -30,6 +33,7 @@ interface AuthenticatedRequest extends Request {
 export class AdminController {
   constructor(
     private readonly adminService: AdminService,
+    private readonly reportsService: AdminReportsService,
   ) {}
 
   // CONSULTAR TRABAJADORES PENDIENTES
@@ -50,5 +54,10 @@ export class AdminController {
       request.user.id,
       body,
     );
+  }
+
+  @Get('reports')
+  getReports(@Query() filters: FilterAdminReportDto) {
+    return this.reportsService.getSystemActivityReport(filters);
   }
 }

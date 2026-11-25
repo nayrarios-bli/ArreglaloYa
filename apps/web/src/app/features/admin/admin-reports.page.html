@@ -1,0 +1,121 @@
+<main class="reports-page">
+  <section class="reports-card">
+    <header class="reports-header">
+      <a class="brand" routerLink="/" aria-label="ArreglaloYa, inicio">
+        <span class="brand-mark">A</span>
+        <span>Arreglalo<span class="brand-accent">Ya</span></span>
+      </a>
+
+      <h1>Reportes de administración</h1>
+      <p>Resumen de actividad de la plataforma.</p>
+    </header>
+
+    <form class="filters" (ngSubmit)="loadReports()">
+      <div class="filter-fields">
+        <div class="form-group">
+          <label for="startDate">Fecha de inicio</label>
+          <input
+            type="date"
+            id="startDate"
+            name="startDate"
+            [(ngModel)]="startDate"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="endDate">Fecha de fin</label>
+          <input
+            type="date"
+            id="endDate"
+            name="endDate"
+            [(ngModel)]="endDate"
+          />
+        </div>
+      </div>
+
+      <div class="filter-actions">
+        <button type="submit" class="submit-button" [disabled]="loading()">
+          {{ loading() ? 'Consultando...' : 'Consultar reportes' }}
+        </button>
+
+        <button
+          type="button"
+          class="secondary-button"
+          [disabled]="loading()"
+          (click)="clearFilters()"
+        >
+          Limpiar filtros
+        </button>
+      </div>
+    </form>
+
+    <p class="filters-hint">
+      Los filtros de fecha son opcionales. La fecha de fin incluye todo ese día.
+    </p>
+
+    @if (loading()) {
+      <p class="status-text">Cargando reportes...</p>
+    } @else if (errorMessage()) {
+      <div class="error-box" role="alert">
+        <p class="error-message">{{ errorMessage() }}</p>
+        <button type="button" class="secondary-button" (click)="loadReports()">
+          Reintentar
+        </button>
+      </div>
+    } @else {
+      @if (report(); as r) {
+        <div class="report-meta">
+          <span>
+            <strong>Generado:</strong>
+            {{ r.generatedAt | date: 'dd/MM/yyyy HH:mm' }}
+          </span>
+          <span>
+            <strong>Filtros aplicados:</strong>
+            {{ r.filtersApplied.startDate || 'Sin inicio' }} —
+            {{ r.filtersApplied.endDate || 'Sin fin' }}
+          </span>
+        </div>
+
+        <div class="metrics-grid">
+          <article class="metric-card">
+            <span class="metric-label">Usuarios totales</span>
+            <strong class="metric-value">{{ r.metrics.totalUsers }}</strong>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Clientes</span>
+            <strong class="metric-value">{{ r.metrics.clients }}</strong>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Trabajadores</span>
+            <strong class="metric-value">{{ r.metrics.workers }}</strong>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Servicios finalizados</span>
+            <strong class="metric-value">{{ r.metrics.completedServices }}</strong>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Reclamos pendientes</span>
+            <strong class="metric-value">{{ r.metrics.pendingComplaints }}</strong>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-label">Calificación promedio</span>
+            @if (r.metrics.averageRating !== null) {
+              <strong class="metric-value">
+                {{ r.metrics.averageRating }} / 5
+              </strong>
+            } @else {
+              <strong class="metric-value metric-empty">Sin calificaciones</strong>
+            }
+          </article>
+        </div>
+      } @else {
+        <p class="status-text">No hay datos de reportes para mostrar.</p>
+      }
+    }
+  </section>
+</main>

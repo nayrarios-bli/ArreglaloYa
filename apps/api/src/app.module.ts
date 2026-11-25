@@ -8,12 +8,13 @@ import { AuthModule } from './modules/auth/auth.module.js';
 import { OffersModule } from './modules/offers/offers.module.js';
 import { ProfilesModule } from './modules/profiles/profiles.module.js';
 import { RequestsModule } from './requests/requests.module.js';
+import { ReviewsModule } from './modules/reviews/reviews.module.js';
 import { WorkersModule } from './modules/workers/workers.module.js';
 import { AdminModule } from './modules/admin/admin.module.js';
 import { SuperadminModule } from './modules/superadmin/superadmin.module.js';
 import { ServicesModule } from './modules/services/services.module.js';
 import { PaymentsModule } from './payments/payments.module.js';
-
+import { ComplaintsModule } from './modules/complaints/complaints.module.js';
 
 @Module({
   imports: [
@@ -25,6 +26,7 @@ import { PaymentsModule } from './payments/payments.module.js';
     AuthModule,
     CatalogModule,
     RequestsModule,
+    ReviewsModule,
     ProfilesModule,
     WorkersModule,
     AdminModule,
@@ -32,6 +34,7 @@ import { PaymentsModule } from './payments/payments.module.js';
     SuperadminModule,
     ServicesModule,
     PaymentsModule,
+    ComplaintsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
