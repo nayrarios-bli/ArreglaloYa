@@ -4,6 +4,7 @@ import {
   ExecutionContext,
   Injectable,
   UnauthorizedException,
+  ForbiddenException,
 } from '@nestjs/common';
 import { Request } from 'express';
 
@@ -29,6 +30,7 @@ export class SupabaseAuthGuard implements CanActivate {
       .switchToHttp()
       .getRequest<AuthenticatedRequest>();
 
+    // 1. Obtener el token de autorización.
     const authorization = request.headers.authorization;
 
     if (!authorization || !authorization.startsWith('Bearer ')) {
@@ -39,6 +41,7 @@ export class SupabaseAuthGuard implements CanActivate {
 
     const token = authorization.substring(7);
 
+    // 2. Validar el token con Supabase Auth.
     const { data, error } =
       await this.supabaseService.admin.auth.getUser(token);
 
@@ -48,9 +51,38 @@ export class SupabaseAuthGuard implements CanActivate {
       );
     }
 
+    // 3. Consultar el estado actual de la cuenta.
+    const { data: authData, error: authError } =
+      await this.supabaseService.admin.auth.admin.getUserById(
+        data.user.id,
+      );
+
+    if (authError || !authData.user) {
+      throw new UnauthorizedException(
+        'No se pudo verificar el estado de la cuenta.',
+      );
+    }
+
+    // 4. Comprobar si la cuenta está bloqueada.
+    const bannedUntil = authData.user.banned_until;
+
+    if (bannedUntil) {
+      const banExpiration = new Date(bannedUntil).getTime();
+
+      if (
+        !Number.isFinite(banExpiration) ||
+        banExpiration > Date.now()
+      ) {
+        throw new ForbiddenException(
+          'Tu cuenta está desactivada. No puedes acceder al sistema.',
+        );
+      }
+    }
+
+    // 5. Registrar el usuario autenticado en la petición.
     request.user = {
-      id: data.user.id,
-      email: data.user.email,
+      id: authData.user.id,
+      email: authData.user.email,
     };
 
     return true;

@@ -1,0 +1,141 @@
+
+<div class="admin-layout">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon">A</div>
+      <div>
+        <h2>ArreglaloYa</h2>
+        <span>Administración</span>
+      </div>
+    </div>
+
+    <nav class="navigation">
+      <span class="nav-label">MENÚ PRINCIPAL</span>
+
+      <a routerLink="/admin" routerLinkActive="active"
+         [routerLinkActiveOptions]="{ exact: true }">
+        <span class="nav-icon">▦</span>
+        Panel principal
+      </a>
+
+      <a routerLink="/admin/workers" routerLinkActive="active">
+        <span class="nav-icon">♙</span>
+        Revisión de trabajadores
+      </a>
+
+      <span class="nav-label secondary-label">OTRAS FUNCIONES</span>
+
+      <div class="nav-disabled">
+        <span class="nav-icon">◇</span>
+        Categorías y zonas
+        <small>Próximamente</small>
+      </div>
+
+      <div class="nav-disabled">
+        <span class="nav-icon">▤</span>
+        Gestión de reclamos
+        <small>Próximamente</small>
+      </div>
+
+      <div class="nav-disabled">
+        <span class="nav-icon">▥</span>
+        Reportes
+        <small>Próximamente</small>
+      </div>
+    </nav>
+
+    <button class="logout-button" (click)="logout()">
+      <span>↪</span>
+      Cerrar sesión
+    </button>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div>
+        <span class="breadcrumb">Administración / Inicio</span>
+        <h1>Panel principal</h1>
+      </div>
+
+      <div class="admin-info">
+        <div class="avatar">
+          {{ adminName.charAt(0).toUpperCase() }}
+        </div>
+        <div>
+          <strong>{{ adminName }}</strong>
+          <span>Administrador</span>
+        </div>
+      </div>
+    </header>
+
+    <section class="welcome">
+      <div>
+        <h2>Bienvenido al panel de administración</h2>
+        <p>
+          Desde aquí puedes supervisar las actividades administrativas
+          de ArreglaloYa.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2>Resumen general</h2>
+          <p>Estado de las revisiones de trabajadores.</p>
+        </div>
+      </div>
+
+      <div class="summary-grid">
+        <article class="summary-card">
+          <div class="summary-icon">♙</div>
+          <div>
+            <span class="summary-label">Trabajadores pendientes</span>
+
+            @if (loading) {
+              <strong class="summary-number">...</strong>
+            } @else {
+              <strong class="summary-number">{{ pendingCount }}</strong>
+            }
+
+            <span class="summary-description">
+              Perfiles esperando revisión
+            </span>
+          </div>
+        </article>
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-message">
+          {{ errorMessage }}
+          <button (click)="loadPendingCount()">Reintentar</button>
+        </div>
+      }
+    </section>
+
+    <section class="section">
+      <div class="section-heading">
+        <div>
+          <h2>Gestión de trabajadores</h2>
+          <p>Revisa los perfiles enviados por los trabajadores.</p>
+        </div>
+      </div>
+
+      <article class="module-card">
+        <div class="module-icon">♙</div>
+
+        <div class="module-information">
+          <h3>Revisión de trabajadores</h3>
+          <p>
+            Consulta los perfiles pendientes, revisa su información
+            y registra una decisión.
+          </p>
+        </div>
+
+        <a routerLink="/admin/workers" class="module-link">
+          Revisar perfiles <span>→</span>
+        </a>
+      </article>
+    </section>
+  </main>
+</div>
