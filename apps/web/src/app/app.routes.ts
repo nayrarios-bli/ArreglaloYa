@@ -66,6 +66,16 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'servicios/:serviceId/horario',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['client', 'worker'] },
+    loadComponent: () =>
+      import('./features/services/schedule-agreement/schedule-agreement').then(
+        (module) => module.ScheduleAgreement,
+      ),
+    title: 'Coordinar horario | ArreglaloYa',
+  },
+  {
     path: 'servicios',
     canActivate: [authGuard, roleGuard],
     data: { roles: ['client', 'worker'] },

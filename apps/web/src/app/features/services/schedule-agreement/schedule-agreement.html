@@ -1,24 +1,60 @@
-<h2>Horario del servicio</h2>
-<p>Coordina el horario por WhatsApp y regístralo aquí.</p>
+<main class="schedule-page">
+  <section class="schedule-card" aria-labelledby="schedule-title">
+    <a class="back-link" routerLink="/servicios">← Volver a Mis servicios</a>
+    <header class="schedule-header">
+      <p class="eyebrow">COORDINACIÓN DEL SERVICIO</p>
+      <h1 id="schedule-title">Acordar un horario</h1>
+      <p>Coordina la fecha por WhatsApp y registra aquí el horario acordado para que ambos puedan consultarlo.</p>
+    </header>
 
-@if (agreed(); as slot) {
-  <p>
-    Horario acordado: del {{ formatSlot(slot.start) }} al {{ formatSlot(slot.end) }}.
-  </p>
-} @else {
-  <label>
-    Inicio
-    <input #startInput type="datetime-local" (input)="start.set(startInput.value)" />
-  </label>
+    @if (loading()) {
+      <p class="feedback" role="status">Cargando servicios programados…</p>
+    } @else if (error() && services().length === 0) {
+      <p class="feedback error" role="alert">{{ error() }}</p>
+    } @else if (services().length === 0) {
+      <div class="empty-state">
+        <span class="empty-icon" aria-hidden="true">✓</span>
+        <h2>No tienes servicios por coordinar</h2>
+        <p>Cuando se acepte una oferta, el servicio aparecerá aquí.</p>
+      </div>
+    } @else {
+      <div class="field">
+        <label for="service">Servicio</label>
+        <select #serviceSelect id="service" [value]="selectedId()" (change)="chooseService(serviceSelect.value)">
+          @for (service of services(); track service.id) {
+            <option [value]="service.id">{{ service.title }}</option>
+          }
+        </select>
+      </div>
 
-  <label>
-    Fin
-    <input #endInput type="datetime-local" (input)="end.set(endInput.value)" />
-  </label>
+      @if (selected(); as service) {
+        @if (service.scheduled_start && service.scheduled_end) {
+          <div class="current-schedule">
+            <span class="schedule-check" aria-hidden="true">✓</span>
+            <p><strong>Horario registrado</strong><br />{{ formatDate(service.scheduled_start) }} – {{ formatDate(service.scheduled_end) }}</p>
+          </div>
+        }
 
-  @if (error()) {
-    <p role="alert">{{ error() }}</p>
-  }
+        <form (submit)="saveSchedule($event)">
+          <div class="field-grid">
+            <div class="field">
+              <label for="start">Inicio</label>
+              <input id="start" type="datetime-local" [value]="start()" (input)="start.set($any($event.target).value)" required />
+            </div>
+            <div class="field">
+              <label for="end">Fin</label>
+              <input id="end" type="datetime-local" [value]="end()" (input)="end.set($any($event.target).value)" required />
+            </div>
+          </div>
 
-  <button type="button" (click)="confirmSchedule()">Confirmar horario</button>
-}
+          @if (error()) { <p class="feedback error" role="alert">{{ error() }}</p> }
+          @if (success()) { <p class="feedback success" role="status">{{ success() }}</p> }
+
+          <button class="save-button" type="submit" [disabled]="saving()">
+            {{ saving() ? 'Guardando…' : service.scheduled_start ? 'Actualizar horario' : 'Registrar horario acordado' }}
+          </button>
+        </form>
+      }
+    }
+  </section>
+</main>
