@@ -197,5 +197,25 @@ export const routes: Routes = [
       ),
     title: 'Ofertas recibidas | ArreglaloYa',
   },
+  {
+    path: 'reclamos',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['client', 'worker'] },
+    loadComponent: () =>
+      import('./features/complaints/complaint-create.page').then(
+        (module) => module.ComplaintCreatePage,
+      ),
+    title: 'Reclamos | ArreglaloYa',
+  },
+  {
+    path: 'admin/reclamos',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin', 'superadmin'] },
+    loadComponent: () =>
+      import('./features/complaints/admin-complaints.page').then(
+        (module) => module.AdminComplaintsPage,
+      ),
+    title: 'Reclamos registrados | ArreglaloYa',
+  },
   { path: '**', redirectTo: '' },
 ];

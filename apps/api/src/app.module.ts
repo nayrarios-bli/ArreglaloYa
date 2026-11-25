@@ -14,6 +14,7 @@ import { AdminModule } from './modules/admin/admin.module.js';
 import { SuperadminModule } from './modules/superadmin/superadmin.module.js';
 import { ServicesModule } from './modules/services/services.module.js';
 import { PaymentsModule } from './payments/payments.module.js';
+import { ComplaintsModule } from './modules/complaints/complaints.module.js';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { PaymentsModule } from './payments/payments.module.js';
     SuperadminModule,
     ServicesModule,
     PaymentsModule,
+    ComplaintsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
