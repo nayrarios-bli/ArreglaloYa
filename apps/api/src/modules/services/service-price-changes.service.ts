@@ -8,7 +8,7 @@ export class ServicePriceChangesService {
   async list(serviceId: string, actorId: string) {
     const db = this.supabase.admin;
     const { data: service, error: serviceError } = await db.from('services')
-      .select('client_id, worker_id').eq('id', serviceId).maybeSingle();
+      .select('client_id, worker_id, final_amount').eq('id', serviceId).maybeSingle();
     if (serviceError) this.fail(serviceError);
     if (!service || (service.client_id !== actorId && service.worker_id !== actorId)) {
       throw new NotFoundException('No se encontró el servicio.');
@@ -18,7 +18,7 @@ export class ServicePriceChangesService {
       .select('id, reason, base_amount, additional_amount, status, decided_at, created_at')
       .eq('service_id', serviceId).order('created_at', { ascending: false });
     if (error) this.fail(error);
-    return data ?? [];
+    return { finalAmount: service.final_amount, changes: data ?? [] };
   }
 
   async request(serviceId: string, workerId: string, input: { amount: number; reason: string }) {

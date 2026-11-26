@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { API_URL } from '../../../core/api-url';
 import { AuthService } from '../../../core/auth.service';
 import { WhatsappLink } from '../whatsapp-link/whatsapp-link';
+import { ServicePriceChanges } from '../service-price-changes/service-price-changes';
 
 type ServiceStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
 
@@ -37,7 +38,7 @@ interface Quote {
 @Component({
   selector: 'app-service-status-list',
   standalone: true,
-  imports: [RouterLink, WhatsappLink],
+  imports: [RouterLink, WhatsappLink, ServicePriceChanges],
   templateUrl: './service-status-list.html',
   styleUrl: './service-status-list.css',
 })
@@ -70,6 +71,11 @@ export class ServiceStatusList implements OnInit {
       next: (services) => { this.services.set(services); this.loading.set(false); },
       error: (error: HttpErrorResponse) => { this.error.set(error.error?.message ?? 'No se pudo cargar el historial.'); this.loading.set(false); },
     });
+  }
+
+  refreshApprovedPrice(): void {
+    this.code.set(null);
+    this.ngOnInit();
   }
 
   toggle(id: string) {

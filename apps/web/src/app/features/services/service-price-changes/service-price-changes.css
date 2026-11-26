@@ -1,0 +1,29 @@
+section, form, article {
+  display: grid;
+  gap: .65rem;
+}
+
+section {
+  margin-block: 1rem;
+  padding-block: 1rem;
+  border-block: 1px solid var(--ay-border);
+  color: var(--ay-text);
+}
+
+h2, p { margin: 0; }
+h2 { font-size: 1rem; }
+article { padding: .8rem; border-radius: .65rem; background: var(--ay-tint); }
+.reason { white-space: pre-wrap; overflow-wrap: anywhere; }
+label { font-weight: 600; }
+input, textarea, button { font: inherit; }
+input, textarea, button {
+  padding: .6rem .75rem;
+  border: 1px solid var(--ay-border);
+  border-radius: .55rem;
+}
+.actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+button { width: fit-content; background: white; color: var(--ay-ink); }
+button.primary { background: #1f654d; color: white; }
+button:enabled { cursor: pointer; }
+button:disabled { opacity: .6; }
+[role='alert'] { color: #a42222; }
