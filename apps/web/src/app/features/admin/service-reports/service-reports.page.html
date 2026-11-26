@@ -1,0 +1,149 @@
+<main class="reports-page">
+  <section class="reports-card" aria-labelledby="reports-title">
+    <a class="back-link" routerLink="/admin">← Panel de administración</a>
+
+    <header class="reports-header">
+      <p class="eyebrow">REPORTES ADMINISTRATIVOS</p>
+      <h1 id="reports-title">Reportes de servicios</h1>
+      <p>Categorías más solicitadas, servicios atendidos y cancelados en el período que elijas.</p>
+    </header>
+
+    <!-- Filtros -->
+    <form class="filters" (ngSubmit)="generate()">
+      <div class="field">
+        <label for="start-date">Desde</label>
+        <input id="start-date" type="date" name="startDate" [max]="today" [(ngModel)]="startDate" />
+      </div>
+
+      <div class="field">
+        <label for="end-date">Hasta</label>
+        <input id="end-date" type="date" name="endDate" [max]="today" [(ngModel)]="endDate" />
+      </div>
+
+      <div class="field">
+        <label for="category">Categoría</label>
+        <select id="category" name="categoryId" [(ngModel)]="categoryId">
+          <option value="">Todas las categorías</option>
+          @for (category of categories(); track category.id) {
+            <option [value]="category.id">{{ category.name }}</option>
+          }
+        </select>
+      </div>
+
+      <button class="primary-button" type="submit" [disabled]="loading()">
+        {{ loading() ? 'Generando…' : 'Generar reporte' }}
+      </button>
+    </form>
+
+    <div class="presets" aria-label="Períodos rápidos">
+      <span>Períodos rápidos:</span>
+      <button type="button" (click)="applyPreset(7)" [disabled]="loading()">Últimos 7 días</button>
+      <button type="button" (click)="applyPreset(30)" [disabled]="loading()">Últimos 30 días</button>
+      <button type="button" (click)="applyPreset(90)" [disabled]="loading()">Últimos 90 días</button>
+    </div>
+
+    @if (errorMessage()) {
+      <p class="alert" role="alert">{{ errorMessage() }}</p>
+    }
+
+    @if (report(); as current) {
+      <p class="report-meta">
+        Período: <strong>{{ formatDay(current.filters.startDate) }} – {{ formatDay(current.filters.endDate) }}</strong>
+        @if (current.filters.categoryName) {
+          · Categoría: <strong>{{ current.filters.categoryName }}</strong>
+          <button type="button" class="link-button" (click)="clearCategory()">Ver todas</button>
+        }
+        · Generado {{ current.generatedAt | date: 'dd/MM/yyyy, HH:mm' }}
+      </p>
+
+      <!-- Indicadores -->
+      <div class="kpis">
+        <article class="kpi">
+          <span>Solicitudes</span>
+          <strong>{{ current.summary.totalRequests }}</strong>
+        </article>
+        <article class="kpi kpi-completed">
+          <span>Servicios atendidos</span>
+          <strong>{{ current.summary.completedServices }}</strong>
+        </article>
+        <article class="kpi kpi-cancelled">
+          <span>Servicios cancelados</span>
+          <strong>{{ current.summary.cancelledServices }}</strong>
+        </article>
+        <article class="kpi">
+          <span>Tasa de cancelación</span>
+          <strong>{{ current.summary.cancellationRate }}%</strong>
+        </article>
+      </div>
+    }
+
+    <!-- Gráficos: los canvas siempre existen para que Chart.js pueda dibujar en ellos -->
+    <div class="charts" [class.is-loading]="loading()">
+      <article class="chart-card chart-wide">
+        <header>
+          <h2>Categorías más solicitadas</h2>
+          <p>Haz clic en una barra para filtrar por esa categoría.</p>
+        </header>
+        <div class="chart-box chart-box-tall">
+          <canvas #categoriesCanvas aria-label="Gráfico de categorías más solicitadas"></canvas>
+          @if (report(); as current) {
+            @if (!current.topCategories.length) {
+              <p class="chart-empty">No hay solicitudes en este período.</p>
+            }
+          }
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <header>
+          <h2>Atendidos vs. cancelados</h2>
+          <p>Pasa el mouse sobre el gráfico para ver los valores.</p>
+        </header>
+        <div class="chart-box">
+          <canvas #statusCanvas aria-label="Gráfico de servicios atendidos y cancelados"></canvas>
+          @if (report(); as current) {
+            @if (!current.summary.completedServices && !current.summary.cancelledServices) {
+              <p class="chart-empty">No hay servicios atendidos ni cancelados.</p>
+            }
+          }
+        </div>
+      </article>
+
+      <article class="chart-card">
+        <header>
+          <h2>Evolución diaria</h2>
+          <p>Haz clic en la leyenda para ocultar o mostrar una serie.</p>
+        </header>
+        <div class="chart-box">
+          <canvas #timelineCanvas aria-label="Gráfico de evolución diaria"></canvas>
+        </div>
+      </article>
+    </div>
+
+    <!-- Historial guardado en la base de datos -->
+    <section class="history" aria-labelledby="history-title">
+      <h2 id="history-title">Tus últimos reportes</h2>
+      @if (history().length) {
+        <ul>
+          @for (item of history(); track item.id) {
+            <li>
+              <button type="button" (click)="useHistory(item)" [disabled]="loading()">
+                <span class="history-range">
+                  {{ formatDay(item.startDate) }} – {{ formatDay(item.endDate) }}
+                  · {{ item.categoryName ?? 'Todas las categorías' }}
+                </span>
+                <span class="history-totals">
+                  {{ item.totalRequests }} solicitudes · {{ item.completedServices }} atendidos ·
+                  {{ item.cancelledServices }} cancelados
+                </span>
+                <span class="history-date">{{ item.createdAt | date: 'dd/MM/yyyy, HH:mm' }}</span>
+              </button>
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="muted">Todavía no generaste reportes.</p>
+      }
+    </section>
+  </section>
+</main>

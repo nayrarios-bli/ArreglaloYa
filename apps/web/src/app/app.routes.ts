@@ -219,6 +219,16 @@ path: 'perfil/:id',
       ),
     title: 'Reportes de administración | ArreglaloYa',
   },
+    {
+    path: 'admin/reportes-servicios',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['admin', 'superadmin'] },
+    loadComponent: () =>
+      import('./features/admin/service-reports/service-reports.page').then(
+        (module) => module.ServiceReportsPage,
+      ),
+    title: 'Reportes de servicios | ArreglaloYa',
+  },
   {
     path: 'reclamos',
     canActivate: [authGuard, roleGuard],
