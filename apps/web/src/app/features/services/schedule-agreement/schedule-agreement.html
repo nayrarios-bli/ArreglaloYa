@@ -4,7 +4,7 @@
     <header class="schedule-header">
       <p class="eyebrow">COORDINACIÓN DEL SERVICIO</p>
       <h1 id="schedule-title">Acordar un horario</h1>
-      <p>Coordina la fecha por WhatsApp y registra aquí el horario acordado para que ambos puedan consultarlo.</p>
+      <p>Consulta la disponibilidad real del trabajador y registra el horario acordado para que ambos puedan verlo.</p>
     </header>
 
     @if (loading()) {
@@ -35,22 +35,115 @@
           </div>
         }
 
+        <section class="availability-panel" aria-labelledby="availability-title">
+          <div class="availability-header">
+            <div>
+              <p class="eyebrow">HORARIOS DISPONIBLES</p>
+              <h2 id="availability-title">Disponibilidad del trabajador</h2>
+            </div>
+            <div class="field date-field">
+              <label for="schedule-date">Fecha a consultar</label>
+              <input
+                id="schedule-date"
+                type="date"
+                [value]="date()"
+                (change)="changeDate($any($event.target).value)"
+              />
+            </div>
+          </div>
+
+          @if (availabilityLoading()) {
+            <p class="feedback" role="status">Consultando disponibilidad…</p>
+          } @else if (availabilityError()) {
+            <p class="feedback error" role="alert">{{ availabilityError() }}</p>
+          } @else if (availability(); as data) {
+            @if (data.availability.length === 0) {
+              <p class="empty-availability">El trabajador no tiene disponibilidad registrada para este día. Elige otra fecha.</p>
+            } @else {
+              <div class="availability-grid">
+                <div class="availability-column">
+                  <h3>Franjas disponibles</h3>
+                  @if (data.available.length === 0) {
+                    <p class="empty-availability">No quedan franjas libres para este día.</p>
+                  } @else {
+                    <ul class="slot-list">
+                      @for (slot of data.available; track slot.startsAt) {
+                        <li>
+                          <button class="slot-button" type="button" (click)="useSlot(slot)">
+                            <span>{{ formatTime(slot.startsAt) }} – {{ formatTime(slot.endsAt) }}</span>
+                            <small>Usar franja</small>
+                          </button>
+                        </li>
+                      }
+                    </ul>
+                  }
+                </div>
+
+                <div class="availability-column">
+                  <h3>Bloques ocupados</h3>
+                  @if (data.occupied.length === 0) {
+                    <p class="empty-availability">Sin otros servicios del trabajador en esta fecha.</p>
+                  } @else {
+                    <ul class="occupied-list">
+                      @for (block of data.occupied; track block.id) {
+                        <li class="occupied-block">
+                          <span class="occupied-label">{{ statusLabel(block.status) }}</span>
+                          <span>{{ formatTime(block.startsAt) }} – {{ formatTime(block.endsAt) }}</span>
+                        </li>
+                      }
+                    </ul>
+                  }
+                </div>
+              </div>
+              <p class="timezone-note">Horarios mostrados en {{ data.timeZone }}. Al usar una franja se sugiere 1 hora; puedes ajustar la hora de fin.</p>
+            }
+          }
+        </section>
+
         <form (submit)="saveSchedule($event)">
           <div class="field-grid">
             <div class="field">
               <label for="start">Inicio</label>
-              <input id="start" type="datetime-local" [value]="start()" (input)="start.set($any($event.target).value)" required />
+              <input
+                id="start"
+                type="datetime-local"
+                [value]="start()"
+                (input)="onStartChange($any($event.target).value)"
+                required
+              />
             </div>
             <div class="field">
               <label for="end">Fin</label>
-              <input id="end" type="datetime-local" [value]="end()" (input)="end.set($any($event.target).value)" required />
+              <input
+                id="end"
+                type="datetime-local"
+                [value]="end()"
+                (input)="onEndChange($any($event.target).value)"
+                required
+              />
             </div>
           </div>
+          <p class="field-hint">El horario debe quedar dentro de una franja disponible y no puede cruzarse con un bloque ocupado.</p>
 
+          @if (conflict(); as block) {
+            <p class="feedback error" role="alert">
+              El horario cruza con un {{ statusLabel(block.status).toLowerCase() }} de
+              {{ formatTime(block.startsAt) }} a {{ formatTime(block.endsAt) }}. Elige otra franja.
+            </p>
+          }
+          @if (outsideAvailability() && selectedRange()) {
+            <p class="feedback error" role="alert">
+              El horario elegido está fuera de la disponibilidad del trabajador para esa fecha.
+            </p>
+          }
           @if (error()) { <p class="feedback error" role="alert">{{ error() }}</p> }
           @if (success()) { <p class="feedback success" role="status">{{ success() }}</p> }
 
-          <button class="save-button" type="submit" [disabled]="saving()">
+          <button
+            class="save-button"
+            type="submit"
+            [disabled]="saving() || availabilityLoading() || conflict() || outsideAvailability()"
+          >
             {{ saving() ? 'Guardando…' : service.scheduled_start ? 'Actualizar horario' : 'Registrar horario acordado' }}
           </button>
         </form>
