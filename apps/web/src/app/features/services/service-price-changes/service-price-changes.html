@@ -1,0 +1,57 @@
+<section aria-labelledby="price-changes-title">
+  <h2 id="price-changes-title">Aumentos de cotización</h2>
+  @if (finalAmount() !== null) {
+    <p>Importe acordado: <strong>Bs {{ finalAmount() | number:'1.2-2' }}</strong></p>
+  }
+  @if (notice()) { <p role="status">{{ notice() }}</p> }
+  @if (actionError()) { <p role="alert">{{ actionError() }}</p> }
+
+  @if (loading()) {
+    <p role="status">Cargando solicitudes de aumento…</p>
+  } @else if (loadError()) {
+    <p role="alert">{{ loadError() }}</p>
+    <button type="button" (click)="load()">Reintentar</button>
+  } @else {
+    <button type="button" [disabled]="saving()" (click)="load()">Actualizar solicitudes</button>
+    @for (change of changes(); track change.id) {
+      <article>
+        <strong>+ Bs {{ change.additional_amount | number:'1.2-2' }} · {{ labels[change.status] }}</strong>
+        @if (change.base_amount !== null) {
+          <p>Base: Bs {{ change.base_amount | number:'1.2-2' }} · Total propuesto: Bs {{ change.base_amount + change.additional_amount | number:'1.2-2' }}</p>
+        }
+        <p class="reason"><strong>Justificación:</strong> {{ change.reason }}</p>
+        @if (change.status === 'pending') {
+          @if (!active()) {
+            <p>Sin decisión al cerrar el servicio.</p>
+          } @else if (!isWorker()) {
+            <div class="actions">
+              <button class="primary" type="button" [disabled]="saving() || change.base_amount === null" (click)="decide(change, true)">Aprobar aumento</button>
+              <button type="button" [disabled]="saving()" (click)="decide(change, false)">Rechazar aumento</button>
+            </div>
+          }
+        }
+      </article>
+    } @empty {
+      <p>Este servicio todavía no tiene solicitudes de aumento.</p>
+    }
+
+    @if (isWorker() && active() && !pending()) {
+      @if (finalAmount() === null) {
+        <p>El cliente debe aceptar primero la cotización definitiva.</p>
+      } @else {
+        <button type="button" class="primary" aria-controls="increase-form"
+          [attr.aria-expanded]="formOpen()" [disabled]="saving()" (click)="formOpen.set(!formOpen())">
+          {{ formOpen() ? 'Ocultar formulario' : 'Solicitar aumento' }}
+        </button>
+        <form id="increase-form" [class.form-hidden]="!formOpen()" (submit)="request($event, amount.value, reason.value)">
+          <label for="increase-amount">Monto adicional (Bs)</label>
+          <input #amount id="increase-amount" name="amount" type="number" min="0.01" step="0.01" required>
+          <label for="increase-reason">Justificación para el cliente</label>
+          <textarea #reason id="increase-reason" name="reason" rows="3" minlength="10" maxlength="500"
+            placeholder="Describe el trabajo adicional o el repuesto necesario." required></textarea>
+          <button class="primary" type="submit" [disabled]="saving()">{{ saving() ? 'Enviando…' : 'Enviar al cliente' }}</button>
+        </form>
+      }
+    }
+  }
+</section>

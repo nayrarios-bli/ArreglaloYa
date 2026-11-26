@@ -87,6 +87,12 @@
                     }
                   </section>
                 }
+                <app-service-price-changes
+                  [serviceId]="s.id"
+                  [isWorker]="isWorker"
+                  [active]="s.status === 'scheduled' || s.status === 'in_progress'"
+                  (priceApproved)="refreshApprovedPrice()"
+                />
                 @if (!isWorker && s.status === 'in_progress') {
                   <section class="service-action-panel">
                     <h2>Código de cierre</h2>
