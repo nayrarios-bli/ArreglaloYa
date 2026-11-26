@@ -19,7 +19,7 @@
         @if (change.base_amount !== null) {
           <p>Base: Bs {{ change.base_amount | number:'1.2-2' }} · Total propuesto: Bs {{ change.base_amount + change.additional_amount | number:'1.2-2' }}</p>
         }
-        <p class="reason">{{ change.reason }}</p>
+        <p class="reason"><strong>Justificación:</strong> {{ change.reason }}</p>
         @if (change.status === 'pending') {
           @if (!active()) {
             <p>Sin decisión al cerrar el servicio.</p>
@@ -39,12 +39,17 @@
       @if (finalAmount() === null) {
         <p>El cliente debe aceptar primero la cotización definitiva.</p>
       } @else {
-        <form (submit)="request($event, amount.value, reason.value)">
-          <label for="increase-amount">Aumento en bolivianos</label>
-          <input #amount id="increase-amount" type="number" min="0.01" step="0.01" required>
-          <label for="increase-reason">Justificación</label>
-          <textarea #reason id="increase-reason" rows="3" minlength="10" maxlength="500" required></textarea>
-          <button class="primary" type="submit" [disabled]="saving()">Solicitar aumento</button>
+        <button type="button" class="primary" aria-controls="increase-form"
+          [attr.aria-expanded]="formOpen()" [disabled]="saving()" (click)="formOpen.set(!formOpen())">
+          {{ formOpen() ? 'Ocultar formulario' : 'Solicitar aumento' }}
+        </button>
+        <form id="increase-form" [class.form-hidden]="!formOpen()" (submit)="request($event, amount.value, reason.value)">
+          <label for="increase-amount">Monto adicional (Bs)</label>
+          <input #amount id="increase-amount" name="amount" type="number" min="0.01" step="0.01" required>
+          <label for="increase-reason">Justificación para el cliente</label>
+          <textarea #reason id="increase-reason" name="reason" rows="3" minlength="10" maxlength="500"
+            placeholder="Describe el trabajo adicional o el repuesto necesario." required></textarea>
+          <button class="primary" type="submit" [disabled]="saving()">{{ saving() ? 'Enviando…' : 'Enviar al cliente' }}</button>
         </form>
       }
     }

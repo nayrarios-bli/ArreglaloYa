@@ -1,8 +1,10 @@
-import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, InternalServerErrorException, Logger, NotFoundException, ServiceUnavailableException } from '@nestjs/common';
 import { SupabaseService } from '../../database/supabase.service.js';
 
 @Injectable()
 export class ServicePriceChangesService {
+  private readonly logger = new Logger(ServicePriceChangesService.name);
+
   constructor(private readonly supabase: SupabaseService) {}
 
   async list(serviceId: string, actorId: string) {
@@ -47,6 +49,13 @@ export class ServicePriceChangesService {
     if (error.code === 'P0002') throw new NotFoundException(error.message);
     if (error.code === '55000') throw new ConflictException(error.message);
     if (error.code === '22023') throw new BadRequestException(error.message);
+    if (['42703', 'PGRST204', 'PGRST202', '42883'].includes(error.code)) {
+      this.logger.warn('Esquema de aumentos incompleto. Código de Supabase: ' + error.code);
+      throw new ServiceUnavailableException(
+        'Los aumentos todavía no están habilitados. Aplica en Supabase la migración 202611260001_service_price_changes.sql.',
+      );
+    }
+    this.logger.error('Error de Supabase al procesar aumentos. Código: ' + error.code);
     throw new InternalServerErrorException('No se pudieron procesar las solicitudes de aumento.');
   }
 }

@@ -32,6 +32,7 @@ export class ServicePriceChanges implements OnInit {
   readonly changes = signal<PriceChange[]>([]);
   readonly loading = signal(true);
   readonly saving = signal(false);
+  readonly formOpen = signal(false);
   readonly loadError = signal('');
   readonly actionError = signal('');
   readonly notice = signal('');
@@ -60,7 +61,7 @@ export class ServicePriceChanges implements OnInit {
 
   request(event: Event, rawAmount: string, rawReason: string): void {
     event.preventDefault();
-    if (this.saving() || this.pending() || !this.active() || this.finalAmount() === null) return;
+    if (!this.isWorker() || this.saving() || this.pending() || !this.active() || this.finalAmount() === null) return;
 
     const amount = Number(rawAmount);
     const reason = rawReason.trim();
@@ -73,7 +74,7 @@ export class ServicePriceChanges implements OnInit {
   }
 
   decide(change: PriceChange, approve: boolean): void {
-    if (this.saving() || !this.active() || change.status !== 'pending') return;
+    if (this.isWorker() || this.saving() || !this.active() || change.status !== 'pending') return;
     this.save(this.http.patch<{ message: string }>(
       this.url() + '/' + change.id, { approve }, this.options(),
     ), approve);
@@ -86,6 +87,7 @@ export class ServicePriceChanges implements OnInit {
     response.subscribe({
       next: ({ message }) => {
         this.saving.set(false);
+        this.formOpen.set(false);
         this.notice.set(message);
         if (approved) this.priceApproved.emit();
         this.load();

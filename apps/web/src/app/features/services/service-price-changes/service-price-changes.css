@@ -11,6 +11,7 @@ section {
 }
 
 h2, p { margin: 0; }
+.form-hidden { display: none; }
 h2 { font-size: 1rem; }
 article { padding: .8rem; border-radius: .65rem; background: var(--ay-tint); }
 .reason { white-space: pre-wrap; overflow-wrap: anywhere; }
