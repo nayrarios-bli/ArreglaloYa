@@ -9,11 +9,13 @@ import { ClientServiceQuotesController } from './client-service-quotes.controlle
 import { WorkerServiceQuotesController } from './worker-service-quotes.controller.js';
 import { ServiceQuotesService } from './service-quotes.service.js';
 import { ServicesRepository } from './service.repository.js';
+import { ServicePriceChangesController } from './service-price-changes.controller.js';
+import { ServicePriceChangesService } from './service-price-changes.service.js';
 
 @Module({
   imports: [AuthModule],
-  controllers: [ServicesController, ServiceHistoryController, ScheduleController, ClientServiceQuotesController, WorkerServiceQuotesController],
-  providers: [ServicesService, ScheduleService, ServiceQuotesService, ServicesRepository],
+  controllers: [ServicesController, ServiceHistoryController, ScheduleController, ClientServiceQuotesController, WorkerServiceQuotesController, ServicePriceChangesController],
+  providers: [ServicesService, ScheduleService, ServiceQuotesService, ServicesRepository, ServicePriceChangesService],
   exports: [ServicesService],
 })
 export class ServicesModule {}
