@@ -20,6 +20,27 @@ export interface ScheduleUpdate {
   scheduled_end: string;
 }
 
+export interface AvailabilityWindow {
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface OccupiedBlock extends AvailabilityWindow {
+  id: string;
+  status: 'scheduled' | 'in_progress';
+}
+
+export interface ScheduleAvailability {
+  serviceId: string;
+  workerId: string;
+  date: string;
+  weekday: number;
+  timeZone: string;
+  availability: AvailabilityWindow[];
+  occupied: OccupiedBlock[];
+  available: AvailabilityWindow[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class ScheduleApiService {
   private readonly http = inject(HttpClient);
@@ -27,6 +48,17 @@ export class ScheduleApiService {
   list(accessToken: string): Observable<{ services: ScheduledService[] }> {
     return this.http.get<{ services: ScheduledService[] }>(
       `${API_URL}/services/scheduling`,
+      { headers: this.authorization(accessToken) },
+    );
+  }
+
+  availability(
+    serviceId: string,
+    date: string,
+    accessToken: string,
+  ): Observable<ScheduleAvailability> {
+    return this.http.get<ScheduleAvailability>(
+      `${API_URL}/services/${serviceId}/availability?date=${encodeURIComponent(date)}`,
       { headers: this.authorization(accessToken) },
     );
   }
