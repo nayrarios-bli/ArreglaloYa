@@ -1,13 +1,16 @@
+
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
+
 import { AuthService } from '../../core/auth.service';
 import { ProfilesService, type PublicProfile } from './profiles.service';
 
 @Component({
   selector: 'app-public-profile-page',
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   templateUrl: './public-profile.page.html',
   styleUrl: './public-profile.page.css',
 })
@@ -29,14 +32,13 @@ export class PublicProfilePage implements OnInit {
   private profileId = '';
 
   ngOnInit(): void {
-    const profileId = this.route.snapshot.paramMap.get('id') ?? '';
-    this.profileId = profileId;
+    this.profileId = this.route.snapshot.paramMap.get('id') ?? '';
 
     const user = this.authService.getUser();
     this.isWorkerViewer.set(user?.role === 'worker');
-    this.isOwnProfile.set(!!user && user.id === profileId);
+    this.isOwnProfile.set(!!user && user.id === this.profileId);
 
-    if (!profileId) {
+    if (!this.profileId) {
       this.errorMessage.set('No se indicó el perfil a consultar.');
       return;
     }
@@ -50,12 +52,12 @@ export class PublicProfilePage implements OnInit {
 
     this.profilesService.getPublicProfile(this.profileId).subscribe({
       next: (profile) => {
-        this.loading.set(false);
         this.profile.set(profile);
+        this.loading.set(false);
       },
       error: (error: unknown) => {
-        this.loading.set(false);
         this.profile.set(null);
+        this.loading.set(false);
         this.errorMessage.set(
           this.extractMessage(error, 'No se pudo cargar el perfil.'),
         );
@@ -98,15 +100,27 @@ export class PublicProfilePage implements OnInit {
   }
 
   roleLabel(role: string): string {
-    if (role === 'client') {
-      return 'Cliente';
-    }
-
-    if (role === 'worker') {
-      return 'Trabajador';
-    }
-
+    if (role === 'client') return 'Cliente';
+    if (role === 'worker') return 'Trabajador';
     return role;
+  }
+
+  weekdayLabel(weekday: number): string {
+    const days = [
+      'Domingo',
+      'Lunes',
+      'Martes',
+      'Miércoles',
+      'Jueves',
+      'Viernes',
+      'Sábado',
+    ];
+
+    return days[weekday] ?? 'Día no definido';
+  }
+
+  formatTime(time: string): string {
+    return time.slice(0, 5);
   }
 
   private extractMessage(error: unknown, fallback: string): string {
@@ -116,6 +130,7 @@ export class PublicProfilePage implements OnInit {
       }
 
       const message: unknown = error.error?.message;
+
       if (Array.isArray(message)) {
         return message.join(' ');
       }

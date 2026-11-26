@@ -239,5 +239,17 @@ path: 'perfil/:id',
       ),
     title: 'Reclamos registrados | ArreglaloYa',
   },
-  { path: '**', redirectTo: '' },
+  
+  {
+  path: 'cliente/buscar-trabajadores',
+  canActivate: [authGuard, roleGuard],
+  data: { role: 'client' },
+  loadComponent: () =>
+    import('./features/client/pages/worker-search/worker-search').then(
+      (module) => module.WorkerSearchPage,
+    ),
+  title: 'Buscar trabajadores | ArreglaloYa',
+},
+
+{ path: '**', redirectTo: '' },
 ];

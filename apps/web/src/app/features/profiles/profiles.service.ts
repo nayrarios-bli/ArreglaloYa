@@ -1,6 +1,8 @@
+
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, throwError } from 'rxjs';
+
 import { API_URL } from '../../core/api-url';
 import { AuthService } from '../../core/auth.service';
 
@@ -9,12 +11,41 @@ export interface ProfileZone {
   city: string;
 }
 
+export interface ProfileSpecialty {
+  id: string;
+  name: string;
+}
+
+export interface ProfileServiceZone {
+  id: string;
+  name: string;
+  city: string;
+}
+
+export interface ProfileAvailability {
+  weekday: number;
+  startsAt: string;
+  endsAt: string;
+}
+
+export interface ProfileReview {
+  score: number;
+  comment: string | null;
+  createdAt: string;
+}
+
 export interface PublicProfile {
   id: string;
   fullName: string;
   role: string;
   bio?: string | null;
   zone?: ProfileZone | null;
+  specialties?: ProfileSpecialty[];
+  serviceZones?: ProfileServiceZone[];
+  availability?: ProfileAvailability[];
+  averageRating?: number | null;
+  reviewCount?: number;
+  reviews?: ProfileReview[];
 }
 
 export interface PrivateAddress {
@@ -42,6 +73,7 @@ export class ProfilesService {
 
   getMyPrivateAddress(): Observable<PrivateAddress> {
     const headers = this.authHeaders();
+
     if (!headers) {
       return throwError(() => new Error('No hay una sesión activa.'));
     }
@@ -54,6 +86,7 @@ export class ProfilesService {
 
   getClientPrivateAddress(clientId: string): Observable<PrivateAddress> {
     const headers = this.authHeaders();
+
     if (!headers) {
       return throwError(() => new Error('No hay una sesión activa.'));
     }
@@ -66,21 +99,27 @@ export class ProfilesService {
 
   updateMyProfile(payload: UpdateProfilePayload): Observable<PublicProfile> {
     const headers = this.authHeaders();
+
     if (!headers) {
       return throwError(() => new Error('No hay una sesión activa.'));
     }
 
-    return this.http.put<PublicProfile>(`${API_URL}/profiles/me`, payload, {
-      headers,
-    });
+    return this.http.put<PublicProfile>(
+      `${API_URL}/profiles/me`,
+      payload,
+      { headers },
+    );
   }
 
   private authHeaders(): HttpHeaders | null {
     const token = this.authService.getAccessToken();
+
     if (!token) {
       return null;
     }
 
-    return new HttpHeaders({ Authorization: `Bearer ${token}` });
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`,
+    });
   }
 }
