@@ -6,8 +6,16 @@ import { API_URL } from '../../../core/api-url';
 import { AuthService } from '../../../core/auth.service';
 
 type ServiceStatus = 'scheduled' | 'in_progress' | 'completed' | 'cancelled';
-interface ServiceState { id: string; status: ServiceStatus; completed_at: string | null; }
+type CompletionStatus = 'not_requested' | 'pending' | 'approved' | 'rejected';
 
+interface ServiceState {
+  id: string;
+  status: ServiceStatus;
+  completed_at: string | null;
+  completion_status: CompletionStatus;
+  completion_requested_at: string | null;
+  completion_decided_at: string | null;
+}
 @Component({
   imports: [RouterLink, DatePipe],
   selector: 'app-service-status-update',
@@ -24,11 +32,11 @@ export class ServiceStatusUpdate implements OnInit {
   readonly status = signal<ServiceStatus>('scheduled');
   readonly finishedAt = signal<string | null>(null);
   readonly confirmingFinish = signal(false);
-  readonly completionCode = signal('');
   readonly loading = signal(true);
   readonly loaded = signal(false);
   readonly saving = signal(false);
   readonly error = signal('');
+  readonly completionStatus = signal<CompletionStatus>('not_requested');
   readonly currentStep = computed(() => this.status() === 'completed' ? this.steps.length : this.steps.indexOf(this.status()));
 
   ngOnInit(): void {
@@ -41,7 +49,7 @@ export class ServiceStatusUpdate implements OnInit {
     if (!headers) return;
     this.loading.set(true);
     this.http.get<ServiceState>(`${API_URL}/services/${this.serviceId}/status`, { headers }).subscribe({
-      next: (service) => { this.status.set(service.status); this.finishedAt.set(service.completed_at); this.loaded.set(true); this.loading.set(false); },
+      next: (service) => { this.status.set(service.status); this.finishedAt.set(service.completed_at); this.loaded.set(true); this.loading.set(false); this.completionStatus.set(service.completion_status);},
       error: (error: HttpErrorResponse) => { this.error.set(error.error?.message ?? 'No se pudo cargar el servicio.'); this.loading.set(false); },
     });
   }
@@ -50,30 +58,41 @@ export class ServiceStatusUpdate implements OnInit {
   askFinish(): void { this.confirmingFinish.set(true); }
   cancelFinish(): void {
     this.confirmingFinish.set(false);
-    this.completionCode.set('');
   }
 
   finishService(): void {
-    if (!/^\d{6}$/.test(this.completionCode().trim())) {
-      this.error.set('Ingresa el código de 6 dígitos que te dio el cliente.');
-      return;
-    }
-    this.saveStatus('completed');
-  }
+  this.saveStatus('completed');
+}
 
-  private saveStatus(status: 'in_progress' | 'completed'): void {
-    const headers = this.headers();
-    if (!headers || this.saving()) return;
-    this.saving.set(true);
-    this.error.set('');
-    const body = status === 'completed'
-      ? { status, code: this.completionCode().trim() }
-      : { status };
-    this.http.patch<ServiceState>(`${API_URL}/services/${this.serviceId}/status`, body, { headers }).subscribe({
-      next: (service) => { this.status.set(service.status); this.finishedAt.set(service.completed_at); this.confirmingFinish.set(false); this.saving.set(false); },
-      error: (error: HttpErrorResponse) => { this.error.set(error.error?.message ?? 'No se pudo guardar el nuevo estado.'); this.saving.set(false); },
+private saveStatus(status: 'in_progress' | 'completed'): void {
+  const headers = this.headers();
+  if (!headers || this.saving()) return;
+
+  this.saving.set(true);
+  this.error.set('');
+
+  this.http
+    .patch<ServiceState>(
+      `${API_URL}/services/${this.serviceId}/status`,
+      { status },
+      { headers },
+    )
+    .subscribe({
+      next: (service) => {
+        this.status.set(service.status);
+        this.finishedAt.set(service.completed_at);
+        this.completionStatus.set(service.completion_status);
+        this.confirmingFinish.set(false);
+        this.saving.set(false);
+      },
+      error: (error: HttpErrorResponse) => {
+        this.error.set(
+          error.error?.message ?? 'No se pudo guardar el nuevo estado.',
+        );
+        this.saving.set(false);
+      },
     });
-  }
+}
 
   private headers() {
     const token = this.auth.getAccessToken();

@@ -24,6 +24,9 @@ interface ServiceItem {
   final_amount: number | string | null;
   history: StatusEvent[];
   offer: { requires_visit: boolean } | null;
+  completion_status: 'not_requested' | 'pending' | 'approved' | 'rejected';
+completion_requested_at: string | null;
+completion_decided_at: string | null;
 }
 
 interface Quote {
@@ -61,7 +64,36 @@ export class ServiceStatusList implements OnInit {
   readonly hasFinalQuote = computed(() => this.quotes().some((quote) => quote.quote_type === 'final'));
   readonly actionError = signal('');
   readonly busy = signal(false);
-  readonly code = signal<{ serviceId: string; code: string; expiresAt: string } | null>(null);
+ 
+  decideCompletion(id: string, decision: 'approved' | 'rejected'): void {
+  if (this.busy()) return;
+
+  if (
+    decision === 'rejected' &&
+    !window.confirm('¿Confirmas que rechazas el cierre del servicio?')
+  ) {
+    return;
+  }
+
+  this.busy.set(true);
+  this.actionError.set('');
+
+  this.http
+    .post<Partial<ServiceItem>>(
+      `${API_URL}/services/${id}/completion-decision`,
+      { decision },
+      { headers: this.headers() },
+    )
+    .subscribe({
+      next: (updated) => {
+        this.services.update((items) =>
+          items.map((item) => item.id === id ? { ...item, ...updated } : item),
+        );
+        this.busy.set(false);
+      },
+      error: (error: HttpErrorResponse) => this.showActionError(error),
+    });
+}
 
   ngOnInit(): void {
     const token = this.auth.getAccessToken();
@@ -118,17 +150,7 @@ export class ServiceStatusList implements OnInit {
     });
   }
 
-  issueCode(id: string) {
-    if (this.busy()) return;
-    this.busy.set(true);
-    this.actionError.set('');
-    this.http.post<{ code: string; expiresAt: string }>(
-      `${API_URL}/services/${id}/completion-code`, {}, { headers: this.headers() },
-    ).subscribe({
-      next: (result) => { this.code.set({ serviceId: id, ...result }); this.busy.set(false); },
-      error: (error: HttpErrorResponse) => this.showActionError(error),
-    });
-  }
+
 
   private showActionError(error: HttpErrorResponse) {
     this.actionError.set(error.error?.message ?? 'No se pudo completar la operación.');

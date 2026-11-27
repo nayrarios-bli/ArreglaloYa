@@ -25,6 +25,7 @@
               [attr.aria-expanded]="openId() === s.id"
               (click)="toggle(s.id)"
             >
+            
               <span class="item-main">
                 <span class="item-title">{{ s.title }}</span>
                 <span class="item-meta">
@@ -39,6 +40,7 @@
 
             @if (openId() === s.id) {
               <div class="detail">
+
                 <p class="detail-title">Historial</p>
                 <ol class="history">
                   @for (event of s.history; track $index) {
@@ -87,24 +89,28 @@
                     }
                   </section>
                 }
-                @if (!isWorker && s.status === 'in_progress') {
+                 @if (!isWorker && s.completion_status === 'pending') {
                   <section class="service-action-panel">
-                    <h2>Código de cierre</h2>
-                    @if (s.final_amount === null) {
-                      <p>Acepta el precio definitivo para habilitar el código.</p>
-                    } @else {
-                      <p>Acuerda el pago con el trabajador. Comparte el código cuando estés listo para cerrar el servicio.</p>
-                      <button type="button" [disabled]="busy()" (click)="issueCode(s.id)">
-                        {{ code()?.serviceId === s.id ? 'Generar otro código' : 'Generar código' }}
-                      </button>
-                      @if (code(); as issued) {
-                        @if (issued.serviceId === s.id) {
-                          <p role="status"><strong class="completion-code">{{ issued.code }}</strong> · Vence {{ formatDate(issued.expiresAt) }}</p>
-                        }
-                      }
+                   <h2>Confirmar finalización</h2>
+                  <p>El trabajador solicita que confirmes el cierre del servicio.</p>
+
+                  <button 
+                  type="button"
+                   [disabled]="busy()"
+                   (click)="decideCompletion(s.id, 'approved')"
+                     >
+                    Aprobar y finalizar
+                 </button>
+
+                 <button
+                  type="button"
+                    [disabled]="busy()"
+                    (click)="decideCompletion(s.id, 'rejected')"
+                    >
+                    Rechazar
+                  </button>
+                      </section>
                     }
-                  </section>
-                }
                 @if (actionError()) {
                   <p role="alert">{{ actionError() }}</p>
                 }
