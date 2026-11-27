@@ -44,37 +44,55 @@
         }
 
         @case ('in_progress') {
-          @if (confirmingFinish()) {
-            <div class="confirm-box">
-              <p>¿Terminaste el trabajo? Después no podrás volver a cambiar el estado.</p>
-              <div class="confirm-actions">
-                <label for="completion-code">Código que te dio el cliente</label>
-                <input
-                  #codeInput
-                  id="completion-code"
-                  type="text"
-                  inputmode="numeric"
-                  autocomplete="off"
-                  maxlength="6"
-                  [value]="completionCode()"
-                  (input)="completionCode.set(codeInput.value)"
-                />
-                <button type="button" class="secondary-button" (click)="cancelFinish()">
-                  Volver
-                </button>
-                <button type="button" class="primary-button" [disabled]="saving()" (click)="finishService()">
-                  Sí, registrar finalización
-                </button>
-              </div>
-            </div>
-          } @else {
-            <p class="hint">Cuando termines el trabajo, registra la finalización.</p>
-            <button type="button" class="primary-button" [disabled]="saving()" (click)="askFinish()">
-              Registrar finalización
-            </button>
-          }
-        }
+  @if (completionStatus() === 'pending') {
+    <p role="status">
+      Solicitaste finalizar el servicio. Espera la respuesta del cliente.
+    </p>
+  } @else {
+    @if (completionStatus() === 'rejected') {
+      <p role="alert">
+        El cliente rechazó la finalización. Puedes revisar el trabajo y solicitarla nuevamente.
+      </p>
+    }
 
+    @if (confirmingFinish()) {
+      <div class="confirm-box">
+        <p>
+          ¿Terminaste el trabajo? Se enviará una solicitud al cliente para que confirme el cierre.
+        </p>
+        <div class="confirm-actions">
+          <button
+            type="button"
+            class="secondary-button"
+            (click)="cancelFinish()"
+          >
+            Volver
+          </button>
+          <button
+            type="button"
+            class="primary-button"
+            [disabled]="saving()"
+            (click)="finishService()"
+          >
+            Solicitar confirmación
+          </button>
+        </div>
+      </div>
+    } @else {
+      <p class="hint">Cuando termines el trabajo, solicita la confirmación del cliente.</p>
+      <button
+        type="button"
+        class="primary-button"
+        [disabled]="saving()"
+        (click)="askFinish()"
+      >
+        {{ completionStatus() === 'rejected'
+          ? 'Solicitar confirmación nuevamente'
+          : 'Solicitar finalización' }}
+      </button>
+    }
+  }
+}
         @case ('completed') {
           <p class="alert alert-ok">
             Servicio finalizado{{ finishedAt() ? " el " + (finishedAt() | date: "dd/MM/yyyy HH:mm") : "" }}.

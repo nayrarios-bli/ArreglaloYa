@@ -1,4 +1,5 @@
 -- El acceso a las tablas del MVP pasa por la API NestJS.
+
 -- La clave secreta del servidor omite RLS; la API debe validar sesión, rol y propiedad.
 -- Sin políticas, anon y authenticated no reciben acceso directo a estas tablas.
 
