@@ -1,0 +1,220 @@
+
+<header class="topbar">
+  <a class="brand" routerLink="/cliente">
+    <span>Arreglalo<span class="brand-accent">Ya</span></span>
+  </a>
+
+  <nav class="navigation">
+    <a routerLink="/cliente">Mi panel</a>
+    <a routerLink="/cliente/perfil">Mi perfil</a>
+  </nav>
+</header>
+
+<main class="search-page">
+  <section class="page-heading">
+    <span class="eyebrow">ENCUENTRA PROFESIONALES</span>
+    <h1>Busca al trabajador ideal</h1>
+    <p>
+      Filtra por especialidad, calificación y disponibilidad
+      para encontrar a la persona adecuada para tu hogar.
+    </p>
+  </section>
+
+  <section class="filters-card">
+    <div class="filters-heading">
+      <div>
+        <span class="section-kicker">PERSONALIZA TU BÚSQUEDA</span>
+        <h2>Filtros de búsqueda</h2>
+      </div>
+      <button
+        class="clear-button"
+        type="button"
+        (click)="clearFilters()"
+      >
+        Limpiar filtros
+      </button>
+    </div>
+
+    <div class="filters-grid">
+      <div class="form-group">
+        <label for="category">Categoría</label>
+        <select
+          id="category"
+          name="category"
+          [(ngModel)]="categoryId"
+        >
+          <option value="">Todas las categorías</option>
+          @for (category of categories(); track category.id) {
+            <option [value]="category.id">
+              {{ category.name }}
+            </option>
+          }
+        </select>
+
+        @if (categoriesError()) {
+          <small class="error-text">{{ categoriesError() }}</small>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="rating">Calificación mínima</label>
+        <select
+          id="rating"
+          name="rating"
+          [(ngModel)]="minRating"
+        >
+          <option [ngValue]="null">Cualquier calificación</option>
+          <option [ngValue]="1">1 estrella o más</option>
+          <option [ngValue]="2">2 estrellas o más</option>
+          <option [ngValue]="3">3 estrellas o más</option>
+          <option [ngValue]="4">4 estrellas o más</option>
+          <option [ngValue]="5">5 estrellas</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="weekday">Día disponible</label>
+        <select
+          id="weekday"
+          name="weekday"
+          [(ngModel)]="weekday"
+        >
+          <option [ngValue]="null">Cualquier día</option>
+          <option [ngValue]="0">Domingo</option>
+          <option [ngValue]="1">Lunes</option>
+          <option [ngValue]="2">Martes</option>
+          <option [ngValue]="3">Miércoles</option>
+          <option [ngValue]="4">Jueves</option>
+          <option [ngValue]="5">Viernes</option>
+          <option [ngValue]="6">Sábado</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="startsAt">Desde</label>
+        <input
+          id="startsAt"
+          name="startsAt"
+          type="time"
+          [(ngModel)]="startsAt"
+          [disabled]="weekday === null"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="endsAt">Hasta</label>
+        <input
+          id="endsAt"
+          name="endsAt"
+          type="time"
+          [(ngModel)]="endsAt"
+          [disabled]="weekday === null"
+        />
+      </div>
+    </div>
+
+    <div class="filter-actions">
+      <button
+        class="search-button"
+        type="button"
+        (click)="applyFilters()"
+        [disabled]="loading()"
+      >
+        {{ loading() ? 'Buscando...' : 'Buscar trabajadores' }}
+      </button>
+    </div>
+  </section>
+
+  <section class="results-section">
+    <div class="results-heading">
+      <div>
+        <span class="section-kicker">RESULTADOS</span>
+        <h2>Trabajadores disponibles</h2>
+      </div>
+      <span class="results-count">
+        {{ total() }} resultados
+      </span>
+    </div>
+
+    @if (loading()) {
+      <div class="message-card" role="status">
+        Buscando trabajadores...
+      </div>
+    } @else if (error()) {
+      <div class="message-card error-message" role="alert">
+        {{ error() }}
+      </div>
+    } @else if (workers().length === 0) {
+      <div class="message-card">
+        No encontramos trabajadores que coincidan con los filtros.
+        Prueba modificando tu búsqueda.
+      </div>
+    } @else {
+      <div class="workers-grid">
+        @for (worker of workers(); track worker.id) {
+          <article class="worker-card">
+            <div class="worker-avatar">
+              {{ worker.fullName.charAt(0).toUpperCase() }}
+            </div>
+
+            <div class="worker-info">
+              <h3>{{ worker.fullName }}</h3>
+
+              <div class="rating">
+                @if (worker.averageRating !== null) {
+                  <span class="stars">★</span>
+                  <strong>{{ worker.averageRating | number:'1.1-1' }}</strong>
+                  <span class="review-count">
+                    ({{ worker.reviewCount }}
+                    {{ worker.reviewCount === 1 ? 'reseña' : 'reseñas' }})
+                  </span>
+                } @else {
+                  <span class="review-count">Sin calificaciones todavía</span>
+                }
+              </div>
+
+              <p class="worker-bio">
+                {{ worker.bio || 'Este trabajador aún no agregó una descripción.' }}
+              </p>
+
+              <div class="categories">
+                @for (category of worker.categories; track category.id) {
+                  <span class="category-tag">{{ category.name }}</span>
+                }
+              </div>
+
+              <a
+                class="profile-button"
+                [routerLink]="['/perfil', worker.id]"
+              >
+                Ver perfil
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+
+      <div class="pagination">
+        <button
+          type="button"
+          (click)="previousPage()"
+          [disabled]="currentPage() <= 1 || loading()"
+        >
+          Anterior
+        </button>
+
+        <span>
+          Página {{ currentPage() }} de {{ totalPages() }}
+        </span>
+
+        <button
+          type="button"
+          (click)="nextPage()"
+          [disabled]="currentPage() >= totalPages() || loading()"
+        >
+          Siguiente
+        </button>
+      </div>
+    }
+  </section>
+</main>

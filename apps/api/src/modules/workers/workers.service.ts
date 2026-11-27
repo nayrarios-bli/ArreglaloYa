@@ -10,6 +10,7 @@ import { randomUUID } from 'node:crypto';
 
 import { SupabaseService } from '../../database/supabase.service.js';
 import { UpdateWorkerProfileDto } from './dto/update-worker-profile.dto.js';
+import { SearchWorkersDto } from './dto/search-workers.dto.js';
 
 const MAX_WORKER_DOCUMENT_BYTES = 10 * 1024 * 1024;
 const DOCUMENT_TYPES = ['identity_card', 'criminal_record'] as const;
@@ -440,4 +441,63 @@ export class WorkersService {
   private fail(message: string): never {
     throw new InternalServerErrorException(message);
   }
+
+
+  // BUSCAR TRABAJADORES CON FILTROS, ORDENAMIENTO Y PAGINACIÓN
+  async searchWorkers(filters: SearchWorkersDto) {
+    const {
+      categoryId,
+      minRating,
+      weekday,
+      startsAt,
+      endsAt,
+      page = 1,
+      pageSize = 6,
+    } = filters;
+
+    // Validar que el filtro de disponibilidad esté completo.
+    const hasWeekday = weekday !== undefined;
+    const hasStart = startsAt !== undefined;
+    const hasEnd = endsAt !== undefined;
+
+    if (
+      (hasWeekday || hasStart || hasEnd) &&
+      !(hasWeekday && hasStart && hasEnd)
+    ) {
+      throw new BadRequestException(
+        'Para filtrar por disponibilidad debes indicar el día, la hora de inicio y la hora de fin.',
+      );
+    }
+
+    if (
+      startsAt !== undefined &&
+      endsAt !== undefined &&
+      endsAt <= startsAt
+    ) {
+      throw new BadRequestException(
+        'La hora de fin debe ser posterior a la hora de inicio.',
+      );
+    }
+
+    // Ejecutar la búsqueda directamente en PostgreSQL.
+    const { data, error } = await this.supabase.admin.rpc(
+      'search_workers',
+      {
+        p_category_id: categoryId ?? null,
+        p_min_rating: minRating ?? null,
+        p_weekday: weekday ?? null,
+        p_starts_at: startsAt ?? null,
+        p_ends_at: endsAt ?? null,
+        p_page: page,
+        p_page_size: pageSize,
+      },
+    );
+
+    if (error) {
+      this.fail('No se pudo realizar la búsqueda de trabajadores.');
+    }
+
+    return data;
+  }
+
 }

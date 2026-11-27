@@ -11,32 +11,191 @@ import { UpdateProfileDto } from './profiles.dto.js';
 export class ProfilesService {
   constructor(private readonly supabase: SupabaseService) {}
 
-  async getPublicProfile(id: string) {
-    const { data: profile, error } = await this.supabase.admin
-      .from('profiles')
-      .select('id, full_name, role, worker_profiles(bio, review_status), client_profiles(home_zone_id, service_zones(name, city))')
-      .eq('id', id)
-      .maybeSingle();
+  
+  
+async getPublicProfile(id: string) {
+  const client = this.supabase.admin;
 
-    if (error) throw new InternalServerErrorException('No se pudo consultar el perfil.');
-    if (!profile) throw new NotFoundException('No se encontró el perfil.');
+  // 1. Consultar los datos públicos básicos.
+  const { data: profile, error: profileError } = await client
+    .from('profiles')
+    .select('id, full_name, role')
+    .eq('id', id)
+    .maybeSingle();
 
-    const worker = Array.isArray(profile.worker_profiles)
-      ? profile.worker_profiles[0]
-      : profile.worker_profiles;
-    const client = Array.isArray(profile.client_profiles)
-      ? profile.client_profiles[0]
-      : profile.client_profiles;
-    const zone = client?.service_zones;
-
-    return {
-      id: profile.id,
-      fullName: profile.full_name,
-      role: profile.role,
-      ...(worker?.review_status === 'approved' ? { bio: worker.bio } : {}),
-      ...(zone ? { zone: Array.isArray(zone) ? zone[0] : zone } : {}),
-    };
+  if (profileError) {
+    console.error('ERROR AL CONSULTAR PERFIL:', profileError);
+    throw new InternalServerErrorException(
+      'No se pudo consultar el perfil.',
+    );
   }
+
+  if (!profile) {
+    throw new NotFoundException('No se encontró el perfil.');
+  }
+
+  const publicProfile = {
+    id: profile.id,
+    fullName: profile.full_name,
+    role: profile.role,
+  };
+
+  // 2. Si no es trabajador, devolver únicamente sus datos básicos.
+  if (profile.role !== 'worker') {
+    return publicProfile;
+  }
+
+  // 3. Consultar el perfil profesional del trabajador.
+  const { data: worker, error: workerError } = await client
+    .from('worker_profiles')
+    .select('bio, review_status')
+    .eq('user_id', id)
+    .maybeSingle();
+
+  if (workerError) {
+    console.error('ERROR AL CONSULTAR PERFIL PROFESIONAL:', workerError);
+    throw new InternalServerErrorException(
+      'No se pudo consultar el perfil profesional.',
+    );
+  }
+
+  if (!worker || worker.review_status !== 'approved') {
+    return publicProfile;
+  }
+
+  // 4. Consultar especialidades, zonas, horarios y reseñas.
+  const [
+    workerCategories,
+    workerZones,
+    availability,
+    reviews,
+  ] = await Promise.all([
+    client
+      .from('worker_categories')
+      .select('category_id')
+      .eq('worker_id', id),
+
+    client
+      .from('worker_zones')
+      .select('zone_id')
+      .eq('worker_id', id),
+
+    client
+      .from('worker_availability')
+      .select('weekday, starts_at, ends_at')
+      .eq('worker_id', id)
+      .order('weekday'),
+
+    client
+      .from('reviews')
+      .select('score, comment, created_at')
+      .eq('subject_id', id)
+      .order('created_at', { ascending: false }),
+  ]);
+
+  if (
+    workerCategories.error ||
+    workerZones.error ||
+    availability.error ||
+    reviews.error
+  ) {
+    console.error('ERROR AL CONSULTAR INFORMACIÓN PROFESIONAL:', {
+      categories: workerCategories.error,
+      zones: workerZones.error,
+      availability: availability.error,
+      reviews: reviews.error,
+    });
+
+    throw new InternalServerErrorException(
+      'No se pudo consultar toda la información del trabajador.',
+    );
+  }
+
+  // 5. Obtener los nombres de las especialidades.
+  const categoryIds =
+    workerCategories.data?.map((item) => item.category_id) ?? [];
+
+  let specialties: { id: string; name: string }[] = [];
+
+  if (categoryIds.length > 0) {
+    const { data, error } = await client
+      .from('categories')
+      .select('id, name')
+      .in('id', categoryIds)
+      .eq('is_active', true)
+      .order('name');
+
+    if (error) {
+      console.error('ERROR AL CONSULTAR ESPECIALIDADES:', error);
+      throw new InternalServerErrorException(
+        'No se pudieron consultar las especialidades.',
+      );
+    }
+
+    specialties = data ?? [];
+  }
+
+  // 6. Obtener los nombres de las zonas de servicio.
+  const zoneIds =
+    workerZones.data?.map((item) => item.zone_id) ?? [];
+
+  let serviceZones: {
+    id: string;
+    name: string;
+    city: string;
+  }[] = [];
+
+  if (zoneIds.length > 0) {
+    const { data, error } = await client
+      .from('service_zones')
+      .select('id, name, city')
+      .in('id', zoneIds)
+      .eq('is_active', true)
+      .order('name');
+
+    if (error) {
+      console.error('ERROR AL CONSULTAR ZONAS:', error);
+      throw new InternalServerErrorException(
+        'No se pudieron consultar las zonas de servicio.',
+      );
+    }
+
+    serviceZones = data ?? [];
+  }
+
+  // 7. Calcular la calificación promedio.
+  const reviewItems = reviews.data ?? [];
+
+  const averageRating =
+    reviewItems.length > 0
+      ? Math.round(
+          (reviewItems.reduce((sum, review) => sum + review.score, 0) /
+            reviewItems.length) *
+            10,
+        ) / 10
+      : null;
+
+  // 8. Devolver el perfil público completo.
+  return {
+    ...publicProfile,
+    bio: worker.bio,
+    specialties,
+    serviceZones,
+    availability: (availability.data ?? []).map((item) => ({
+      weekday: item.weekday,
+      startsAt: item.starts_at,
+      endsAt: item.ends_at,
+    })),
+    averageRating,
+    reviewCount: reviewItems.length,
+    reviews: reviewItems.map((review) => ({
+      score: review.score,
+      comment: review.comment,
+      createdAt: review.created_at,
+    })),
+  };
+}
+
 
   async getPrivateAddress(userId: string) {
     const { data, error } = await this.supabase.admin

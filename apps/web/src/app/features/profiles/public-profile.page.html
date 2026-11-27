@@ -1,95 +1,272 @@
-<main class="profile-page">
-  <section class="profile-card">
-    <header class="profile-header">
-      <a class="brand" routerLink="/" aria-label="ArreglaloYa, inicio">
-        <span class="brand-mark">A</span>
-        <span>Arreglalo<span class="brand-accent">Ya</span></span>
-      </a>
 
-      <h1>Perfil público</h1>
-      <p>Información visible del usuario en la plataforma.</p>
-    </header>
+<main class="profile-page">
+  <header class="topbar">
+    <a class="brand" routerLink="/cliente">
+      <span class="brand-mark">A</span>
+      <span>Arreglalo<span class="brand-accent">Ya</span></span>
+    </a>
+
+    <a class="back-link" routerLink="/cliente">
+      <span>←</span> Volver al panel
+    </a>
+  </header>
+
+  <div class="page-container">
+
+    <div class="breadcrumb">
+      <a routerLink="/cliente">Panel de cliente</a>
+      <span>/</span>
+      <span>Perfil profesional</span>
+    </div>
+
+    <div class="page-heading">
+      <span class="eyebrow">CONOCE A NUESTROS PROFESIONALES</span>
+      <h1>Perfil del trabajador</h1>
+      <p>Conoce su experiencia, especialidades y disponibilidad.</p>
+    </div>
 
     @if (loading()) {
-      <p class="status-text">Cargando perfil...</p>
+      <div class="message-card" role="status">
+        Cargando información del perfil...
+      </div>
     } @else if (errorMessage()) {
-      <div class="error-box" role="alert">
-        <p class="error-message">{{ errorMessage() }}</p>
+      <div class="message-card error-message" role="alert">
+        <p>{{ errorMessage() }}</p>
         <button type="button" class="secondary-button" (click)="loadProfile()">
-          Reintentar
+          Intentar nuevamente
         </button>
       </div>
     } @else if (profile(); as p) {
-      <div class="profile-summary">
-        <div class="avatar" aria-hidden="true">
-          {{ p.fullName.charAt(0).toUpperCase() }}
-        </div>
-        <div>
-          <h2>{{ p.fullName }}</h2>
-          <span class="role-badge">{{ roleLabel(p.role) }}</span>
-        </div>
-      </div>
 
-      <dl class="details">
-        <div class="detail-row">
-          <dt>Rol</dt>
-          <dd>{{ roleLabel(p.role) }}</dd>
-        </div>
+      <section class="profile-card">
 
-        @if (p.zone) {
-          <div class="detail-row">
-            <dt>Zona</dt>
-            <dd>{{ p.zone.name }} — {{ p.zone.city }}</dd>
+        <!-- CABECERA DEL TRABAJADOR -->
+        <div class="profile-identity">
+          <div class="avatar">
+            {{ p.fullName.charAt(0).toUpperCase() }}
           </div>
-        }
 
-        @if (p.bio) {
-          <div class="detail-row">
-            <dt>Biografía</dt>
-            <dd class="bio">{{ p.bio }}</dd>
+          <div class="identity-info">
+            <span class="identity-label">PERFIL PROFESIONAL</span>
+            <h2>{{ p.fullName }}</h2>
+            <span class="role-badge">{{ roleLabel(p.role) }}</span>
+
+            @if (p.role === 'worker') {
+              <div class="rating-summary">
+                <span class="rating-star">★</span>
+
+                @if (p.averageRating !== null && p.averageRating !== undefined) {
+                  <strong>{{ p.averageRating | number:'1.1-1' }}</strong>
+                } @else {
+                  <strong>Sin calificación</strong>
+                }
+
+                <span class="review-count">
+                  · {{ p.reviewCount ?? 0 }}
+                  {{ p.reviewCount === 1 ? 'reseña' : 'reseñas' }}
+                </span>
+              </div>
+            }
           </div>
-        }
-      </dl>
+        </div>
 
-      @if (canViewClientAddress()) {
-        <section class="address-section">
-          <h3>Dirección del cliente</h3>
-          <p class="section-hint">
-            Solo disponible si tienes un servicio activo con este cliente.
-          </p>
+        @if (p.role === 'worker') {
 
-          <button
-            type="button"
-            class="secondary-button"
-            [disabled]="addressLoading()"
-            (click)="loadClientAddress()"
-          >
-            {{
-              addressLoading()
-                ? 'Consultando...'
-                : 'Consultar dirección privada'
-            }}
-          </button>
+          <!-- PRESENTACIÓN -->
+          <section class="profile-section">
+            <div class="section-heading">
+              <span class="section-icon">01</span>
+              <div>
+                <h3>Sobre mí</h3>
+                <p>Presentación y experiencia profesional</p>
+              </div>
+            </div>
 
-          @if (addressError()) {
-            <p class="error-message" role="alert">{{ addressError() }}</p>
-          }
-
-          @if (address() !== null) {
-            <p class="address-value">
-              {{ address() || 'El cliente no tiene una dirección registrada.' }}
+            <p class="bio-text">
+              {{ p.bio || 'Este trabajador todavía no agregó una descripción.' }}
             </p>
-          }
-        </section>
-      }
+          </section>
 
-      <footer class="profile-actions">
-        <a routerLink="/">Volver al inicio</a>
+          <!-- ESPECIALIDADES -->
+          <section class="profile-section">
+            <div class="section-heading">
+              <span class="section-icon">02</span>
+              <div>
+                <h3>Especialidades</h3>
+                <p>Servicios que puede ofrecer</p>
+              </div>
+            </div>
 
-        @if (isOwnProfile()) {
-          <a routerLink="/mi-perfil">Editar mi perfil</a>
+            @if (p.specialties?.length) {
+              <div class="tag-list">
+                @for (specialty of p.specialties; track specialty.id) {
+                  <span class="tag">{{ specialty.name }}</span>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">No tiene especialidades registradas.</p>
+            }
+          </section>
+
+          <!-- ZONAS -->
+          <section class="profile-section">
+            <div class="section-heading">
+              <span class="section-icon">03</span>
+              <div>
+                <h3>Zonas de servicio</h3>
+                <p>Lugares donde ofrece sus servicios</p>
+              </div>
+            </div>
+
+            @if (p.serviceZones?.length) {
+              <div class="tag-list">
+                @for (zone of p.serviceZones; track zone.id) {
+                  <span class="tag zone-tag">
+                    <span class="location-dot">●</span>
+                    {{ zone.name }} — {{ zone.city }}
+                  </span>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">No tiene zonas de servicio registradas.</p>
+            }
+          </section>
+
+          <!-- DISPONIBILIDAD -->
+          <section class="profile-section">
+            <div class="section-heading">
+              <span class="section-icon">04</span>
+              <div>
+                <h3>Disponibilidad</h3>
+                <p>Horarios habituales de atención</p>
+              </div>
+            </div>
+
+            @if (p.availability?.length) {
+              <div class="availability-list">
+                @for (schedule of p.availability; track $index) {
+                  <div class="availability-row">
+                    <strong>{{ weekdayLabel(schedule.weekday) }}</strong>
+                    <span>
+                      {{ formatTime(schedule.startsAt) }}
+                      – {{ formatTime(schedule.endsAt) }}
+                    </span>
+                  </div>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">No tiene horarios de disponibilidad registrados.</p>
+            }
+          </section>
+
+          <!-- RESEÑAS -->
+          <section class="profile-section reviews-section">
+            <div class="section-heading">
+              <span class="section-icon">05</span>
+              <div>
+                <h3>Opiniones de clientes</h3>
+                <p>Experiencias de personas que contrataron sus servicios</p>
+              </div>
+            </div>
+
+            @if (p.reviews?.length) {
+              <div class="reviews-list">
+                @for (review of p.reviews; track $index) {
+                  <article class="review-card">
+                    <div class="review-heading">
+                      <div class="review-score">
+                        <span class="rating-star">★</span>
+                        <strong>{{ review.score }} / 5</strong>
+                      </div>
+
+                      <time [attr.datetime]="review.createdAt">
+                        {{ review.createdAt | date:'dd/MM/yyyy' }}
+                      </time>
+                    </div>
+
+                    <p>
+                      {{ review.comment || 'El cliente no dejó un comentario.' }}
+                    </p>
+                  </article>
+                }
+              </div>
+            } @else {
+              <p class="empty-text">Este trabajador todavía no tiene reseñas.</p>
+            }
+          </section>
+
+        } @else {
+
+          <!-- PERFIL DE CLIENTE -->
+          <section class="profile-section">
+            <div class="section-heading">
+              <span class="section-icon">01</span>
+              <div>
+                <h3>Información del usuario</h3>
+                <p>Datos de su perfil público</p>
+              </div>
+            </div>
+
+            @if (p.zone) {
+              <div class="tag-list">
+                <span class="tag zone-tag">
+                  {{ p.zone.name }} — {{ p.zone.city }}
+                </span>
+              </div>
+            } @else {
+              <p class="empty-text">No tiene una zona registrada.</p>
+            }
+          </section>
         }
-      </footer>
+
+        <!-- DIRECCIÓN PRIVADA -->
+        @if (canViewClientAddress()) {
+          <section class="address-section">
+            <h3>Dirección del cliente</h3>
+            <p>
+              Disponible únicamente para trabajadores con un servicio activo
+              con este cliente.
+            </p>
+
+            <button
+              type="button"
+              class="secondary-button"
+              [disabled]="addressLoading()"
+              (click)="loadClientAddress()"
+            >
+              {{
+                addressLoading()
+                  ? 'Consultando...'
+                  : 'Consultar dirección privada'
+              }}
+            </button>
+
+            @if (addressError()) {
+              <p class="error-message">{{ addressError() }}</p>
+            }
+
+            @if (address() !== null) {
+              <div class="address-value">
+                {{ address() || 'El cliente no tiene una dirección registrada.' }}
+              </div>
+            }
+          </section>
+        }
+
+        <!-- ACCIONES -->
+        <footer class="profile-footer">
+          <a routerLink="/cliente" class="back-button">
+            ← Volver al panel del cliente
+          </a>
+
+          @if (isOwnProfile()) {
+            <a routerLink="/mi-perfil" class="edit-link">
+              Editar mi perfil
+            </a>
+          }
+        </footer>
+
+      </section>
     }
-  </section>
+  </div>
 </main>
